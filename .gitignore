@@ -1,0 +1,20 @@
+# Suivi opérationnel privé
+.progress/
+# Frontend
+node_modules/
+dist/
+coverage/
+.vite/
+# Rust / Tauri
+target/
+src-tauri/target/
+# Systèmes et éditeurs
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# Secrets locaux
+.env
+.env.*
+!.env.example
+*.log

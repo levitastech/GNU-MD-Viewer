@@ -1,0 +1,19 @@
+name: Amélioration
+description: Proposer une amélioration de lecture ou de navigation
+labels: [enhancement]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Besoin concret de lecture
+      description: Décrire le document et le problème rencontré.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution et alternatives envisagées
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact sécurité, performance et plateformes

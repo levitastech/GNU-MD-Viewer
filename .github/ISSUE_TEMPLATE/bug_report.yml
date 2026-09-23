@@ -1,0 +1,33 @@
+name: Bug
+description: Signaler un comportement incorrect du viewer
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Pour une faille de sécurité, suivre SECURITY.md et éviter toute issue publique exploitable."
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement attendu
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportement constaté et étapes de reproduction
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version ou commit
+      placeholder: "ex. commit court, préversion"
+  - type: input
+    id: os
+    attributes:
+      label: Système et version
+      placeholder: "Linux / Windows / macOS"
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Exemple Markdown minimal (sans données privées)
