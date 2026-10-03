@@ -13,7 +13,137 @@ Un fichier Markdown local peut être contrôlé par un tiers. HTML, URLs, images
 5. Examiner la configuration et les sorties Mermaid/KaTeX : intégration après sanitisation initiale, sanitisation de tout HTML ajouté si nécessaire, options de sécurité explicites. Ne jamais considérer leurs rendus SVG/HTML comme implicitement sûrs.
 6. Borne de taille, traitement d'erreur et annulation pour documents ou diagrammes coûteux ; pas de blocage prolongé de l'interface. Un fichier récent n'autorise aucune lecture en arrière-plan non sollicitée.
 
-La politique exacte de ressources locales et des chemins hors du dossier d'origine nécessite un ADR avant implémentation. Une sanitisation seule ne remplace ni politique URL ni permissions minimales.
+Les décisions SG02–SG04/SG07/SG09 sont transcrites dans
+[ADR 0003](adr/0003-lecture-et-ressources.md). Les politiques ci-dessous sont
+des contrats à implémenter et prouver ; aucune recette de confinement ni
+absence de réseau n'est encore exécutée. Une sanitisation seule ne remplace
+ni politique URL ni permissions minimales.
+
+## Frontières et autorité — L02
+
+Le document est non fiable ; parser/plugins/enrichisseurs peuvent être attaqués.
+Le frontend orchestre la lecture mais ses arguments ne sont pas une autorisation.
+Rust contrôle indépendamment entrée native, session/jeton, chemin, type, taille,
+autorisation et ouverture effective. L'OS et le répertoire peuvent changer
+pendant une opération : considérer symlinks/reparse points et substitutions
+de parents. Une compromission du système entier n'est pas couverte par ce modèle.
+
+Une racine appartient à une session et n'est pas persistée comme permission.
+Ouverture native initiale : autorise le document sélectionné et son dossier.
+Extension : dossier parent/projet choisi par action native, chemin affiché,
+validation Rust, exclusion disque/home/partage global ; portée = session active.
+Un lien hors racine produit un refus et peut inviter à l'action native séparée,
+sans déclencher lui-même le sélecteur ni octroyer une permission. Fermeture ou
+remplacement réussi révoque handles/URLs/racines/watchers/caches. Sur échec
+candidat, libérer seulement ses ressources, conserver l'actif.
+
+## Matrice des références
+
+Résoudre depuis le fichier source, jamais CWD. Décoder les séquences URI une
+seule fois selon une grammaire définie en L04/L10 ; refuser NUL, ambiguïtés,
+query sur chemin local et encodages invalides. Traiter séparément nom encodé
+`%23` et fragment `#` ; ne pas réinterpréter une cible après autorisation.
+Les séparateurs encodés et traversées exigent un contrôle après résolution,
+sans normalisation permissive ni comparaison de préfixes texte.
+
+| Référence | Autorisation / action | Refus et message |
+| --- | --- | --- |
+| Ancre `#id` | navigation interne vers ID connu | « Section introuvable » |
+| Markdown relatif / absolu local, suffixe autorisé | cible finale dans racine, fichier régulier, UTF-8 strict ; ouverture candidate | « Document absent », « Accès hors du dossier autorisé », « Encodage UTF-8 invalide » |
+| `../assets` / parent | résolution correcte, accès seulement si racine explicitement étendue | « Accès hors du dossier autorisé » |
+| Symlink interne | cible et ouverture réellement confinées | « Référence non autorisée » pour extérieur/substitution |
+| UNC / chemin de périphérique Windows | refus au MVP, y compris entrée native | « Partages et chemins de périphériques non pris en charge » |
+| Image locale PNG/JPEG/GIF/WebP | MIME/signature contrôlés, fichier confiné, limites avant décodage, URL opaque révocable | placeholder « Image absente, invalide ou trop volumineuse » |
+| Image SVG locale / autre format | aucun chargement | placeholder « Format d'image non pris en charge » |
+| SVG Mermaid généré | profil SVG filtré, IDs uniques, références internes contrôlées ; aucune autorité disque | source échappée + diagnostic |
+| HTTP/HTTPS lien | cible validée par Rust ; action explicite ouvre navigateur système | « Adresse non autorisée » si cible invalide ; aucune navigation WebView |
+| HTTP/HTTPS / `//` image ou média | aucun téléchargement/chargement | placeholder « Ressource distante désactivée » |
+| Autre fichier local | aucune ouverture système générique | « Seuls les documents Markdown sont ouverts » |
+| `javascript:`, `vbscript:`, `file:`, `data:`, `blob:`, `mailto:`, protocoles personnalisés | refus pour une référence de document | « Protocole non autorisé » |
+
+Les URLs `blob:` ou du protocole ressource créées par l'application ne sont
+pas des URLs acceptées depuis le document : registre de handles par session,
+génération/validité et libération. La taille encodée ne suffit pas à valider
+une image. Aucun chemin source ne devient directement un `src` actif.
+
+## HTML et enrichissements
+
+HTML brut désactivé, `breaks: false`, pas de typographie automatique. Ne pas
+activer de contenu en sortie du parser avant le filtrage des références.
+HTML produit : profil versionné excluant scripts, événements, iframes,
+formulaires, `srcdoc`, IDs réservés UI et styles/URLs non contrôlés. Tâches
+en lecture seule. Insertion unique, après DOMPurify ; aucune réécriture regex
+postérieure qui réintroduit du HTML non contrôlé.
+
+Coloration : langues ciblées, sortie HTML sanitisée. Mermaid : `securityLevel`
+strict, configuration du document non autorisée à affaiblir les protections,
+callbacks/clicks désactivés, labels HTML désactivés pour le premier prototype,
+SVG filtré sans script/foreignObject/image distante/style URL. Préfixer les IDs
+par session/génération/occurrence et valider les références `url(#id)` internes.
+KaTeX : `trust: false`, macros utilisateur isolées par document, expansions
+bornées ; HTML/MathML filtrés au point d'insertion. Profils précis, styles générés
+nécessaires, familles Mermaid et syntaxes mathématiques à prouver en L04.
+Au refus/malformation/dépassement, source échappée et message local au bloc.
+
+## IPC, navigation et CSP
+
+Commandes limitées aux services de document/ressource/préférence nécessaires ;
+pas de read(path) générique, shell, HTTP ou gestionnaire de plugins. Capabilities
+attachées seulement à la fenêtre locale principale, aucune origine distante.
+Restreindre explicitement les commandes personnalisées et vérifier les arguments
+dans Rust : les scopes filesystem d'un plugin ne protègent pas ces commandes.
+Le document ne peut créer aucun contrôle privilégié ni fenêtre, faire naviguer
+la WebView, ouvrir un navigateur sans clic applicatif ou invoquer une action
+native via contenu HTML. Refuser nouvelles fenêtres/navigation arbitraire au
+niveau natif, en plus du traitement des liens frontend.
+
+CSP release candidate : `default-src 'none'`, `script-src 'self'`,
+`style-src 'self'`, `font-src 'self'`, `img-src 'self'`,
+`connect-src ipc: http://ipc.localhost`, `object-src 'none'`,
+`frame-src 'none'`, `base-uri 'none'`, `form-action 'none'`.
+Cette liste est une base de prototype, **pas une configuration Tauri testée** :
+L04 ajoutera seulement l'origine du mécanisme ressource retenu et les
+hashes/nonces/styles générés indispensables et contrôlés. Pas de wildcard
+HTTP(S), `unsafe-eval`, CDN ou serveur localhost applicatif. Les origines IPC
+Tauri locales sont un transport natif, pas un backend HTTP. Distinguer la CSP
+dev (Vite/HMR) de release, vérifier les assets empaquetés et les éventuelles
+transformations CSP de Tauri ; une recette native vérifie l'absence de requêtes.
+
+## Ressources, préférences et disponibilité
+
+Documents ≤ 20 Mo, images encodées ≤ 10 Mo (unités décimales), lecture bornée
+même si le fichier croît après stat. Dimensions/décodage et complexité des blocs :
+calibration L04 avant G1, avec fixtures à la borne et +1 selon
+[ACCEPTANCE](ACCEPTANCE.md). Pas de travail lourd sans plafond préventif ;
+annulation logique seule ne stoppe pas un calcul synchrone.
+
+Préférences : JSON versionné validé, plafond proposé 64 Ko ; récents : 20 entrées,
+historique de navigation de session : 50 entrées. Valeurs à transcrire/tester en
+L18/L20 ; elles n'autorisent ni lecture automatique ni extension de racine.
+Écritures atomiques de configuration seulement, jamais du document. Ne pas
+exposer contenu/chemins personnels dans logs/rapports publics.
+
+## Menaces et recettes reliées
+
+Fixtures et étapes natives : [index](../tests/fixtures/README.md).
+
+| Menace | Contrôle principal | Cas / preuve |
+| --- | --- | --- |
+| XSS et HTML/plugin actif | parser + profils DOMPurify + insertion unique + CSP | HT01/ER02 ; L07/L23 |
+| Confusion d'origine / récupération IPC hors session | Tauri corrigé + origines exactes + ACL/Rust et isolation native | IPC01 ; L04/L23, avis et version dans L00_AUDIT |
+| Fuite réseau, média distant, navigation | references avant DOM + CSP + garde native navigation | NW01/UR01 ; observation processus en L04/L23 |
+| Lecture hors racine / confused deputy IPC | autorité Rust, handles, contrôle ouverture effective | PA01–PA03 ; barrière de substitution native L04/L23 |
+| URL/handle périmé | génération/registre + révocation native | RV01 ; L04/L21 |
+| DoS allocation/décodage/enrichisseurs | tailles + plafonds complexité + scheduler/fallback | PF01/ER03/IM01 et images aux bornes L04 |
+| Session tardive / watcher multiple | dernière intention, activation après succès, nettoyage | OP01/OP02/WA01 ; L04/L21 |
+| UTF-8 destructeur / écriture document | décodage strict, service lecture seule | EN01–EN03 ; hashes avant/après recette L05 |
+
+Revue documentation officielle du 3 octobre 2026 :
+[capabilities Tauri](https://v2.tauri.app/security/capabilities/),
+[CSP Tauri](https://v2.tauri.app/security/csp/),
+[DOMPurify](https://github.com/cure53/DOMPurify),
+[Mermaid strict](https://mermaid.js.org/config/schema-docs/config-properties-securitylevel.html),
+[KaTeX options](https://katex.org/docs/options.html).
 
 ## Jeux de validation
 

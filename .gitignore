@@ -5,6 +5,9 @@ node_modules/
 dist/
 coverage/
 .vite/
+# Corpus volumineux reproductible et caches des outils QA
+benchmarks/generated/
+__pycache__/
 # Rust / Tauri
 target/
 src-tauri/target/

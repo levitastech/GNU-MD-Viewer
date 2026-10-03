@@ -31,6 +31,12 @@ La structure effective est fixée lors du bootstrap et documentée ici après va
 
 À l'ouverture, l'OS fournit un chemin ; Rust résout et valide les fichiers autorisés. Pour une référence relative, la base est le répertoire du **document qui contient la référence**. Un lien vers un autre `.md` change la base après ouverture. Traiter Unicode, espaces, chemins Windows, liens symboliques, traversées `..`, schémas interdits et ressources inexistantes. Définir séparément les règles pour chemins locaux, ancres et HTTP/HTTPS externes. L'application n'accorde pas la lecture illimitée du disque aux balises de contenu. La politique d'accès aux images hors du document doit être conçue et testée avant implémentation.
 
+Le cadrage V0 définit maintenant la politique dans [ADR 0003](adr/0003-lecture-et-ressources.md)
+et [SECURITY](SECURITY.md) : racine de session, extension native explicite,
+handles opaques, raster local contrôlé et révocation. Le mécanisme d'accès
+effectif reste à prototyper et tester en L04 ; la politique écrite ne prouve
+ni le confinement ni la compatibilité des WebViews.
+
 Le HTML brut issu de la source reste désactivé ; tout HTML produit passe par la sanitisation avant insertion dans le DOM. Les plugins qui génèrent des URLs ou du HTML passent par le même contrôle. Mermaid et KaTeX sont chargés à la demande ; traiter leurs entrées et sorties comme non fiables, interdire toute exécution script et vérifier les contraintes CSP. Détails : `docs/SECURITY.md`.
 
 ## Événements et performance

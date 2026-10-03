@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">
+  <script>globalThis.__gnuMdvSvgInjected = true</script>
+  <image href="https://example.invalid/external.png"/>
+  <foreignObject width="10" height="10"><div xmlns="http://www.w3.org/1999/xhtml" onclick="alert(1)">actif</div></foreignObject>
+</svg>

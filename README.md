@@ -17,6 +17,14 @@ Le contenu Markdown est considéré non fiable : HTML brut désactivé par défa
 
 Lire [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) pour les prérequis et les commandes **à utiliser après création du squelette**, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) pour les frontières techniques, puis [CONTRIBUTING.md](CONTRIBUTING.md) pour proposer un changement. Les règles de travail se trouvent dans `.rules/`.
 
+Le cadrage V0 est engagé : [matrice candidate du stack](docs/STACK_MATRIX.md),
+[registre de provenance](docs/UPSTREAM_REUSE.md),
+[critères d'acceptation](docs/ACCEPTANCE.md) et
+[rapport L01](docs/L01_REPORT.md) avec son [corpus/protocole](benchmarks/README.md).
+Ce travail ne constitue pas un build
+ni une qualification desktop. Le HTML brut des README reste du texte inerte ;
+images distantes et images SVG locales ne sont pas chargées dans le profil MVP.
+
 ## Licence et nom
 
 Le code du projet est prévu sous [licence MIT](LICENSE). « GNU » dans le nom du projet n'implique pas GPL ni appartenance au projet GNU. Le nom public doit être vérifié avant publication ; voir [ADR 0001](docs/adr/0001-licence-et-nom.md). Les dépendances et ressources tierces conservent leurs propres licences.

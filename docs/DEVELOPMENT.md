@@ -6,7 +6,13 @@ Ce pack ne contient ni `package.json`, ni `src-tauri`, ni application exécutabl
 
 ## Prérequis
 
-- Rust stable et Cargo ; Node.js dans la version compatible avec Vite choisie lors du bootstrap ; pnpm via un gestionnaire adapté.
+Le cadrage L00 clos est décrit dans [STACK_MATRIX](STACK_MATRIX.md) ; les
+versions directes et l'environnement local sont retenus, tandis que la
+résolution/compilation du graphe appartient à L03. Le corpus QA est déjà
+générable avec Python, voir [benchmarks](../benchmarks/README.md). Ces outils
+QA ne sont pas le bootstrap applicatif.
+
+- Sur la VM Linux actuelle : Node 24.18.0/npm 11.16.0 sous NVM, pnpm 12.8.1 via Corepack, Rust/Cargo 1.91.1 et rustfmt/Clippy dans `/usr/lib/rust-1.91/bin`. Les commandes L03 devront sélectionner explicitement ces outils versionnés et vérifier leurs versions.
 - Dépendances natives Tauri 2 de la plateforme : consulter [les prérequis officiels](https://v2.tauri.app/start/prerequisites/) avant installation. Sous Linux, prévoir la pile WebKitGTK et les outils système spécifiés pour la distribution ; sous Windows, WebView2 et la chaîne de compilation ; sous macOS, les outils Xcode requis.
 - Installer les dépendances JS avec le `pnpm-lock.yaml` versionné lorsque le squelette existe. Ne pas figer de numéro de version arbitraire dans ce document.
 
