@@ -2,7 +2,7 @@
 
 **Lecteur Markdown desktop, local et hors ligne.** Ouvrir un fichier et naviguer dans son contenu avec un rendu fidèle, une interface sobre et des limites de sécurité explicites. Linux est la cible initiale ; Windows et macOS restent des cibles de conception.
 
-> État du projet : pack documentaire et conventions initiales. Aucun binaire ni code applicatif n'est inclus dans ce pack. Les fonctions ci-dessous décrivent la cible du MVP, pas une version déjà disponible.
+> État du projet : bootstrap L03 en cours. Le dépôt contient une fenêtre Tauri 2 / Svelte 5 minimale, compilable localement sous Linux, mais aucun lecteur Markdown utilisable. Les fonctions ci-dessous décrivent toujours la cible du MVP, pas une version publiée.
 
 ## Cible MVP
 
@@ -15,14 +15,14 @@ Le contenu Markdown est considéré non fiable : HTML brut désactivé par défa
 
 ## Développer et contribuer
 
-Lire [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) pour les prérequis et les commandes **à utiliser après création du squelette**, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) pour les frontières techniques, puis [CONTRIBUTING.md](CONTRIBUTING.md) pour proposer un changement. Les règles de travail se trouvent dans `.rules/`.
+Lire [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) pour les prérequis et les commandes exécutables du squelette, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) pour les frontières techniques, puis [CONTRIBUTING.md](CONTRIBUTING.md) pour proposer un changement. Les règles de travail se trouvent dans `.rules/`.
 
 Le cadrage V0 est engagé : [matrice candidate du stack](docs/STACK_MATRIX.md),
 [registre de provenance](docs/UPSTREAM_REUSE.md),
 [critères d'acceptation](docs/ACCEPTANCE.md) et
 [rapport L01](docs/L01_REPORT.md) avec son [corpus/protocole](benchmarks/README.md).
-Ce travail ne constitue pas un build
-ni une qualification desktop. Le HTML brut des README reste du texte inerte ;
+Le rapport [L03](docs/L03_BOOTSTRAP_REPORT.md) distingue les builds locaux des
+jobs natifs encore non exécutés. Le HTML brut des README reste du texte inerte ;
 images distantes et images SVG locales ne sont pas chargées dans le profil MVP.
 
 ## Licence et nom

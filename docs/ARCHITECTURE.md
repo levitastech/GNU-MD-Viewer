@@ -1,6 +1,6 @@
 # Architecture visée
 
-Ce document définit des frontières logiques à appliquer lors de la création du code. Les chemins de code ci-dessous sont **proposés**, non des dossiers déjà présents.
+Ce document définit les frontières logiques du code. Le bootstrap L03 matérialise `src/lib/app/` pour les métadonnées sans encore créer le moteur Markdown, les composants de lecture ni les services fichiers.
 
 ## Flux de lecture
 
@@ -25,7 +25,7 @@ Le moteur TypeScript est indépendant des composants Svelte ; seuls des types et
 | Commandes, filesystem, CLI, watcher | `src-tauri/src/` | Ouvre seulement les fichiers demandés ; valide et borne les opérations |
 | Capacités et configuration Tauri | `src-tauri/` | Permissions et CSP au strict nécessaire |
 
-La structure effective est fixée lors du bootstrap et documentée ici après validation. Les répertoires suggérés ne sont pas des obligations.
+Le socle garde `src/` pour le frontend et `src-tauri/` pour le processus natif. Les autres répertoires sont créés seulement avec leur lot et leurs tests ; le moteur Markdown devra rester indépendant de Svelte, du DOM et de Tauri.
 
 ## Chemins, URLs et confiance
 

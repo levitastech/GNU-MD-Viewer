@@ -11,6 +11,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
   ADR de lecture locale et rapports de clôture L00/L01.
 - Corpus Markdown déterministe, fixtures hostiles et protocole de performances
   avec critères d'acceptation explicites.
+- Socle Tauri 2 / Svelte 5 compilable, fenêtre minimale, lockfiles exacts,
+  contrôles TypeScript/Rust et compilation release Linux sans installateur.
 
 ### Changed
 

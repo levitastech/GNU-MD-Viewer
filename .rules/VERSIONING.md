@@ -4,7 +4,7 @@ Semantic Versioning `MAJOR.MINOR.PATCH` pour les versions publiées : MAJOR si u
 
 ## Source de vérité
 
-Après bootstrap, la version applicative affichée, celle de `package.json`, `src-tauri/tauri.conf.json` et `src-tauri/Cargo.toml` doivent rester synchronisées par la procédure de release. Aucun de ces fichiers n'existe encore dans ce pack ; établir la source et l'automatisation lors du bootstrap. Les numéros d'installateurs reflètent la même release, sous réserve des contraintes propres à chaque plateforme.
+La version de travail provient de `package.json` ; l'interface l'affiche et un test vérifie sa concordance avec `src-tauri/tauri.conf.json` et `src-tauri/Cargo.toml`. Les numéros d'installateurs reflètent la même release, sous réserve des contraintes propres à chaque plateforme. `0.1.0` reste non publiée tant qu'aucune section de release, aucun tag et aucun artefact autorisé ne l'établissent.
 
 ## Procédure de release
 

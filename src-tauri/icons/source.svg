@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="GNU-MD Viewer">
+  <rect width="1024" height="1024" rx="224" fill="#173f32"/>
+  <path d="M278 168h326l142 142v546H278z" fill="#f5f0df"/>
+  <path d="M604 168v142h142" fill="#b8d9c7"/>
+  <path d="M604 168l142 142H604z" fill="#82b49a"/>
+  <path d="M374 426h276M374 522h186" fill="none" stroke="#173f32" stroke-linecap="round" stroke-width="48"/>
+  <path d="M512 622v120m-76-62 76 76 76-76" fill="none" stroke="#c75b39" stroke-linecap="round" stroke-linejoin="round" stroke-width="52"/>
+</svg>

@@ -1,45 +1,68 @@
 # Développement
 
-## État initial
+## État du socle
 
-Ce pack ne contient ni `package.json`, ni `src-tauri`, ni application exécutable. Les commandes ci-dessous constituent un **contrat pour le futur squelette** et ne sont pas exécutables sur le pack seul. Lors du bootstrap, créer un projet Tauri 2 + Svelte 5 + TypeScript strict + Vite + pnpm, conserver ces documents, puis remplacer les exemples par les scripts réellement déclarés.
+L03 fournit un projet Tauri 2 + Svelte 5 + TypeScript strict + Vite + pnpm.
+La fenêtre minimale vérifie le démarrage desktop, mais ne lit ni ne rend encore
+de document. `package.json` est la source de version ; Vitest contrôle la
+concordance de `src-tauri/tauri.conf.json` et `src-tauri/Cargo.toml`.
 
 ## Prérequis
 
-Le cadrage L00 clos est décrit dans [STACK_MATRIX](STACK_MATRIX.md) ; les
-versions directes et l'environnement local sont retenus, tandis que la
-résolution/compilation du graphe appartient à L03. Le corpus QA est déjà
-générable avec Python, voir [benchmarks](../benchmarks/README.md). Ces outils
-QA ne sont pas le bootstrap applicatif.
+Le cadrage L00 clos est décrit dans [STACK_MATRIX](STACK_MATRIX.md). Les
+versions directes et transitives sont maintenant verrouillées ; le résultat
+local et les limites CI figurent dans [L03_BOOTSTRAP_REPORT](L03_BOOTSTRAP_REPORT.md).
+Le corpus QA reste générable avec Python, voir
+[benchmarks](../benchmarks/README.md).
 
-- Sur la VM Linux actuelle : Node 24.18.0/npm 11.16.0 sous NVM, pnpm 12.8.1 via Corepack, Rust/Cargo 1.91.1 et rustfmt/Clippy dans `/usr/lib/rust-1.91/bin`. Les commandes L03 devront sélectionner explicitement ces outils versionnés et vérifier leurs versions.
+- Sur la VM Linux actuelle : Node 24.18.0/npm 11.16.0 sous NVM, pnpm 12.8.1 via Corepack, Rust/Cargo 1.91.1 et rustfmt/Clippy dans `/usr/lib/rust-1.91/bin`. Ajouter ces répertoires au `PATH` de la session ; les commandes génériques Rust 1.75 de la distribution ne conviennent pas.
 - Dépendances natives Tauri 2 de la plateforme : consulter [les prérequis officiels](https://v2.tauri.app/start/prerequisites/) avant installation. Sous Linux, prévoir la pile WebKitGTK et les outils système spécifiés pour la distribution ; sous Windows, WebView2 et la chaîne de compilation ; sous macOS, les outils Xcode requis.
 - Installer les dépendances JS avec le `pnpm-lock.yaml` versionné lorsque le squelette existe. Ne pas figer de numéro de version arbitraire dans ce document.
 
-## Commandes cibles après bootstrap
+## Installation et contrôles
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm tauri dev
+pnpm format:check
+pnpm lint
+pnpm check
 pnpm test
-pnpm exec svelte-check --tsconfig ./tsconfig.json
-pnpm exec eslint .
-pnpm exec prettier . --check
+pnpm audit:js
+pnpm build
 cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
 cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
 cargo test --manifest-path src-tauri/Cargo.toml
-pnpm tauri build
+pnpm desktop:compile
 ```
 
-`pnpm test`, `pnpm tauri dev` et `pnpm tauri build` nécessitent des scripts et dépendances configurés dans le futur `package.json`. La commande svelte-check dépend également de sa configuration effective. Adapter cette section, les workflows CI et `.rules/TESTING_RULES.md` ensemble.
+`cargo audit --file src-tauri/Cargo.lock` demande `cargo-audit` 0.22.2, outil
+d'audit local/CI non incorporé à l'application. Les deux avertissements
+RustSec connus sont analysés dans le rapport L03 ; ils ne sont pas masqués.
 
-## Ordre de bootstrap suggéré
+## Développement, compilation et packaging
 
-1. Générer le squelette Tauri 2 + Svelte 5 ; choisir `gnu-mdv` comme binaire cible et vérifier sa disponibilité sur les OS visés.
-2. Configurer pnpm, TypeScript strict, Vitest, ESLint, Prettier, rustfmt et clippy ; versionner les lockfiles.
-3. Créer le pipeline Markdown indépendant de l'UI et ses fixtures de base ; ouvrir des documents locaux par un contrat Rust borné.
-4. Ajouter progressivement plugins, résolution des chemins, protections HTML/URLs, thèmes et navigation ; mesurer lancement et mémoire.
-5. Mettre en place une CI Linux pour lint/tests/build, puis matrices Windows/macOS ; n'automatiser les releases qu'après validation des associations et artefacts.
+```bash
+pnpm desktop:dev
+pnpm desktop:compile
+pnpm desktop:package
+```
+
+- `desktop:dev` lance Vite sur `127.0.0.1:1420`, compile Rust en profil de
+  développement et ouvre la fenêtre. Ce serveur local n'existe pas en release.
+- `desktop:compile` produit le frontend puis le binaire release sans installateur.
+- `desktop:package` est la commande de bundling séparée ; elle n'est pas une
+  preuve de publication et n'a pas été exécutée en L03. Les formats restent P4.
+
+La configuration release désactive le bundling automatique, refuse les sources
+réseau dans sa CSP et n'accorde aucune capacité Tauri au frontend. Les futurs
+accès fichiers/OS doivent être ajoutés explicitement avec leurs tests et scopes.
+
+## Suite du chantier
+
+1. Réaliser L04 : contrats, sanitisation, CSP, ressources locales confinées et
+   prototypes WebView avant d'ouvrir le pipeline Markdown de production.
+2. Ajouter ensuite le moteur, les services et l'interface lot par lot, sans
+   donner au contenu Markdown de capacité Tauri directe.
 
 ## Débogage et reproductibilité
 

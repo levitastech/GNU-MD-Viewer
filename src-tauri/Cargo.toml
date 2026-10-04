@@ -1,0 +1,25 @@
+[package]
+name = "gnu-mdv"
+version = "0.1.0"
+description = "Lecteur Markdown desktop local et hors ligne"
+authors = ["GNU-MD Viewer contributors"]
+edition = "2024"
+rust-version = "1.91"
+license = "MIT"
+
+[lib]
+name = "gnu_mdv_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "=2.7.1", features = [] }
+
+[dependencies]
+tauri = { version = "=2.12.1", features = [] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

@@ -4,7 +4,7 @@
 
 Construire un lecteur Markdown desktop hors ligne, rapide, fiable et sûr. Linux est prioritaire ; conserver la portabilité Windows et macOS. Le binaire cible est `gnu-mdv` ; `gnu-md` peut devenir un alias après vérification des collisions de noms et des paquets. Le projet est indépendant du projet GNU : ne pas suggérer une affiliation.
 
-État constaté le 3 octobre 2026 : pack documentaire uniquement ; aucun `package.json`, `src-tauri/`, code applicatif ou workflow CI. Recontrôler cet état avant toute tâche et actualiser cette mention au bootstrap. Les commandes de `docs/DEVELOPMENT.md` sont des cibles futures tant que les scripts/manifeste correspondants n'existent pas.
+État constaté le 3 octobre 2026 après démarrage de L03 : socle Tauri 2 / Svelte 5 présent avec manifestes et lockfiles, fenêtre minimale et tests de bootstrap. La compilation release et le smoke Linux locaux passent. Aucun workflow CI n'est fourni à ce stade ; Windows et macOS ne sont pas qualifiés. Le lecteur Markdown, les accès fichiers et les prototypes L04 ne sont pas implémentés.
 
 ## Reprise et portée de travail
 

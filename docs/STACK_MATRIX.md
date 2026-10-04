@@ -1,14 +1,12 @@
 # Matrice de stack et cibles — L00
 
-Audit initial du 3 octobre 2026, base Git `e1201df`, modifications non committées.
-Le dépôt reste sans application, manifestes ni CI. Les versions ci-dessous sont
-des **candidates exactes**, vérifiées dans les métadonnées officielles ; leur
-résolution et leur compilation ensemble ne sont pas encore démontrées.
-L03 matérialisera les choix dans les manifestes et lockfiles. L00 est clos
-après audit direct et vérification de l'environnement ; le graphe réellement
-résolu sera audité en L03.
+Audit initial du 3 octobre 2026, puis matérialisation L03 sur base Git
+`3afc86e`. Les versions directes ci-dessous sont inscrites sans plage flottante
+dans les manifestes et résolues dans les deux lockfiles. Le frontend, Clippy,
+les tests Rust et le binaire release Linux ont compilé ensemble. Aucun workflow
+CI n'est livré à ce stade ; Windows et macOS restent à qualifier nativement.
 
-## Versions candidates
+## Versions directes retenues
 
 Métadonnées consultées : `https://registry.npmjs.org/<paquet>/<version>`
 (version, licence déclarée, engines, peers, dist.unpackedSize), crates.io pour
@@ -44,14 +42,16 @@ les **octets décompressés du paquet npm**, ni le bundle distribué ni ses tran
 | @types/node | 24.19.1 | MIT, outil de build | archive contrôlée |
 
 Les versions publiées récemment ne constituent pas une preuve de sécurité.
-Les transitives, plugins ESLint/Svelte, types et plugins Markdown restent à
-inventorier avant adoption. Aucun paquet n'est installé par cet audit.
+L03 résout 298 paquets npm au total, dont 137 paquets de production inventoriés,
+et 417 crates Cargo. Les deux graphes ne contiennent aucune licence absente ;
+`khroma` omet le champ SPDX dans son manifeste mais fournit le texte MIT intégral.
 
 Suite d'audit : [L00_AUDIT](L00_AUDIT.md), archives directes et notices
 inventoriées, contrôles d'intégrité réussis. Les outils supplémentaires retenus
 acceptent Svelte 5, TypeScript 6 et ESLint 10 selon leurs peers. markdown-it
 15 fournit ses types ; @types/markdown-it 14.2.0 est écarté. Le graphe réel
-et les binaires plateforme restent à vérifier sur les lockfiles L03.
+et les binaires plateforme ont été résolus dans `pnpm-lock.yaml`. Le rapport L03
+trace les audits et réserves du graphe effectif.
 
 ## Compatibilité constatée et refus
 
@@ -62,8 +62,8 @@ Rust ≥ 1.90 ; les outils apt versionnés 1.91.1 satisfont ce minimum direct.
 
 TypeScript 7.0.2, pourtant `latest`, est écarté : svelte-check 4.7.6 déclare
 seulement `^5.0.0 || ^6.0.0`. TypeScript 6.0.3 est une candidate compatible
-avec cette plage ; le contrôle réel reste à faire en L03. Tauri 3 alpha est
-écarté conformément au contrat Tauri 2. Aucun lockfile amont n'est adopté.
+avec cette plage et passe le contrôle réel. Tauri 3 alpha est écarté
+conformément au contrat Tauri 2. Aucun lockfile amont n'est adopté.
 
 Le paquet Mermaid complet est lourd : import différé, familles ciblées et poids
 des chunks à mesurer en L04/L16. Ne pas substituer automatiquement le build
@@ -81,12 +81,12 @@ Les minima Tauri ne suffisent pas à garantir les bibliothèques de rendu.
 | --- | --- | --- | --- |
 | Linux initial | Ubuntu 24.04 LTS / x86_64 ; Mint 22.3 comme machine de travail | WebKitGTK API 4.1, moteur 2.52.6 pour première recette | runtime et headers présents ; lancement non exécuté |
 | Windows | Windows 11 / x86_64 | WebView2 Evergreen à jour ; version exacte relevée à chaque recette | aucune machine/runner vérifié ; qualification différée |
-| macOS | macOS 14 / arm64 | WKWebView du système ; build OS exact relevé à chaque recette | aucune machine/runner vérifié ; qualification différée |
+| macOS | macOS 14 minimum visé / arm64 | WKWebView du système ; build OS exact relevé à chaque recette | aucune machine ou recette vérifiée ; qualification différée |
 
 Les versions minimales effectivement supportées seront établies par recettes
-L04/L25. Vite distingue la cible de compilation et les exigences du serveur de
-développement : régler la cible sur les moteurs retenus en L03 puis tester les
-sorties en L04. Le profil Linux est la première matrice active de travail ; le
+L04/L25. Vite compile explicitement pour Chrome 111 et Safari 16.4 ; cette
+transpilation n'est pas une recette WebView. Le profil Linux est la première
+matrice active de travail ; le
 report Windows/macOS applique SG05, ne vaut ni abandon ni réussite de build.
 AppImage/DEB/RPM, NSIS/MSI si pertinent, APP/DMG restent à qualifier en P4.
 
@@ -99,7 +99,8 @@ pnpm 12.8.1 répondent avec le chemin NVM activé. Les paquets versionnés donne
 rustc/cargo 1.91.1, rustfmt 1.8.0 et Clippy 0.1.91. `pkg-config` trouve
 WebKitGTK 2.52.6 et GTK 3.24.41.
 Cette machine n'est pas la référence performance 16 Go / 4 cœurs / 8 threads.
-Aucune compilation ni recette native n'a été effectuée.
+Le build release Linux x86_64 et un lancement de 12 secondes dans la session
+X11 ont été effectués en L03 ; aucune mesure de performance n'en est déduite.
 
 Inspection complémentaire : Node 24.18.0 est installé sous NVM et répond à
 `/home/oem/.nvm/versions/node/v24.18.0/bin/node`. Il était absent du PATH,
@@ -107,14 +108,15 @@ pas absent de la machine. npm 11.16.0 également vérifié. Node/npm conservés,
 pnpm et Rust/Cargo/rustfmt/Clippy ont ensuite été installés et vérifiés dans
 [INSTALLATION_PLAN](INSTALLATION_PLAN.md). Aucun rustup ni CLI Tauri globale.
 
-## Obligations reportées à L03
+## Résolution et audit L03
 
-- Inventorier les transitives réellement résolues et distribuées, leurs notices
-  et les binaires plateforme ; comparer les avis sur ce graphe.
-- Matérialiser les outils de lint/types/plugins compatibles dans les manifestes.
-- Réexaminer la matrice si la résolution, la compilation ou un avis révèle une
-  incompatibilité. Audit `pnpm audit`/Cargo sur les lockfiles réels en L03,
-  jamais annoncé comme déjà exécuté.
+- `pnpm audit` ne retourne aucune vulnérabilité connue sur le lockfile.
+- `cargo-audit` 0.22.2 charge 1290 avis et ne retourne aucune vulnérabilité sur
+  417 crates. Il signale `proc-macro-error` non maintenu et l'avis d'unsoundness
+  `RUSTSEC-2024-0429` sur `glib` 0.18.5, transitives GTK imposées par Tauri Linux.
+  Elles restent visibles et suivies, sans exception silencieuse.
+- Les licences effectives et les éléments à reproduire au packaging figurent
+  dans `THIRD_PARTY_NOTICES.md` et le rapport L03. Aucun paquet n'est publié.
 - Confirmer le titulaire réel avant publication ; attribution existante conservée.
 
 ## Sources officielles consultées le 3 octobre 2026
