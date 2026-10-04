@@ -4,11 +4,16 @@
 
 Construire un lecteur Markdown desktop hors ligne, rapide, fiable et sûr. Linux est prioritaire ; conserver la portabilité Windows et macOS. Le binaire cible est `gnu-mdv` ; `gnu-md` peut devenir un alias après vérification des collisions de noms et des paquets. Le projet est indépendant du projet GNU : ne pas suggérer une affiliation.
 
-État constaté le 3 octobre 2026 : pack documentaire uniquement ; aucun `package.json`, `src-tauri/`, code applicatif ou workflow CI. Recontrôler cet état avant toute tâche et actualiser cette mention au bootstrap. Les commandes de `docs/DEVELOPMENT.md` sont des cibles futures tant que les scripts/manifeste correspondants n'existent pas.
+État constaté le 4 octobre 2026 après L03 : socle Tauri 2 / Svelte 5 présent
+avec manifestes et lockfiles, fenêtre minimale et tests de bootstrap (commit
+`1192d7a`). La compilation release et le smoke Linux locaux passent. Aucun
+workflow CI n'est fourni à ce stade ; Windows et macOS ne sont pas qualifiés.
+Le lecteur Markdown, les accès fichiers et les prototypes L04 ne sont pas
+implémentés.
 
 ## Reprise et portée de travail
 
-- Lire les quatre fichiers `.rules/` avant de modifier ; pour un chantier, lire `.progress/STATE.md`, `PROGRESS.yml`, puis le plan concerné et `HANDOFF.md` si présent.
+- Lire les quatre fichiers `.rules/` avant de modifier ; pour un chantier, lire `.progress/STATE.md`, `PROGRESS.yml`, puis le plan concerné. Aucun document de passation n'est à tenir.
 - Plan directeur local : `.progress/GNU_MD_VIEWER_PLAN_CHANTIER_V1.md`. Fiches d'exécution : `.progress/GNU_MD_VIEWER_PLAN_P1.md` (L00–L04), `P2` (L05–L13), `P3` (L14–L22), `P4` (L23–L29), avec le même préfixe de fichier.
 - Le plan, SG01–SG09 et les budgets V1 §12.2 sont validés ; cela ne clôt aucun lot et ne prouve aucune gate G1–G4. Appliquer les arbitrages déjà retenus ; signaler tout changement de contrat au lieu de les rouvrir par défaut.
 - Avancer lot par lot selon les dépendances. Distinguer l'affinement documentaire, l'implémentation, la qualification et la livraison ; une demande de plan n'autorise pas le bootstrap applicatif.

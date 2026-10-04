@@ -1,7 +1,7 @@
 # ADR 0003 — Lecture confinée et ressources sans réseau
 
-État : décisions SG02–SG04/SG07/SG09 transcrites ; mécanisme à prouver en L04.
-Date : 2026-10-03.
+État : décisions transcrites ; mécanisme Linux prototypé en L04, autres cibles différées.
+Date : 2026-10-03, mise à jour 2026-10-04.
 
 ## Décision
 
@@ -30,8 +30,8 @@ Un échec conserve la session active et ne modifie jamais le document.
 ## Conséquences et preuves attendues
 
 [SECURITY](../SECURITY.md) fixe matrice, menaces, messages et responsabilités ;
-[ACCEPTANCE](../ACCEPTANCE.md) les budgets. Le protocole natif asset à scope
-dynamique ou un handler dédié sera choisi seulement après preuve L04 de
-confinement à l'ouverture, MIME, révocation et absence de réseau. La policy
-ne prouve aucun de ces mécanismes. Les plafonds encore ouverts sont calibrés en
-L04 avant G1 ; aucune ouverture illimitée en attendant.
+[ACCEPTANCE](../ACCEPTANCE.md) les budgets. L04 retient un handler dédié à
+jetons opaques et révocables ; voir [ADR 0004](0004-contrats-sessions-et-prototypes-l04.md)
+et son rapport. La preuve porte sur Linux/WebKitGTK et ne qualifie pas encore
+les handles natifs Windows/macOS. Les plafonds sont désormais calibrés dans
+`ACCEPTANCE.md`.

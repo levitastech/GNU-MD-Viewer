@@ -14,10 +14,10 @@ Un fichier Markdown local peut être contrôlé par un tiers. HTML, URLs, images
 6. Borne de taille, traitement d'erreur et annulation pour documents ou diagrammes coûteux ; pas de blocage prolongé de l'interface. Un fichier récent n'autorise aucune lecture en arrière-plan non sollicitée.
 
 Les décisions SG02–SG04/SG07/SG09 sont transcrites dans
-[ADR 0003](adr/0003-lecture-et-ressources.md). Les politiques ci-dessous sont
-des contrats à implémenter et prouver ; aucune recette de confinement ni
-absence de réseau n'est encore exécutée. Une sanitisation seule ne remplace
-ni politique URL ni permissions minimales.
+[ADR 0003](adr/0003-lecture-et-ressources.md). L04 matérialise les premiers
+contrats et le protocole de ressources dans [ADR 0004](adr/0004-contrats-sessions-et-prototypes-l04.md).
+La preuve Linux ciblée ne qualifie ni le futur lecteur complet, ni Windows ou
+macOS. Une sanitisation seule ne remplace ni politique URL ni permissions.
 
 ## Frontières et autorité — L02
 
@@ -71,12 +71,15 @@ une image. Aucun chemin source ne devient directement un `src` actif.
 HTML brut désactivé, `breaks: false`, pas de typographie automatique. Ne pas
 activer de contenu en sortie du parser avant le filtrage des références.
 HTML produit : profil versionné excluant scripts, événements, iframes,
-formulaires, `srcdoc`, IDs réservés UI et styles/URLs non contrôlés. Tâches
+formulaires, `srcdoc`, IDs réservés UI et styles/URLs non contrôlés. L04 retire
+tous `href`/`src` du fragment documentaire ; L07 réintroduira uniquement les
+cibles typées après policy. Tâches
 en lecture seule. Insertion unique, après DOMPurify ; aucune réécriture regex
 postérieure qui réintroduit du HTML non contrôlé.
 
 Coloration : langues ciblées, sortie HTML sanitisée. Mermaid : `securityLevel`
-strict, configuration du document non autorisée à affaiblir les protections,
+strict, familles MVP limitées à flowchart/sequence/class/state/ER/gantt/pie,
+configuration du document non autorisée à affaiblir les protections,
 callbacks/clicks désactivés, labels HTML désactivés pour le premier prototype,
 SVG filtré sans script/foreignObject/image distante/style URL. Préfixer les IDs
 par session/génération/occurrence et valider les références `url(#id)` internes.
@@ -97,24 +100,32 @@ la WebView, ouvrir un navigateur sans clic applicatif ou invoquer une action
 native via contenu HTML. Refuser nouvelles fenêtres/navigation arbitraire au
 niveau natif, en plus du traitement des liens frontend.
 
-CSP release candidate : `default-src 'none'`, `script-src 'self'`,
-`style-src 'self'`, `font-src 'self'`, `img-src 'self'`,
+CSP release L04 : `default-src 'self'`,
+`style-src 'self' 'unsafe-inline'`, `font-src 'self'`,
+`img-src 'self' data: gnu-mdv-resource: http://gnu-mdv-resource.localhost`,
 `connect-src ipc: http://ipc.localhost`, `object-src 'none'`,
 `frame-src 'none'`, `base-uri 'none'`, `form-action 'none'`.
-Cette liste est une base de prototype, **pas une configuration Tauri testée** :
-L04 ajoutera seulement l'origine du mécanisme ressource retenu et les
-hashes/nonces/styles générés indispensables et contrôlés. Pas de wildcard
-HTTP(S), `unsafe-eval`, CDN ou serveur localhost applicatif. Les origines IPC
-Tauri locales sont un transport natif, pas un backend HTTP. Distinguer la CSP
-dev (Vite/HMR) de release, vérifier les assets empaquetés et les éventuelles
-transformations CSP de Tauri ; une recette native vérifie l'absence de requêtes.
+Le style inline est limité aux sorties KaTeX contrôlées ; le HTML documentaire
+et le SVG Mermaid perdent leurs styles. Aucun script inline, `unsafe-eval`,
+wildcard HTTP(S), CDN ou serveur localhost applicatif. Les origines IPC Tauri
+locales sont un transport natif, pas un backend HTTP. La recette release L04
+vérifie le protocole et l'absence de connexion IP ; L23 rejoue l'observation sur
+le lecteur intégré.
+
+`freezePrototype` reste `false` : Mermaid 12.1.0 échoue dans WebKitGTK lorsque
+Tauri gèle `Object.prototype`. La version figée corrige les avis de prototype
+pollution antérieurs ; configuration sécurisée, familles explicites,
+sanitisation SVG, CSP et ACL constituent les compensations. Rejouer ce test et
+l'audit à toute mise à jour Mermaid.
 
 ## Ressources, préférences et disponibilité
 
 Documents ≤ 20 Mo, images encodées ≤ 10 Mo (unités décimales), lecture bornée
-même si le fichier croît après stat. Dimensions/décodage et complexité des blocs :
-calibration L04 avant G1, avec fixtures à la borne et +1 selon
-[ACCEPTANCE](ACCEPTANCE.md). Pas de travail lourd sans plafond préventif ;
+même si le fichier croît après stat. Images : 16 384 px par axe, 64 Mo RGBA
+estimés, 32 ressources/64 Mo de cache par session. Code : 1 Mo/50 000 lignes ;
+KaTeX : 16 384 caractères, 1 000 expansions et 20 em ; Mermaid : 65 536
+caractères, 2 000 lignes et 500 arêtes probables. Deux travaux actifs et 32 en
+file. Fixtures à la borne et +1 selon [ACCEPTANCE](ACCEPTANCE.md). Pas de travail lourd sans plafond préventif ;
 annulation logique seule ne stoppe pas un calcul synchrone.
 
 Préférences : JSON versionné validé, plafond proposé 64 Ko ; récents : 20 entrées,
