@@ -4,9 +4,9 @@ Lire `AGENTS.md` avant toute tâche : il porte les contrats communs, le produit,
 
 ## Parcours de reprise
 
-1. Contrôler `git status --short`, la branche et les fichiers réels ; préserver le travail concurrent. Au 3 octobre 2026, L03 a créé le socle Tauri/Svelte, ses lockfiles et la CI ; le lecteur Markdown et L04 restent à réaliser. Recontrôler les preuves locales et distantes au lieu de supposer le lot clos.
+1. Contrôler `git status --short`, la branche et les fichiers réels ; préserver le travail concurrent. Au 4 octobre 2026, le commit `1192d7a` a créé le socle Tauri/Svelte et ses lockfiles ; aucun workflow CI n'est fourni. Le lecteur Markdown et L04 restent à réaliser. Recontrôler les preuves locales au lieu de supposer le lot clos.
 2. Lire `.rules/COMMIT_RULES.md`, `TESTING_RULES.md`, `PROGRESS_RULES.md` et `VERSIONING.md` ; consulter `docs/ARCHITECTURE.md`, `docs/SECURITY.md` et `docs/DEVELOPMENT.md` selon le changement.
-3. Pour un chantier local, lire `.progress/STATE.md`, `PROGRESS.yml`, puis `GNU_MD_VIEWER_PLAN_CHANTIER_V1.md` et le fichier `GNU_MD_VIEWER_PLAN_P1.md`, `P2.md`, `P3.md` ou `P4.md` correspondant (même préfixe). Lire `HANDOFF.md` si nécessaire. Si `.progress/` est absent, utiliser les références durables et la tâche demandée ; ne pas inventer de suivi historique.
+3. Pour un chantier local, lire `.progress/STATE.md`, `PROGRESS.yml`, puis `GNU_MD_VIEWER_PLAN_CHANTIER_V1.md` et le fichier `GNU_MD_VIEWER_PLAN_P1.md`, `P2.md`, `P3.md` ou `P4.md` correspondant (même préfixe). Aucun document de passation n'est à lire ni à tenir. Si `.progress/` est absent, utiliser les références durables et la tâche demandée ; ne pas inventer de suivi historique.
 4. Reprendre le premier lot autorisé dont les prérequis sont satisfaits. SG01–SG09 et V1 §12.2 sont déjà validés ; les gates G1–G4 exigent des preuves techniques. Une demande d'affinement du plan ne démarre pas les lots applicatifs.
 
 ## Pendant le lot

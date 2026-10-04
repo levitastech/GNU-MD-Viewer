@@ -4,7 +4,7 @@ Semantic Versioning `MAJOR.MINOR.PATCH` pour les versions publiées : MAJOR si u
 
 ## Source de vérité
 
-La version de travail provient de `package.json` ; l'interface l'affiche et un test vérifie sa concordance avec `src-tauri/tauri.conf.json` et `src-tauri/Cargo.toml`. Les numéros d'installateurs reflètent la même release, sous réserve des contraintes propres à chaque plateforme. `0.1.0` reste non publiée tant qu'aucune section de release, aucun tag et aucun artefact autorisé ne l'établissent.
+La version de travail provient de `package.json` ; l'interface l'affiche et un test vérifie sa concordance avec `src-tauri/tauri.conf.json` et `src-tauri/Cargo.toml`. Les numéros d'installateurs reflètent la même release, sous réserve des contraintes propres à chaque plateforme. Une section de changelog peut consigner une version **en implémentation**, comme `0.1.0`, sans constituer une publication : elle doit l'indiquer explicitement et ne vaut ni tag, ni artefact, ni support annoncé.
 
 ## Procédure de release
 

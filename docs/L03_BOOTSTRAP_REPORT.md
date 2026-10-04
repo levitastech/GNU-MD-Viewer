@@ -1,6 +1,7 @@
 # Rapport L03 — Socle du dépôt
 
-Date : 3 octobre 2026. Base de travail : `main` à `3afc86e`, diff non committé.
+Date : 3 octobre 2026, mise à jour le 4 octobre 2026. Base de travail : branche
+`dev`, commit `1192d7a`.
 Statut : **L03 doing**. Le socle et la preuve Linux locale sont disponibles ;
 Windows et macOS ne sont pas qualifiés et aucun workflow CI n'est livré.
 
