@@ -37,3 +37,12 @@ contenu réellement embarqué, inclure les textes complets requis et vérifier l
 obligations MPL-2.0/EPL-2.0. Ne pas déclarer toutes les dépendances MIT.
 L'attribution déjà présente dans LICENSE est conservée ; le titulaire du projet
 reste à confirmer selon ADR 0001.
+
+## Outils et contrats ajoutés en L04
+
+`jsdom` 30.1.1 et ses types 30.0.0 (MIT) fournissent le DOM de test recommandé
+par DOMPurify. `tempfile` 3.27.0 (MIT ou Apache-2.0) crée les dossiers de tests
+Rust. `getrandom` 0.4.3 et `serde` 1.0.229 (MIT ou Apache-2.0) sont déclarés
+directement pour les jetons opaques et les contrats IPC ; ils existaient déjà
+dans le graphe Tauri résolu. Aucun de ces outils n'ajoute un service réseau ;
+jsdom, ses types et tempfile ne sont pas incorporés au binaire release normal.

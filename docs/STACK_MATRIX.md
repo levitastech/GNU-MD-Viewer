@@ -79,7 +79,7 @@ Les minima Tauri ne suffisent pas à garantir les bibliothèques de rendu.
 
 | Profil | OS / architecture | WebView visée | Moyens et statut |
 | --- | --- | --- | --- |
-| Linux initial | Ubuntu 24.04 LTS / x86_64 ; Mint 22.3 comme machine de travail | WebKitGTK API 4.1, moteur 2.52.6 pour première recette | runtime et headers présents ; lancement non exécuté |
+| Linux initial | Ubuntu 24.04 LTS / x86_64 ; Mint 22.3 comme machine de travail | WebKitGTK API 4.1, moteur 2.52.6 pour première recette | build/smoke L03 puis harness de risque L04 exécutés ; pas encore de paquet installé |
 | Windows | Windows 11 / x86_64 | WebView2 Evergreen à jour ; version exacte relevée à chaque recette | aucune machine/runner vérifié ; qualification différée |
 | macOS | macOS 14 minimum visé / arm64 | WKWebView du système ; build OS exact relevé à chaque recette | aucune machine ou recette vérifiée ; qualification différée |
 
@@ -100,7 +100,9 @@ rustc/cargo 1.91.1, rustfmt 1.8.0 et Clippy 0.1.91. `pkg-config` trouve
 WebKitGTK 2.52.6 et GTK 3.24.41.
 Cette machine n'est pas la référence performance 16 Go / 4 cœurs / 8 threads.
 Le build release Linux x86_64 et un lancement de 12 secondes dans la session
-X11 ont été effectués en L03 ; aucune mesure de performance n'en est déduite.
+X11 ont été effectués en L03. L04 exécute en plus HTML/KaTeX/Mermaid, image
+locale, refus hors racine et révocation dans cette WebView ; aucune mesure de
+performance n'en est déduite.
 
 Inspection complémentaire : Node 24.18.0 est installé sous NVM et répond à
 `/home/oem/.nvm/versions/node/v24.18.0/bin/node`. Il était absent du PATH,
@@ -119,10 +121,11 @@ pnpm et Rust/Cargo/rustfmt/Clippy ont ensuite été installés et vérifiés dan
   dans `THIRD_PARTY_NOTICES.md` et le rapport L03. Aucun paquet n'est publié.
 - Confirmer le titulaire réel avant publication ; attribution existante conservée.
 
-## Sources officielles consultées le 3 octobre 2026
+## Sources officielles consultées les 3–4 octobre 2026
 
 - [Node : index des releases](https://nodejs.org/dist/index.json) ; [Rust stable](https://static.rust-lang.org/dist/channel-rust-stable.toml).
 - [Tauri : prérequis](https://v2.tauri.app/start/prerequisites/) et [crate 2.12.1](https://github.com/tauri-apps/tauri/blob/tauri-v2.12.1/crates/tauri/Cargo.toml).
 - [Vite : guide](https://vite.dev/guide/) ; [Svelte : insertion HTML](https://svelte.dev/docs/svelte/@html).
 - [DOMPurify : README/licences](https://github.com/cure53/DOMPurify) ; [Mermaid : usage](https://mermaid.js.org/config/usage) ; [KaTeX : options](https://katex.org/docs/options.html).
+- [Tauri : permissions](https://v2.tauri.app/security/permissions/), [runtime authority](https://v2.tauri.app/security/runtime-authority/) et [configuration `freezePrototype`](https://v2.tauri.app/reference/config/).
 - Métadonnées [svelte-check 4.7.6](https://registry.npmjs.org/svelte-check/4.7.6), [TypeScript 6.0.3](https://registry.npmjs.org/typescript/6.0.3), [plugin Svelte 7.3.1](https://registry.npmjs.org/@sveltejs/vite-plugin-svelte/7.3.1).

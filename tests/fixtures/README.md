@@ -59,6 +59,9 @@ native et lancer depuis un autre CWD.
 - NW01 : observer les accès réseau de l'arbre de processus/WebView et les
   navigations pendant ouverture/enrichissement. Un mock de fetch ne suffit pas.
 
-Ces recettes sont préparées, **non exécutées — application absente**. Les images
-de décompression excessive et plafonds enrichisseurs exigent encore des fixtures
-aux bornes choisies en L04 ; ne pas annoncer ces risques qualifiés aujourd'hui.
+Le harness L04 exécute sous Linux la substitution de symlink sur handle ouvert,
+la révocation d'URL, les ouvertures concurrentes pures, les profils HTML/KaTeX/
+Mermaid et l'absence de connexion IP ; voir son rapport. Windows/macOS, watcher,
+lecteur Markdown intégré et campagnes G4 restent non exécutés. Les tests de
+limites utilisent des entrées générées en mémoire aux bornes exactes/+1 ; ne pas
+annoncer un décodeur d'image complet qualifié avant L10/L23.

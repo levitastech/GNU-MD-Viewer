@@ -22,10 +22,10 @@
       }
     ],
     "security": {
-      "capabilities": [],
-      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost; img-src 'self' data:; style-src 'self'; font-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'",
+      "capabilities": ["main-reader"],
+      "csp": "default-src 'self'; connect-src ipc: http://ipc.localhost; img-src 'self' data: gnu-mdv-resource: http://gnu-mdv-resource.localhost; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'",
       "dangerousDisableAssetCspModification": false,
-      "freezePrototype": true
+      "freezePrototype": false
     }
   },
   "bundle": {

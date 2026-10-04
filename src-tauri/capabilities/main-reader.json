@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main-reader",
+  "description": "Accès minimal de la WebView principale aux ressources déjà autorisées côté Rust.",
+  "windows": ["main"],
+  "permissions": ["allow-resolve-resource", "allow-release-resource-session"]
+}

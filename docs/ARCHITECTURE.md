@@ -1,6 +1,10 @@
 # Architecture visée
 
-Ce document définit les frontières logiques du code. Le bootstrap L03 matérialise `src/lib/app/` pour les métadonnées sans encore créer le moteur Markdown, les composants de lecture ni les services fichiers.
+Ce document définit les frontières logiques du code. L04 matérialise les
+contrats dans `src/lib/contracts/`, l'automate dans `src/lib/state/`, les profils
+de rendu dans `src/lib/rendering/` et l'adaptateur de ressource dans
+`src/lib/platform/`. Le moteur Markdown, le sélecteur de document et le watcher
+restent à implémenter en P2.
 
 ## Flux de lecture
 
@@ -14,6 +18,30 @@ flowchart TD
 ```
 
 Le moteur TypeScript est indépendant des composants Svelte ; seuls des types et interfaces explicites le relient à l'UI. Plugins GFM, footnotes, alerts, ancres et mathématiques sont isolés, testés par fixtures. La fidélité GitHub se mesure sur exemples ciblés ; les extensions non standard sont activées explicitement.
+
+## Contrats figés en L04
+
+`DocumentSnapshot`, `RenderResult`, `HeadingEntry`, `ResourceRequest`,
+`ResolvedResource`, `DocumentService`, `WatchService`, `PreferenceService`,
+`RenderGeneration` et `AppError` sont définis sans import Svelte/Tauri. ESLint
+rend cette frontière vérifiable. Les chemins natifs ne figurent pas dans les
+snapshots ou requêtes frontend ; seuls des identifiants opaques traversent IPC.
+
+```mermaid
+stateDiagram-v2
+  [*] --> Active
+  Active --> Candidate: intention N
+  Candidate --> Active: échec, candidat libéré
+  Candidate --> Superseded: intention N+1
+  Candidate --> Activated: lecture + rendu réussis
+  Superseded --> Active: résultat ignoré et libéré
+  Activated --> Active: génération avancée puis ancienne session révoquée
+```
+
+`OpenCoordinator` applique cette transition. Une annulation logique empêche un
+résultat tardif d'être activé ; elle ne prétend pas interrompre un calcul
+synchrone. Le scheduler démarre au plus deux enrichissements et conserve au plus
+32 demandes en file, tandis que les précontrôles refusent les blocs hors budget.
 
 ## Frontières proposées
 
@@ -31,11 +59,13 @@ Le socle garde `src/` pour le frontend et `src-tauri/` pour le processus natif. 
 
 À l'ouverture, l'OS fournit un chemin ; Rust résout et valide les fichiers autorisés. Pour une référence relative, la base est le répertoire du **document qui contient la référence**. Un lien vers un autre `.md` change la base après ouverture. Traiter Unicode, espaces, chemins Windows, liens symboliques, traversées `..`, schémas interdits et ressources inexistantes. Définir séparément les règles pour chemins locaux, ancres et HTTP/HTTPS externes. L'application n'accorde pas la lecture illimitée du disque aux balises de contenu. La politique d'accès aux images hors du document doit être conçue et testée avant implémentation.
 
-Le cadrage V0 définit maintenant la politique dans [ADR 0003](adr/0003-lecture-et-ressources.md)
+Le cadrage V0 définit la politique dans [ADR 0003](adr/0003-lecture-et-ressources.md)
 et [SECURITY](SECURITY.md) : racine de session, extension native explicite,
-handles opaques, raster local contrôlé et révocation. Le mécanisme d'accès
-effectif reste à prototyper et tester en L04 ; la politique écrite ne prouve
-ni le confinement ni la compatibilité des WebViews.
+handles opaques, raster local contrôlé et révocation. [ADR 0004](adr/0004-contrats-sessions-et-prototypes-l04.md)
+retient un protocole à jetons : contrôle du handle effectivement ouvert sous
+Linux, cache borné et suppression de tous les jetons à la révocation. Les
+équivalents Windows/macOS restent à implémenter et qualifier, sans fallback
+permissif.
 
 Le HTML brut issu de la source reste désactivé ; tout HTML produit passe par la sanitisation avant insertion dans le DOM. Les plugins qui génèrent des URLs ou du HTML passent par le même contrôle. Mermaid et KaTeX sont chargés à la demande ; traiter leurs entrées et sorties comme non fiables, interdire toute exécution script et vérifier les contraintes CSP. Détails : `docs/SECURITY.md`.
 

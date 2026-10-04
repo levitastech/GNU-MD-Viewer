@@ -18,16 +18,17 @@ OS/WebView, attendu, résultat et raison d'une non-exécution.
 | Taille document | ≤ 20 Mo | borne incluse et +1 refusé avant copies/parse excessifs |
 | Taille image encodée | ≤ 10 Mo | borne incluse et +1 refusé, puis limites décodage |
 
-## Limites à fermer avant G1
+## Limites calibrées en L04
 
-L04 possède la calibration des dimensions/pixels/octets décodés d'image,
-taille et complexité de code, KaTeX et Mermaid, nombre de travaux concurrents
-et annulation effective. L01 fournit les cas adverses ; compléter à chaque
-borne exacte et +1 dès fixation. Au dépassement : ressource remplacée par
-message ou source échappée pour bloc enrichi, reste du document lisible.
-Pas d'allocation/décodage lourd avant contrôle ; pas de timeout fictif autour
-d'un calcul synchrone. G1 reste fermé tant que ces valeurs et fallbacks ne sont
-pas prouvés. Ces paramètres ouverts ne sont pas des limites implémentées.
+L04 fixe : image 16 384 px par axe et 64 000 000 octets RGBA estimés ; cache
+32 images/64 000 000 octets par session ; code 1 000 000 octets/50 000 lignes ;
+KaTeX 16 384 caractères, 1 000 expansions et 20 em ; Mermaid 65 536 caractères,
+2 000 lignes et 500 arêtes probables ; deux travaux actifs et 32 en file.
+Au dépassement : ressource remplacée par message ou source échappée pour bloc
+enrichi, reste du document lisible. Pas d'allocation/décodage lourd avant
+contrôle ; pas de timeout fictif autour d'un calcul synchrone. Les tests L04
+couvrent bornes/+1 représentatives ; L14–L16 réemploient ces constantes et L24
+mesure leur comportement sur la machine contractuelle.
 
 ## État des preuves
 
@@ -39,5 +40,6 @@ L01 est clos sur le corpus, le protocole et le profil physique contractuel ;
 les mesures Linux finales restent non exécutées et devront employer ce profil.
 Le modèle/policies L02 est clos au niveau documentaire après revue des
 références et menaces ; calibration des plafonds et preuves natives restent L04.
-Les recettes de confinement/révocation/absence de réseau sont des exigences
-de G1/G4, jamais déduites de la présence de fixtures ou d'une CSP écrite.
+Le rapport [L04](L04_RISK_PROTOTYPES_REPORT.md) consigne la recette Linux finale
+de confinement/révocation/sanitisation/absence de réseau qui ferme G1 sur la
+matrice active. Elle ne remplace pas G4 ni les plateformes différées.

@@ -54,14 +54,28 @@ pnpm desktop:package
   preuve de publication et n'a pas été exécutée en L03. Les formats restent P4.
 
 La configuration release désactive le bundling automatique, refuse les sources
-réseau dans sa CSP et n'accorde aucune capacité Tauri au frontend. Les futurs
-accès fichiers/OS doivent être ajoutés explicitement avec leurs tests et scopes.
+réseau dans sa CSP et n'accorde à `main` que les deux commandes de ressources
+L04. Rust revalide le label, la session et le handle ; aucun accès fichier
+générique n'est exposé.
+
+## Harness natif L04
+
+Dans une session graphique Linux avec les prérequis du projet :
+
+```bash
+tests/integration/run_l04_harness.sh
+```
+
+Le script crée uniquement des fixtures temporaires, compile avec la feature
+`l04-harness`, attend le marqueur des six contrôles puis vérifie via `strace`
+qu'aucune connexion IP n'a été tentée. Le timeout 124 est attendu car la fenêtre
+reste ouverte. `VITE_L04_HARNESS` n'est pas défini dans un build normal : le
+chunk, la fixture et l'initialisation de session de test n'y sont pas embarqués.
 
 ## Suite du chantier
 
-1. Réaliser L04 : contrats, sanitisation, CSP, ressources locales confinées et
-   prototypes WebView avant d'ouvrir le pipeline Markdown de production.
-2. Ajouter ensuite le moteur, les services et l'interface lot par lot, sans
+1. Démarrer P2 par L05, en consommant les contrats clos à G1.
+2. Ajouter le moteur, les services et l'interface lot par lot, sans
    donner au contenu Markdown de capacité Tauri directe.
 
 ## Débogage et reproductibilité

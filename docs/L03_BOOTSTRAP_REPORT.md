@@ -2,7 +2,7 @@
 
 Date : 3 octobre 2026, mise à jour le 4 octobre 2026. Base de travail : branche
 `dev`, commit `1192d7a`.
-Statut : **L03 doing**. Le socle et la preuve Linux locale sont disponibles ;
+Statut : **L03 done** après revue le 4 octobre 2026. Le socle et la preuve Linux locale sont disponibles ;
 Windows et macOS ne sont pas qualifiés et aucun workflow CI n'est livré.
 
 ## Livrables
@@ -96,6 +96,6 @@ sans analyse ciblée ou version corrigée.
   P4 ; `bundle.active` reste faux.
 - Benchmark et conformité Markdown : non exécutés, hors objet de L03.
 
-L03 peut passer à `done` après revue du diff. L04 et G1 restent `todo` ; un
-build minimal ne prouve ni confinement, ni sanitisation, ni absence réseau du
-futur moteur.
+L03 est clos après revue et commit du socle. L04 traite désormais confinement,
+sanitisation et absence réseau ; un build minimal L03 ne prouvait aucun de ces
+contrats.
