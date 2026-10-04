@@ -1,0 +1,1 @@
+{"main-reader":{"identifier":"main-reader","description":"Accès minimal de la WebView principale aux ressources déjà autorisées côté Rust.","local":true,"windows":["main"],"permissions":["allow-resolve-resource","allow-release-resource-session"]}}
