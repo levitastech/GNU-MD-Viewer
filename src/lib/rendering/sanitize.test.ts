@@ -26,6 +26,38 @@ describe('profils de sanitisation L04', () => {
     expect(clean).not.toMatch(/href|src|onerror|<style|<script|ui-shell/i);
   });
 
+  it('conserve uniquement les métadonnées inertes du moteur', () => {
+    const clean = sanitizeDocumentHtml(
+      asUnsanitizedHtml(`
+        <h2 data-mdv-heading="mdv-heading-titre" id="app">Titre</h2>
+        <a href="https://evil.test" data-mdv-link="https://example.test"
+           data-mdv-link-kind="external" data-other="secret" tabindex="0">Lien</a>
+      `),
+    );
+
+    expect(clean).toContain('data-mdv-heading="mdv-heading-titre"');
+    expect(clean).toContain('data-mdv-link="https://example.test"');
+    expect(clean).toContain('data-mdv-link-kind="external"');
+    expect(clean).not.toMatch(/href=|id=|data-other/);
+  });
+
+  it('retire protocoles encodés, URLs sans schéma et vecteurs de clobbering', () => {
+    const clean = sanitizeDocumentHtml(
+      asUnsanitizedHtml(`
+        <form id="app"><input name="__proto__"></form>
+        <a href="java&#x73;cript:alert(1)">encodé</a>
+        <a href="//example.test/path">sans schéma</a>
+        <svg><a xlink:href="data:text/html,attaque"><text>X</text></a></svg>
+      `),
+    );
+
+    expect(clean).not.toMatch(
+      /form|input|href|svg|data:|javascript|__proto__/i,
+    );
+    expect(clean).toContain('encodé');
+    expect(clean).toContain('sans schéma');
+  });
+
   it('réduit le SVG Mermaid au profil passif retenu', () => {
     const clean = sanitizeMermaidSvg(
       asUnsanitizedHtml(`

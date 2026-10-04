@@ -33,8 +33,22 @@ export type OpenOutcome =
 type ErrorNormalizer = (error: unknown) => AppError;
 
 const defaultErrorNormalizer: ErrorNormalizer = (error) => ({
-  code: 'render_failed',
-  message: error instanceof Error ? error.message : 'Ouverture impossible.',
+  code:
+    error &&
+    typeof error === 'object' &&
+    'code' in error &&
+    typeof error.code === 'string'
+      ? (error.code as AppError['code'])
+      : 'render_failed',
+  message:
+    error &&
+    typeof error === 'object' &&
+    'message' in error &&
+    typeof error.message === 'string'
+      ? error.message
+      : error instanceof Error
+        ? error.message
+        : 'Ouverture impossible.',
 });
 
 export class OpenCoordinator {

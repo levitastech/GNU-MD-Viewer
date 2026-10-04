@@ -8,6 +8,7 @@ import type {
   SessionId,
 } from '../contracts/document';
 import { toResourceToken } from '../contracts/document';
+import { isAppError } from './native-errors';
 
 interface NativeResolvedResource {
   readonly token: string;
@@ -18,14 +19,6 @@ interface NativeResolvedResource {
 }
 
 export const RESOURCE_PROTOCOL = 'gnu-mdv-resource';
-
-const isAppError = (value: unknown): value is AppError => {
-  if (!value || typeof value !== 'object') return false;
-  const candidate = value as Record<string, unknown>;
-  return (
-    typeof candidate.code === 'string' && typeof candidate.message === 'string'
-  );
-};
 
 export class TauriResourceService implements ResourceService {
   async resolve(request: ResourceRequest): Promise<ResolvedResource> {

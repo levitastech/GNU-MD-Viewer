@@ -4,7 +4,34 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ## [Unreleased]
 
-## [0.1.0] - 2026-10-04 — en implémentation, non publiée
+## [0.2.0] - 2026-10-04 — en implémentation, non publiée
+
+### Added
+
+- Première tranche P2/V2 : dialogue natif, lecture seule UTF-8 bornée, moteur
+  Markdown autonome, rendu sanitisé et interface de lecture avec conservation
+  du dernier document valide en cas d'échec.
+- Tables, barré, autolinks, titres Unicode déterministes, code échappé et
+  placeholders d'images distantes dans le profil Markdown initial.
+
+### Changed
+
+- Dialogue document détenu par Rust avec sélection opaque à usage unique ; les
+  chemins natifs ne traversent pas le DOM. Liens HTTP(S) confirmés puis
+  revalidés côté Rust avant ouverture dans le navigateur système.
+
+### Security
+
+- Refus des fichiers trop grands, non UTF-8, spéciaux, remplacés ou à suffixe
+  trompeur ; HTML brut, protocoles dangereux et chargements distants restent
+  inertes avant insertion.
+
+Cette section décrit la release `0.2.0` en cours d'implémentation, sans tag,
+installateur, publication ni promesse de support de plateforme. P2 reste ouvert
+après V2 ; les changements non encore rattachés à une version restent sous
+`[Unreleased]`.
+
+## [0.1.0] - 2026-10-04 — socle P1, non publiée
 
 ### Added
 
@@ -43,6 +70,5 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
   révocables sans chemin dans le DOM, contrôle du handle, de la racine et de la
   session.
 
-Cette section décrit l'état d'implémentation `0.1.0`, sans tag, installateur,
-publication ni promesse de support de plateforme. Les changements futurs restent
-sous `[Unreleased]` jusqu'à leur rattachement explicite à une version.
+Cette section conserve l'historique du socle P1 `0.1.0`. Cette version n'a pas
+été taguée, empaquetée ni publiée.

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-release-document-session"
+description = "Enables the release_document_session command without any pre-configured scope."
+commands.allow = ["release_document_session"]
+
+[[permission]]
+identifier = "deny-release-document-session"
+description = "Denies the release_document_session command without any pre-configured scope."
+commands.deny = ["release_document_session"]

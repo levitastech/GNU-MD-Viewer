@@ -92,6 +92,16 @@ export const sanitizeDocumentHtml = (html: UnsanitizedHtml): SafeHtml =>
   DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
     ALLOW_DATA_ATTR: false,
+    ADD_ATTR: [
+      'data-mdv-heading',
+      'data-mdv-image',
+      'data-mdv-link',
+      'data-mdv-link-kind',
+      'role',
+      'tabindex',
+    ],
+    SANITIZE_DOM: true,
+    SANITIZE_NAMED_PROPS: true,
     FORBID_TAGS: [
       'base',
       'button',
@@ -154,4 +164,9 @@ export const asUnsanitizedHtml = (value: string): UnsanitizedHtml =>
 
 export const appendSafeHtml = (target: Element, html: SafeHtml): void => {
   target.insertAdjacentHTML('beforeend', html);
+};
+
+export const replaceWithSafeHtml = (target: Element, html: SafeHtml): void => {
+  target.replaceChildren();
+  appendSafeHtml(target, html);
 };

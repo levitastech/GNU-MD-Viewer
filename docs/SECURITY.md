@@ -16,8 +16,9 @@ Un fichier Markdown local peut être contrôlé par un tiers. HTML, URLs, images
 Les décisions SG02–SG04/SG07/SG09 sont transcrites dans
 [ADR 0003](adr/0003-lecture-et-ressources.md). L04 matérialise les premiers
 contrats et le protocole de ressources dans [ADR 0004](adr/0004-contrats-sessions-et-prototypes-l04.md).
-La preuve Linux ciblée ne qualifie ni le futur lecteur complet, ni Windows ou
-macOS. Une sanitisation seule ne remplace ni politique URL ni permissions.
+L05–L09 appliquent ces contrats à la première tranche verticale. La preuve Linux
+ciblée ne qualifie ni P2/G2, ni Windows ou macOS. Une sanitisation seule ne
+remplace ni politique URL ni permissions.
 
 ## Frontières et autorité — L02
 
@@ -71,9 +72,10 @@ une image. Aucun chemin source ne devient directement un `src` actif.
 HTML brut désactivé, `breaks: false`, pas de typographie automatique. Ne pas
 activer de contenu en sortie du parser avant le filtrage des références.
 HTML produit : profil versionné excluant scripts, événements, iframes,
-formulaires, `srcdoc`, IDs réservés UI et styles/URLs non contrôlés. L04 retire
-tous `href`/`src` du fragment documentaire ; L07 réintroduira uniquement les
-cibles typées après policy. Tâches
+formulaires, `srcdoc`, IDs réservés UI et styles/URLs non contrôlés. L07 retire
+tous `href`/`src` du fragment documentaire et ne conserve que les métadonnées
+inertes `data-mdv-*` produites par le moteur. La cible est revalidée au clic et
+dans Rust avant toute action externe. Tâches
 en lecture seule. Insertion unique, après DOMPurify ; aucune réécriture regex
 postérieure qui réintroduit du HTML non contrôlé.
 
@@ -108,9 +110,15 @@ CSP release L04 : `default-src 'self'`,
 Le style inline est limité aux sorties KaTeX contrôlées ; le HTML documentaire
 et le SVG Mermaid perdent leurs styles. Aucun script inline, `unsafe-eval`,
 wildcard HTTP(S), CDN ou serveur localhost applicatif. Les origines IPC Tauri
-locales sont un transport natif, pas un backend HTTP. La recette release L04
-vérifie le protocole et l'absence de connexion IP ; L23 rejoue l'observation sur
-le lecteur intégré.
+locales sont un transport natif, pas un backend HTTP. Les recettes release L04
+et L09 vérifient le protocole puis le lecteur intégré sans connexion IP ; L23
+rejoue l'observation sur le MVP complet.
+
+Le dialogue V2 est détenu par Rust : `select_document` remet un jeton 256 bits
+à usage unique et non le chemin sélectionné. `open_document` refuse les jetons
+inconnus ou expirés et borne à 20 000 000 octets la lecture réelle, même si le
+fichier croît après son `stat`. UTF-8 invalide, dossiers, fichiers spéciaux,
+suffixes trompeurs et remplacement entre sélection et ouverture sont refusés.
 
 `freezePrototype` reste `false` : Mermaid 12.1.0 échoue dans WebKitGTK lorsque
 Tauri gèle `Object.prototype`. La version figée corrige les avis de prototype

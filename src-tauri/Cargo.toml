@@ -1,6 +1,6 @@
 [package]
 name = "gnu-mdv"
-version = "0.1.0"
+version = "0.2.0"
 description = "Lecteur Markdown desktop local et hors ligne"
 authors = ["GNU-MD Viewer contributors"]
 edition = "2024"
@@ -9,6 +9,7 @@ license = "MIT"
 
 [features]
 l04-harness = []
+l09-harness = []
 
 [lib]
 name = "gnu_mdv_lib"
@@ -21,6 +22,9 @@ tauri-build = { version = "=2.7.1", features = [] }
 getrandom = "=0.4.3"
 serde = { version = "=1.0.229", features = ["derive"] }
 tauri = { version = "=2.12.1", features = [] }
+tauri-plugin-dialog = "=2.8.1"
+tauri-plugin-opener = "=2.7.0"
+url = "=2.5.8"
 
 [dev-dependencies]
 tempfile = "=3.27.0"

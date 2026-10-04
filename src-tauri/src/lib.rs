@@ -1,9 +1,11 @@
 mod commands;
 pub mod contracts;
+pub mod documents;
 pub mod resources;
 
 use std::sync::Arc;
 
+use documents::DocumentRegistry;
 use resources::{RESOURCE_PROTOCOL, ResourceRegistry};
 use tauri::http::{Method, Response, StatusCode, header};
 
@@ -24,6 +26,16 @@ fn protocol_response(
     #[cfg(feature = "l04-harness")]
     if token.starts_with("harness-report-") {
         eprintln!("L04_WEBVIEW_REPORT:{token}");
+        return Response::builder()
+            .status(StatusCode::NO_CONTENT)
+            .header(header::CACHE_CONTROL, "no-store")
+            .body(Vec::new())
+            .expect("réponse de rapport harness valide");
+    }
+
+    #[cfg(feature = "l09-harness")]
+    if token.starts_with("l09-report-") {
+        eprintln!("L09_WEBVIEW_REPORT:{token}");
         return Response::builder()
             .status(StatusCode::NO_CONTENT)
             .header(header::CACHE_CONTROL, "no-store")
@@ -62,6 +74,7 @@ fn protocol_response(
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let documents = Arc::new(DocumentRegistry::default());
     let registry = Arc::new(ResourceRegistry::default());
 
     #[cfg(feature = "l04-harness")]
@@ -78,11 +91,18 @@ pub fn run() {
     let protocol_registry = Arc::clone(&registry);
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_opener::init())
+        .manage(documents)
         .manage(registry)
         .register_uri_scheme_protocol(RESOURCE_PROTOCOL, move |context, request| {
             protocol_response(&protocol_registry, context.webview_label(), request)
         })
         .invoke_handler(tauri::generate_handler![
+            commands::select_document,
+            commands::open_document,
+            commands::release_document_session,
+            commands::open_external_url,
             commands::resolve_resource,
             commands::release_resource_session
         ])

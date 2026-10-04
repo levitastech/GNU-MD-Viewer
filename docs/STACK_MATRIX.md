@@ -22,6 +22,9 @@ les **octets décompressés du paquet npm**, ni le bundle distribué ni ses tran
 | tauri-build (crate) | 2.7.1 | MIT ou Apache-2.0 | — |
 | @tauri-apps/api | 2.12.1 | MIT ou Apache-2.0 | 889166 |
 | @tauri-apps/cli | 2.12.1 | MIT ou Apache-2.0, outil de build | 429371 |
+| tauri-plugin-dialog (crate) | 2.8.1 | MIT ou Apache-2.0 | — |
+| tauri-plugin-opener (crate) | 2.7.0 | MIT ou Apache-2.0 | — |
+| url (crate) | 2.5.8 | MIT ou Apache-2.0 | — |
 | Svelte | 5.57.1 | MIT | 2941384 |
 | TypeScript | 6.0.3 | Apache-2.0, outil de build | non relevé |
 | Vite | 8.3.2 | MIT, outil de build | 2368132 |

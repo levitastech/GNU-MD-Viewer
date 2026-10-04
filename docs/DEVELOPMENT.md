@@ -54,9 +54,9 @@ pnpm desktop:package
   preuve de publication et n'a pas été exécutée en L03. Les formats restent P4.
 
 La configuration release désactive le bundling automatique, refuse les sources
-réseau dans sa CSP et n'accorde à `main` que les deux commandes de ressources
-L04. Rust revalide le label, la session et le handle ; aucun accès fichier
-générique n'est exposé.
+réseau dans sa CSP et n'accorde à `main` que les commandes document, lien et
+ressource explicitement listées. Rust revalide le label, les jetons, la session
+et les handles ; aucun accès fichier générique n'est exposé.
 
 ## Harness natif L04
 
@@ -72,11 +72,24 @@ qu'aucune connexion IP n'a été tentée. Le timeout 124 est attendu car la fen�
 reste ouverte. `VITE_L04_HARNESS` n'est pas défini dans un build normal : le
 chunk, la fixture et l'initialisation de session de test n'y sont pas embarqués.
 
+## Harness natif L09
+
+Dans une session graphique Linux avec `strace` et `/usr/bin/time` :
+
+```bash
+./tests/integration/run_l09_harness.sh
+```
+
+Le script compile la feature `l09-harness`, ouvre une fixture réelle via le
+même service document, vérifie table, code échappé, HTML hostile et lien refusé,
+relève temps de rendu et mémoire maximale, puis observe l'absence de connexion
+IP. Le chunk et l'autorisation de fixture n'existent pas dans un build normal.
+
 ## Suite du chantier
 
-1. Démarrer P2 par L05, en consommant les contrats clos à G1.
-2. Ajouter le moteur, les services et l'interface lot par lot, sans
-   donner au contenu Markdown de capacité Tauri directe.
+1. Démarrer P2/V3 par L10, en étendant le service de ressources depuis le
+   document actif sans modifier le contrat de sélection opaque.
+2. Ajouter TOC, thèmes/zoom et extensions L11–L13 avant de demander G2.
 
 ## Débogage et reproductibilité
 

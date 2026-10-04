@@ -4,6 +4,9 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "snake_case")]
 pub enum AppErrorCode {
     AccessDenied,
+    DocumentNotFound,
+    DocumentTooLarge,
+    InvalidUtf8,
     ResourceInvalid,
     ResourceNotFound,
     ResourceOutsideRoot,

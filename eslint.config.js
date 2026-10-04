@@ -24,9 +24,14 @@ export default tseslint.config(
         document: 'readonly',
         DOMParser: 'readonly',
         Element: 'readonly',
+        Event: 'readonly',
         getComputedStyle: 'readonly',
         HTMLDivElement: 'readonly',
+        HTMLElement: 'readonly',
         Image: 'readonly',
+        KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
+        performance: 'readonly',
         window: 'readonly',
       },
     },
@@ -57,10 +62,14 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/lib/platform/L04WebviewHarness.svelte'],
+    files: [
+      'src/lib/components/DocumentView.svelte',
+      'src/lib/platform/L04WebviewHarness.svelte',
+    ],
     rules: {
-      // Ce harness vérifie précisément le point d'insertion après sanitisation.
+      // Ces fichiers sont les seuls points d'insertion ; ils reçoivent exclusivement SafeHtml.
       'svelte/no-dom-manipulating': 'off',
+      'svelte/no-at-html-tags': 'off',
     },
   },
 );

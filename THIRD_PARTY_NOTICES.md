@@ -26,11 +26,14 @@ est EPL-2.0. `khroma` 2.1.0 n'a pas de champ `license` dans `package.json`, mais
 son archive contient un fichier `license` MIT attribué à Fabio Spampinato et
 Andrew Maney ; il n'est donc pas traité comme licence inconnue.
 
-Le graphe Cargo contient 417 crates sans licence absente. Cinq transitives
-déclarent MPL-2.0 (`cssparser`, `cssparser-macros`, `dtoa-short`, `option-ext`,
-`selectors`) ; les autres expressions recensées sont permissives ou proposent
-un choix permissif. Les textes et sources exigés par MPL/EPL devront être joints
-ou rendus accessibles dans le paquet final après gel du contenu distribué.
+Le graphe Cargo audité en L03 contenait 417 crates sans licence absente. Le
+lockfile V2 contient désormais 472 entrées après ajout des plugins ; son
+inventaire de distribution devra être régénéré avant P4. Dans l'inventaire L03,
+cinq transitives déclaraient MPL-2.0 (`cssparser`, `cssparser-macros`,
+`dtoa-short`, `option-ext`, `selectors`) ; les autres expressions recensées
+étaient permissives ou proposaient un choix permissif. Les textes et sources
+exigés par MPL/EPL devront être joints ou rendus accessibles dans le paquet
+final après gel du contenu distribué.
 
 Avant distribution, générer l'inventaire exact depuis les lockfiles et le
 contenu réellement embarqué, inclure les textes complets requis et vérifier les
@@ -46,3 +49,12 @@ Rust. `getrandom` 0.4.3 et `serde` 1.0.229 (MIT ou Apache-2.0) sont déclarés
 directement pour les jetons opaques et les contrats IPC ; ils existaient déjà
 dans le graphe Tauri résolu. Aucun de ces outils n'ajoute un service réseau ;
 jsdom, ses types et tempfile ne sont pas incorporés au binaire release normal.
+
+## Intégration native ajoutée en V2
+
+`tauri-plugin-dialog` 2.8.1 et `tauri-plugin-opener` 2.7.0 sont utilisés côté
+Rust uniquement pour le dialogue d'ouverture et le navigateur système. Les deux
+sont publiés par le projet Tauri sous double licence MIT ou Apache-2.0. `url`
+2.5.8 (MIT ou Apache-2.0) fournit la validation syntaxique redondante des liens
+HTTP(S). Aucun plugin filesystem générique n'est exposé au frontend ; sa présence
+transitive pour les types de chemin du dialogue n'accorde aucune permission.

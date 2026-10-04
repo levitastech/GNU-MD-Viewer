@@ -3,8 +3,9 @@
 Ce document définit les frontières logiques du code. L04 matérialise les
 contrats dans `src/lib/contracts/`, l'automate dans `src/lib/state/`, les profils
 de rendu dans `src/lib/rendering/` et l'adaptateur de ressource dans
-`src/lib/platform/`. Le moteur Markdown, le sélecteur de document et le watcher
-restent à implémenter en P2.
+`src/lib/platform/`. V2 ajoute le service document Rust, le dialogue natif à
+jeton opaque, le moteur Markdown indépendant et la coque Svelte. Le service de
+ressources complet relève de L10 et le watcher de L17.
 
 ## Flux de lecture
 
@@ -53,7 +54,23 @@ synchrone. Le scheduler démarre au plus deux enrichissements et conserve au plu
 | Commandes, filesystem, CLI, watcher | `src-tauri/src/` | Ouvre seulement les fichiers demandés ; valide et borne les opérations |
 | Capacités et configuration Tauri | `src-tauri/` | Permissions et CSP au strict nécessaire |
 
-Le socle garde `src/` pour le frontend et `src-tauri/` pour le processus natif. Les autres répertoires sont créés seulement avec leur lot et leurs tests ; le moteur Markdown devra rester indépendant de Svelte, du DOM et de Tauri.
+Le socle garde `src/` pour le frontend et `src-tauri/` pour le processus natif.
+Le moteur `src/lib/markdown/engine.ts` reste indépendant de Svelte, du DOM et de
+Tauri ; ESLint vérifie cette frontière.
+
+## Autorisation d'ouverture V2
+
+Le dialogue s'exécute dans Rust. Il ne retourne au frontend qu'un jeton aléatoire
+à usage unique, conservé dans un registre borné ; aucun chemin natif n'entre dans
+le snapshot ou le DOM. `open_document` consomme le jeton, revalide extension,
+identité, type de fichier, taille et stabilité des métadonnées, puis décode
+l'UTF-8 strict. Une sélection forgée, réutilisée ou remplacée est refusée.
+
+Le moteur produit des titres déterministes, des déclarations de ressources et
+des liens inertes `data-mdv-*`. DOMPurify retire les attributs URL avant le seul
+point d'insertion Svelte. Un clic HTTP(S) exige confirmation puis une seconde
+validation Rust avant ouverture dans le navigateur système ; une cible locale
+reste inactive jusqu'à L10.
 
 ## Chemins, URLs et confiance
 

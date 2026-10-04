@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-select-document"
+description = "Enables the select_document command without any pre-configured scope."
+commands.allow = ["select_document"]
+
+[[permission]]
+identifier = "deny-select-document"
+description = "Denies the select_document command without any pre-configured scope."
+commands.deny = ["select_document"]
