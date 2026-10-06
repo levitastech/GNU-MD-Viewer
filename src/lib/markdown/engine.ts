@@ -31,6 +31,7 @@ interface RenderEnvironment extends Env {
 }
 
 const collectInlineText = (token: Token): string => {
+  if (token.type === 'softbreak' || token.type === 'hardbreak') return ' ';
   if (token.type === 'text' || token.type === 'code_inline')
     return token.content;
   return token.children?.map(collectInlineText).join('') ?? token.content;
@@ -59,7 +60,7 @@ const positionFor = (
 const slugBase = (value: string): string => {
   const slug = value
     .normalize('NFC')
-    .toLocaleLowerCase()
+    .toLowerCase()
     .trim()
     .replace(/[^\p{L}\p{N}\p{M}\s_-]/gu, '')
     .replace(/[\s_-]+/g, '-')

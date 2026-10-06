@@ -8,6 +8,7 @@
   } from '../contracts/document';
   import { hydrateLocalImages } from '../rendering/hydrate-local-images';
   import { navigateDocument } from '../rendering/document-navigation';
+  import { observeActiveSection } from '../rendering/active-section';
 
   interface Props {
     html: SafeHtml;
@@ -84,32 +85,9 @@
 
   $effect(() => {
     void html;
-    onsection(null);
     if (initialAnchor && !navigateDocument(documentElement, initialAnchor))
       onanchorerror();
-    const headings = Array.from(
-      documentElement.querySelectorAll<HTMLElement>('[data-mdv-heading]'),
-    );
-    if (typeof window.IntersectionObserver === 'undefined') return;
-    // Internal observer bookkeeping, not reactive UI state.
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const visible = new Set<Element>();
-    const observer = new window.IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) visible.add(entry.target);
-          else visible.delete(entry.target);
-        }
-        const heading = headings.find((element) => visible.has(element));
-        if (heading) onsection(heading.dataset.mdvHeading ?? null);
-      },
-      {
-        root: documentElement.closest('.reader'),
-        rootMargin: '0px 0px -60% 0px',
-      },
-    );
-    for (const heading of headings) observer.observe(heading);
-    return () => observer.disconnect();
+    return observeActiveSection(documentElement, onsection);
   });
 </script>
 

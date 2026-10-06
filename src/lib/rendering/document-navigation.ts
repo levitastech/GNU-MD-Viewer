@@ -6,22 +6,26 @@ export const findDocumentAnchor = (
   if (!target.startsWith('#')) return null;
   let anchor: string;
   try {
-    anchor = decodeURIComponent(target.slice(1));
+    anchor = decodeURIComponent(target.slice(1)).normalize('NFC');
   } catch {
     return null;
   }
   if (!anchor) return null;
+  const candidates = Array.from(
+    container.querySelectorAll<HTMLElement>(
+      '[data-mdv-heading], [data-mdv-anchor]',
+    ),
+  );
   return (
-    Array.from(
-      container.querySelectorAll<HTMLElement>(
-        '[data-mdv-heading], [data-mdv-anchor]',
-      ),
-    ).find(
+    candidates.find(
       (element) =>
         element.dataset.mdvAnchor === anchor ||
-        element.dataset.mdvHeading === anchor ||
-        element.dataset.mdvHeading === `mdv-heading-${anchor}`,
-    ) ?? null
+        element.dataset.mdvHeading === anchor,
+    ) ??
+    candidates.find(
+      (element) => element.dataset.mdvHeading === `mdv-heading-${anchor}`,
+    ) ??
+    null
   );
 };
 

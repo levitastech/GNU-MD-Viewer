@@ -166,3 +166,50 @@ Après le harness, `pnpm tauri build --debug --no-bundle` normal réussi,
 sans chunk de recette (JS principal 197,83 kB brut / 78,43 kB gzip).
 Smoke X11 normal 12 secondes : timeout 124 attendu, avertissements EGL/VMware
 sans crash. Aucun build release, paquet, push ou publication dans cette étape.
+
+## Complément L11 — Titres, navigation et section active
+
+Base `265a81a` plus diff L11 : moteur, `document-navigation`, nouveau service
+`active-section`, `DocumentView`, remise à zéro du diagnostic de lien dans App,
+tests et corpus `v3/headings.md` / `v3/no-headings.md`, extension du harness.
+Aucune dépendance ni API Rust modifiée. Svelte 5.57.1 conservé ; cycle
+[$effect](https://svelte.dev/docs/svelte/$effect),
+[ResizeObserver](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver)
+et [requestAnimationFrame](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame)
+vérifiés dans les documentations officielles avant adaptation.
+
+L'ancien suivi par intersection ne déterminait pas la section traversée entre
+deux titres éloignés ou après un saut rapide. Le suivi utilise désormais des
+positions mises en cache aux changements de layout et une recherche binaire
+au scroll, sans mesure de tous les titres à chaque événement. Il nettoie les
+abonnements et callbacks différés, ne change ni focus ni sélection et se
+réinitialise pour un document sans titre.
+
+Le corpus révèle aussi une collision entre un titre `mdv-note-1` et la note
+homonyme : la cible exacte de note prime désormais sur l'alias court de titre.
+Les ancres sont normalisées NFC après décodage ; les slugs utilisent une
+minuscule indépendante de la locale et les titres Setext multilignes
+conservent leurs espaces. Les variantes supportées sont documentées dans
+[ARCHITECTURE](ARCHITECTURE.md), sans conformité exhaustive GitHub annoncée.
+
+`pnpm test` : 45 tests réussis, dont six nouveaux. `pnpm check` : aucune
+erreur/avertissement ; lint et format verts. Les tests couvrent H1–H6, Unicode,
+RTL, doublons/suffixes, emoji, code/liens inline, notes homonymes, ancre absente,
+défilement, invalidation de layout et callbacks tardifs.
+
+`bash tests/integration/run_v3_harness.sh` réussi sur Linux/X11/WebKitGTK
+2.52.6, avec Node 24.18.0, pnpm 12.8.1 et Rust 1.91.1. Les 29 marqueurs
+réussissent depuis `/tmp` ; les sept hashes source sont inchangés et aucune
+connexion IP n'est observée sous strace. Les huit ajouts vérifient index TOC,
+événement clavier DOM, notes homonymes, ancre inconnue, focus TOC, conservation
+de sélection/focus au scroll, sauts aller/retour et document sans titre.
+Logs : `/tmp/gnu-mdv-v3.pvp7WH`, parcours 3874 ms, RSS maximal 167164 KiB
+(mesures exploratoires, pas benchmarks L24). Aucun clavier physique, lecteur
+d'écran ou contrôle visuel exhaustif n'est attesté. Windows/macOS et recette
+release restent différés ; L11 est qualifié sur cette matrice automatisée
+Linux, V3/G2 reste ouvert pour L12/L13.
+`cargo fmt --check`, 32 tests Rust et Clippy tous targets/features avec
+`-D warnings` sont réussis. Le binaire desktop debug normal a été reconstruit
+après le harness, sans chunk de recette (JS principal 198,58 kB brut /
+78,73 kB gzip). Smoke X11 12 secondes : statut 124 attendu du timeout,
+avertissements EGL/VMware de la VM sans crash.

@@ -25,8 +25,19 @@ Unicode, suppression de la ponctuation et regroupement des espaces/tirets/
 underscores en tiret pour les titres. Les titres vides ou uniquement emoji
 utilisent `section` ; les collisions reçoivent un suffixe unique. C'est un
 sous-ensemble documenté, pas une reproduction exhaustive des slugs GitHub.
-Les ancres percent-encodées sont décodées une fois, dans le document courant
-uniquement. Les IDs du chrome applicatif ne sont jamais des cibles.
+Les minuscules ne dépendent pas de la locale ; les sauts de ligne des titres
+Setext deviennent des espaces. Les ancres percent-encodées sont décodées une
+fois puis normalisées NFC, dans le document courant uniquement. Les cibles
+exactes de notes et de titres priment sur les alias courts des titres : un
+titre `mdv-note-1` ne détourne pas le renvoi de note homonyme. Les IDs du chrome
+applicatif ne sont jamais des cibles.
+
+La section active utilise un index de positions recalculé aux changements de
+taille du document, de la zone de lecture ou du sommaire, au chargement d'une
+image et au redimensionnement. Le défilement déclenche au plus un callback
+par frame et une recherche binaire sans reparcourir ni mesurer tous les titres.
+Le suivi ne modifie ni focus ni sélection ; listeners, observer et frame en
+attente sont libérés au remplacement du document.
 
 Les titres et notes portent des attributs inertes distincts, jamais des `id`
 libres. Le renderer footnote 4.0.0 conserve le parser amont mais adapte ses

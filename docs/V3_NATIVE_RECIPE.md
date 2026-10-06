@@ -46,8 +46,10 @@ ne vaut ni benchmark L24 ni qualification de ces plateformes.
   tests Rust et parcours WebView Linux réussis. Le sélecteur de dossier est
   remplacé par une sélection de fixture uniquement dans le binaire de test ;
   aucun clic manuel dans le dialogue natif n'est attesté.
-- L11 : interactions branchées et vérifiées dans la WebView ; élargir le
-  corpus de titres/clavier/scroll avant clôture.
+- L11 : corpus H1–H6 Unicode/RTL/doublons/code/liens et notes homonymes,
+  ancres décomposées/absentes, focus, sélection et sauts de défilement qualifiés
+  sur la matrice automatisée Linux. Aucun clavier physique ni lecteur d'écran
+  n'est attesté ; le harness émet un événement clavier DOM dans la WebView.
 - L12 : mode système et remise à zéro implémentés. Clair/sombre et reset
   vérifiés en natif ; changements OS à chaud, petite fenêtre, RTL et bornes
   de zoom restent à recetter.
@@ -68,7 +70,7 @@ Le script compile en debug avec `l09-harness` et `VITE_V3_HARNESS=1`,
 sélectionne la fixture via le hook natif existant, puis pilote les composants
 réels de `App.svelte`. Il ne remplace pas le pipeline de rendu. Il conserve
 les logs dans un répertoire temporaire annoncé, contrôle les hashes source,
-les connexions IP et 21 marqueurs d'interaction. Le lecteur est lancé avec
+les connexions IP et 29 marqueurs d'interaction. Le lecteur est lancé avec
 `/tmp` comme CWD. Voir le rapport V3 pour
 résultats et limites. Recompiler ensuite sans feature ni variable de harness.
 

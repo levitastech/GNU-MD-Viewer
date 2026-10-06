@@ -113,6 +113,7 @@
         return;
       }
       if (kind === 'local' && !target.startsWith('#')) {
+        linkNotice = '';
         void controller?.openRelative(target).catch((error: unknown) => {
           linkNotice =
             error instanceof Error ? error.message : 'Lien local refusé.';

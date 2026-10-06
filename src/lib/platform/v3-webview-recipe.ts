@@ -156,6 +156,119 @@ export const runV3Recipe = async (): Promise<void> => {
     requireElement<HTMLButtonElement>('.actions .primary').click();
     await waitFor(() => document.querySelector('.document table') !== null);
     await waitFor(hasImage);
+    // L11: actual WebView layout, delegated keyboard events and selection.
+    clickLink('headings.md');
+    await waitFor(
+      () =>
+        document.querySelector('.document h1')?.textContent ===
+        'Navigation L11',
+    );
+    const headings = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-mdv-heading]'),
+    );
+    const buttons = Array.from(
+      document.querySelectorAll<HTMLButtonElement>(
+        '.table-of-contents li button',
+      ),
+    );
+    const location = window.location.href;
+    checks.headings =
+      headings.length === buttons.length &&
+      new Set(headings.map((heading) => heading.dataset.mdvHeading)).size ===
+        headings.length &&
+      new Set(headings.map((heading) => heading.tagName)).size === 6;
+    const decomposed = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-mdv-link]'),
+    ).find((link) => link.textContent === 'Ancre décomposée');
+    if (!decomposed) throw new Error('Ancre de recette absente');
+    decomposed.focus();
+    decomposed.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'Enter',
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await tick();
+    checks.keyboard =
+      (document.activeElement as HTMLElement)?.dataset.mdvHeading ===
+      'mdv-heading-été-عربي';
+    clickLink('#mdv-note-1');
+    await tick();
+    checks.namespace =
+      (document.activeElement as HTMLElement)?.dataset.mdvAnchor ===
+      'mdv-note-1';
+    clickLink('#introuvable');
+    await tick();
+    checks.missing =
+      document.querySelector('.document h1')?.textContent ===
+        'Navigation L11' &&
+      window.location.href === location &&
+      document.querySelector('[role="status"]')?.textContent ===
+        'Section introuvable.';
+    buttons[buttons.length - 1]!.click();
+    await tick();
+    checks.tocfocus =
+      document.activeElement === headings[headings.length - 1] &&
+      window.location.href === location &&
+      window.scrollY === 0;
+    const reader = requireElement('.reader');
+    const longHeading = headings.find(
+      (heading) => heading.textContent === 'Section longue',
+    );
+    if (!longHeading) throw new Error('Section de recette absente');
+    const paragraph = longHeading.nextElementSibling!;
+    const range = document.createRange();
+    range.selectNodeContents(paragraph);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    const selected = selection?.toString();
+    const focused = document.activeElement;
+    reader.scrollTop +=
+      longHeading.getBoundingClientRect().top -
+      reader.getBoundingClientRect().top +
+      100;
+    await waitFor(
+      () =>
+        document.querySelector('.table-of-contents [aria-current="location"]')
+          ?.textContent === 'Section longue',
+    );
+    checks.scroll =
+      selected === selection?.toString() && document.activeElement === focused;
+    reader.scrollTop = reader.scrollHeight;
+    await waitFor(
+      () =>
+        document.querySelector('.table-of-contents [aria-current="location"]')
+          ?.textContent === 'Section finale',
+    );
+    reader.scrollTop = 0;
+    await waitFor(
+      () =>
+        document.querySelector('.table-of-contents [aria-current="location"]')
+          ?.textContent === 'Navigation L11',
+    );
+    checks.jumps = true;
+    clickLink('no-headings.md');
+    await waitFor(
+      () =>
+        document
+          .querySelector('.document')
+          ?.textContent?.includes('Document sans titre.') === true,
+    );
+    checks.sectionreset = document.querySelector('.table-of-contents') === null;
+    clickLink('document.md');
+    await waitFor(() => document.querySelector('.document table') !== null);
+    await waitFor(hasImage);
+    await waitFor(
+      () =>
+        document.querySelector(
+          '.table-of-contents [aria-current="location"]',
+        ) !== null,
+    );
+    checks.sectionreset &&= !document
+      .querySelector('.table-of-contents')
+      ?.textContent?.includes('Navigation L11');
     const oldUrl = requireElement<HTMLImageElement>('.document img').src;
     const close = Array.from(
       document.querySelectorAll<HTMLButtonElement>('.actions button'),

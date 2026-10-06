@@ -28,6 +28,13 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
   chemins natifs ne traversent pas le DOM. Liens HTTP(S) confirmés puis
   revalidés côté Rust avant ouverture dans le navigateur système.
 
+### Fixed
+
+- Section active du sommaire correcte après défilement rapide ou entre deux
+  titres éloignés, sans déplacer le focus ni perdre la sélection de texte.
+- Ancres Unicode décomposées et titres Setext multilignes ; les renvois de
+  notes ne sont plus détournés par un titre homonyme.
+
 ### Security
 
 - Extension de racine bornée à un ancêtre choisi par dialogue natif, jamais

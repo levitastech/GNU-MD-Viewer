@@ -9,6 +9,7 @@
 ## Navigation
 
 [Ouvrir B](sub/guide.md)
+[Recette titres L11](headings.md)
 [Nom et fragment encodés](sub/été%20%23%25.md#section-été)
 [Document absent](missing.md)
 [Sortie de racine](../commonmark.md)
