@@ -3,6 +3,7 @@ import type {
   DeclaredResource,
   DocumentId,
   DocumentService,
+  HeadingEntry,
   SessionId,
   SafeHtml,
 } from '../contracts/document';
@@ -14,6 +15,7 @@ export interface ViewerDocument {
   readonly sessionId: SessionId;
   readonly displayName: string;
   readonly html: SafeHtml;
+  readonly headings: readonly HeadingEntry[];
   readonly resources: readonly DeclaredResource[];
   readonly headingCount: number;
   readonly diagnosticCount: number;
@@ -94,6 +96,7 @@ export class ViewerController {
           sessionId: outcome.active.snapshot.sessionId,
           displayName: outcome.active.snapshot.displayName,
           html: sanitizeDocumentHtml(outcome.active.render.html),
+          headings: outcome.active.render.headings,
           resources: outcome.active.render.resources,
           headingCount: outcome.active.render.headings.length,
           diagnosticCount: outcome.active.render.diagnostics.length,

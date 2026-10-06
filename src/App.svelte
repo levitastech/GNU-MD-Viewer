@@ -6,6 +6,8 @@
   import { APP_NAME, APP_VERSION, BOOTSTRAP_MESSAGE } from './lib/app/metadata';
   import ActionBar from './lib/components/ActionBar.svelte';
   import DocumentView from './lib/components/DocumentView.svelte';
+  import TableOfContents from './lib/components/TableOfContents.svelte';
+  import type { HeadingEntry } from './lib/contracts/document';
   import { MarkdownRenderService } from './lib/markdown/engine';
   import { TauriDocumentService } from './lib/platform/tauri-document-service';
   import {
@@ -91,6 +93,12 @@
           : "Le lien externe n'a pas pu être ouvert.";
     });
   };
+
+  const navigateToHeading = (heading: HeadingEntry): void => {
+    document
+      .querySelector<HTMLElement>(`[data-mdv-heading="${heading.id}"]`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 </script>
 
 <svelte:head>
@@ -122,6 +130,10 @@
 
     <main class="reader" id="app-title">
       {#if state.active}
+        <TableOfContents
+          headings={state.active.headings}
+          onselect={navigateToHeading}
+        />
         <DocumentView
           html={state.active.html}
           documentId={state.active.documentId}
