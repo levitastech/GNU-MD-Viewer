@@ -187,15 +187,39 @@ impl DocumentRegistry {
             .remove(session_id);
     }
 
-    pub fn authorize_relative(&self, session_id: &str, target: &str) -> Result<DocumentSelection, AppError> {
+    pub fn authorize_relative(
+        &self,
+        session_id: &str,
+        target: &str,
+    ) -> Result<DocumentSelection, AppError> {
         if target.is_empty() || target.contains(['\\', '\0', '?', '#']) {
-            return Err(AppError::new(AppErrorCode::AccessDenied, "La cible relative est invalide."));
+            return Err(AppError::new(
+                AppErrorCode::AccessDenied,
+                "La cible relative est invalide.",
+            ));
         }
-        let document = self.state.lock().expect("registre de documents empoisonné").sessions.get(session_id).cloned().ok_or_else(|| AppError::new(AppErrorCode::AccessDenied, "La session du document est révoquée."))?;
-        let root = document.parent().ok_or_else(|| AppError::new(AppErrorCode::AccessDenied, "Le document n'a pas de racine."))?;
+        let document = self
+            .state
+            .lock()
+            .expect("registre de documents empoisonné")
+            .sessions
+            .get(session_id)
+            .cloned()
+            .ok_or_else(|| {
+                AppError::new(
+                    AppErrorCode::AccessDenied,
+                    "La session du document est révoquée.",
+                )
+            })?;
+        let root = document.parent().ok_or_else(|| {
+            AppError::new(AppErrorCode::AccessDenied, "Le document n'a pas de racine.")
+        })?;
         let candidate = root.join(target).canonicalize().map_err(path_error)?;
         if !candidate.starts_with(root) {
-            return Err(AppError::new(AppErrorCode::ResourceOutsideRoot, "La cible sort du dossier autorisé."));
+            return Err(AppError::new(
+                AppErrorCode::ResourceOutsideRoot,
+                "La cible sort du dossier autorisé.",
+            ));
         }
         self.authorize_path(&candidate)
     }
@@ -206,7 +230,7 @@ impl DocumentRegistry {
             .lock()
             .expect("registre de documents empoisonné")
             .sessions
-            .contains(session_id)
+            .contains_key(session_id)
     }
 }
 

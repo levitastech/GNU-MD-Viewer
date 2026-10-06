@@ -84,7 +84,12 @@ pub fn open_document(
 }
 
 #[tauri::command]
-pub fn select_relative_document(webview: WebviewWindow, documents: State<'_, Arc<DocumentRegistry>>, session_id: String, target: String) -> Result<DocumentSelection, AppError> {
+pub fn select_relative_document(
+    webview: WebviewWindow,
+    documents: State<'_, Arc<DocumentRegistry>>,
+    session_id: String,
+    target: String,
+) -> Result<DocumentSelection, AppError> {
     require_main_webview(&webview)?;
     documents.authorize_relative(&session_id, &target)
 }
