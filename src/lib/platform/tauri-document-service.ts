@@ -19,6 +19,12 @@ interface NativeDocumentSnapshot {
 }
 
 export class TauriDocumentService implements DocumentService {
+  async selectRoot(sessionId: SessionId): Promise<DocumentSelection | null> {
+    return invoke<DocumentSelection | null>('select_root_extension', {
+      sessionId,
+    });
+  }
+
   async selectDocument(): Promise<DocumentSelection | null> {
     try {
       return await invoke<DocumentSelection | null>('select_document');

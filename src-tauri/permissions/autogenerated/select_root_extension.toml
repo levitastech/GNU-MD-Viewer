@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-select-root-extension"
+description = "Enables the select_root_extension command without any pre-configured scope."
+commands.allow = ["select_root_extension"]
+
+[[permission]]
+identifier = "deny-select-root-extension"
+description = "Denies the select_root_extension command without any pre-configured scope."
+commands.deny = ["select_root_extension"]

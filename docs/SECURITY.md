@@ -50,7 +50,8 @@ sans normalisation permissive ni comparaison de préfixes texte.
 | Référence | Autorisation / action | Refus et message |
 | --- | --- | --- |
 | Ancre `#id` | navigation interne vers ID connu | « Section introuvable » |
-| Markdown relatif / absolu local, suffixe autorisé | cible finale dans racine, fichier régulier, UTF-8 strict ; ouverture candidate | « Document absent », « Accès hors du dossier autorisé », « Encodage UTF-8 invalide » |
+| Markdown relatif, suffixe autorisé | cible finale dans racine, fichier régulier, UTF-8 strict ; ouverture candidate | « Document absent », « Accès hors du dossier autorisé », « Encodage UTF-8 invalide » |
+| Chemin absolu reçu du document | refus ; choisir le document par dialogue natif | « Les chemins absolus sont refusés » |
 | `../assets` / parent | résolution correcte, accès seulement si racine explicitement étendue | « Accès hors du dossier autorisé » |
 | Symlink interne | cible et ouverture réellement confinées | « Référence non autorisée » pour extérieur/substitution |
 | UNC / chemin de périphérique Windows | refus au MVP, y compris entrée native | « Partages et chemins de périphériques non pris en charge » |
@@ -75,9 +76,26 @@ sa fermeture retire les sélections encore en attente. Avant lecture, Rust
 recontrôle le handle ouvert via `/proc/self/fd` et l'identité de la racine.
 Les tests couvrent une substitution d'ancêtre conservant l'inode du fichier,
 ainsi que la révocation pendant lecture. Les autres plateformes refusent ce
-contrôle non qualifié. À cette étape, les cibles absolues, URI encodées,
-fragments et queries sont refusés dans la commande relative ; les sorties
-complètes L10 restent en qualification, sans changement de la policy cible.
+contrôle non qualifié. Les cibles absolues et queries restent refusées.
+
+Le résolveur commun Rust décode les octets `%XX` une seule fois, exige UTF-8
+valide et refuse contrôles, backslash, deux-points et `?`, y compris encodés.
+Un `%23` décodé appartient au nom du fichier ; un `#` brut délimite un
+fragment de navigation et n'est jamais transmis au résolveur filesystem.
+Un `%25` devient un pourcent littéral, pas un second décodage. Les traversées
+encodées restent soumises au confinement après ouverture. Les queries et les
+fragments d'images sont non supportés et produisent un diagnostic.
+
+Le bouton « Dossier autorisé… » déclenche un sélecteur natif Rust ; l'IPC ne
+reçoit que la session, jamais un chemin de racine choisi par le DOM. Le dossier
+canonique doit contenir la racine actuelle ; disque, home et leurs ancêtres
+sont refusés. Si le home n'est pas identifiable, l'extension est refusée.
+L'autorisation produit une sélection opaque liée à la session source. Le
+document est rouvert avec les contrôles de handle et une nouvelle session ;
+l'ancienne session est révoquée seulement après succès. Annulation ou échec
+conservent le précédent. Les URLs déjà décodées peuvent rester dans le cache
+WebKit ; la révocation interdit les nouveaux accès au registre, pas
+l'effacement rétroactif des octets déjà livrés.
 
 ## HTML et enrichissements
 

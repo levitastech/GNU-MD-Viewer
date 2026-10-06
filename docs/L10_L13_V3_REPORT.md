@@ -21,8 +21,8 @@ parent du document courant comme base et contrôle le handle réellement ouvert
 avant lecture sur Linux. Les images de B utilisent la même racine héritée.
 Les sélections relatives sont révoquées avec la session source, y compris
 lorsqu'elle est révoquée pendant la lecture. Les chemins absolus, schémas,
-UNC et cibles ambiguës sont refusés. Le décodage URI, les fragments et
-l'extension native de racine restent à implémenter.
+UNC et cibles ambiguës sont refusés. Le complément du 6 octobre ci-dessous
+implémente le décodage URI, les fragments et l'extension native de racine.
 
 ## Qualification des chemins simples — 6 octobre 2026
 
@@ -123,3 +123,46 @@ ont été revérifiés avant ces adaptations, sans changement de dépendances.
 Voir la recette native pour L10–L13. Les interactions des ancres, des thèmes
 et des notes restent à qualifier dans la WebView. Les statuts
 locaux `done` ont été retirés jusqu'à satisfaction des sorties et des recettes.
+
+## Complément L10 — URI, fragments et racine explicite
+
+Base `179c341` plus diff L10 : `local_target.rs` partagé par documents/images,
+commande `select_root_extension`, contrat/adaptateur document, contrôleur,
+composants et fixtures de régression. Aucune dépendance ajoutée. APIs
+`blocking_pick_folder`, `set_title`, `into_path` vérifiées dans la source et
+les commentaires officiels installés de tauri-plugin-dialog 2.8.1 ;
+`tick`/cycle de vie revérifiés dans la documentation Svelte 5.57.1.
+
+La table de comportement durable est dans [SECURITY](SECURITY.md) : séparation
+avant décodage, UTF-8 strict, `%23`/`%25` littéraux et décodage unique ; queries
+et fragments d'image refusés. Le dossier parent/projet est choisi uniquement
+en natif et validé côté Rust, sans disque/home global. La réouverture utilise
+une nouvelle session et recrée le DOM documentaire même à HTML identique.
+Une première recette a révélé la conservation des images anciennes quand
+seul le jeton de session changeait ; le composant est désormais indexé par
+session. Une erreur candidate ou une annulation ne remonte pas le composant.
+
+Tests ajoutés : encodages invalides et doubles, noms Unicode/espace/#/%,
+cache d'image canonique, images homonymes avec deux bases, refus et extension
+de racine, révocation de sélection étendue, fragment après navigation,
+annulation et réponse tardive du sélecteur de racine. Les fixtures encodées
+réutilisent sans transformation le PNG du projet (même provenance MIT).
+
+Qualification du complément : `pnpm check` (aucune erreur/avertissement),
+lint, format, 39 tests Vitest, `cargo fmt --check`, Clippy tous targets/features
+avec `-D warnings` et 32 tests Cargo réussis. Linux/X11/WebKitGTK 2.52.6,
+Node 24.18.0, pnpm 12.8.1 et Rust 1.91.1 inchangés.
+`bash tests/integration/run_v3_harness.sh` : 21 marqueurs réussis depuis
+`/tmp`, dont cinq nouveaux (nom/image encodés, fragment, refus parent,
+extension de racine et ouverture parent). Hashes des cinq fixtures inchangés,
+aucune connexion IP observée. Logs `/tmp/gnu-mdv-v3.qJR7fX` ; parcours
+instrumenté 1860 ms et RSS maximal 174264 KiB, toujours exploratoires.
+Le dialogue de dossier réel n'a pas été piloté manuellement : le hook de
+fixture, réservé à `l09-harness`, remplace son résultat mais exécute la même
+validation Rust et la même réouverture. Annulation/réponse tardive testées
+avec doubles du sélecteur. Windows/macOS et recette release restent différés.
+L10 est qualifié sur cette matrice automatisée Linux ; cela ne clôt pas V3/G2.
+Après le harness, `pnpm tauri build --debug --no-bundle` normal réussi,
+sans chunk de recette (JS principal 197,83 kB brut / 78,43 kB gzip).
+Smoke X11 normal 12 secondes : timeout 124 attendu, avertissements EGL/VMware
+sans crash. Aucun build release, paquet, push ou publication dans cette étape.

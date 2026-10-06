@@ -2,7 +2,7 @@ use std::{
     collections::HashMap,
     fs::File,
     io::{Read, Seek, SeekFrom},
-    path::{Component, Path, PathBuf},
+    path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
 
@@ -300,31 +300,7 @@ impl ResourceRegistry {
 }
 
 fn validate_relative_target(target: &str) -> Result<PathBuf, AppError> {
-    if target.is_empty()
-        || target.contains('\0')
-        || target.contains('%')
-        || target.contains('?')
-        || target.contains('#')
-        || target.contains('\\')
-    {
-        return Err(AppError::new(
-            AppErrorCode::ResourceInvalid,
-            "La référence locale est vide ou ambiguë.",
-        ));
-    }
-
-    let path = Path::new(target);
-    if path.is_absolute()
-        || path
-            .components()
-            .any(|component| matches!(component, Component::Prefix(_) | Component::RootDir))
-    {
-        return Err(AppError::new(
-            AppErrorCode::ResourceOutsideRoot,
-            "Les chemins absolus ne sont pas autorisés pour une ressource.",
-        ));
-    }
-    Ok(path.to_path_buf())
+    crate::local_target::relative_path(target)
 }
 
 fn secure_open(root: &Path, target: &Path) -> Result<File, AppError> {
@@ -642,6 +618,26 @@ mod tests {
     }
 
     #[test]
+    fn encoded_image_names_resolve_once_and_share_the_same_cache_entry() {
+        let (directory, registry) = fixture();
+        fs::write(
+            directory.path().join("root/assets/été #%.png"),
+            png(2, 3, 7),
+        )
+        .unwrap();
+        let first = registry
+            .resolve(&request("assets/%C3%A9t%C3%A9%20%23%25.png"))
+            .unwrap();
+        let second = registry
+            .resolve(&request("assets/été%20%23%25.png"))
+            .unwrap();
+        assert_eq!(first.token, second.token);
+        assert!(registry.resolve(&request("%2e%2e/secret.png")).is_err());
+        assert!(registry.resolve(&request("assets/a.png?x")).is_err());
+        assert!(registry.resolve(&request("assets/a.png#fragment")).is_err());
+    }
+
+    #[test]
     fn navigated_document_resources_use_its_base_and_preserve_the_authorized_root() {
         let (directory, registry) = fixture();
         let root = directory.path().join("root").canonicalize().unwrap();
@@ -649,6 +645,9 @@ mod tests {
         fs::write(root.join("sub/b.md"), "# B").unwrap();
         fs::write(root.join("assets/shared.png"), png(3, 4, 7)).unwrap();
         fs::write(root.join("sub/local.png"), png(5, 6, 8)).unwrap();
+        fs::write(root.join("local.png"), png(7, 8, 9)).unwrap();
+        let original = registry.resolve(&request("local.png")).unwrap();
+        assert_eq!((original.width, original.height), (7, 8));
         registry
             .register_confined_session(
                 "session-b",

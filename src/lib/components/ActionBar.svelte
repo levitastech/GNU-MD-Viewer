@@ -4,6 +4,7 @@
     title: string | null;
     busy: boolean;
     onopen: () => void;
+    onextend: () => void;
     onclose: () => void;
     onzoom: (delta: number) => void;
     ontheme: (theme: ThemeMode) => void;
@@ -16,6 +17,7 @@
     title,
     busy,
     onopen,
+    onextend,
     onclose,
     onzoom,
     ontheme,
@@ -64,6 +66,12 @@
       {busy ? 'Ouverture…' : 'Ouvrir'}
     </button>
     {#if title}
+      <button
+        type="button"
+        onclick={onextend}
+        disabled={busy}
+        aria-label="Étendre le dossier autorisé">Dossier autorisé…</button
+      >
       <button type="button" onclick={onclose} disabled={busy}>Fermer</button>
     {/if}
   </div>

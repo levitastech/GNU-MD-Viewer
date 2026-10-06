@@ -7,9 +7,12 @@
     SessionId,
   } from '../contracts/document';
   import { hydrateLocalImages } from '../rendering/hydrate-local-images';
+  import { navigateDocument } from '../rendering/document-navigation';
 
   interface Props {
     html: SafeHtml;
+    initialAnchor?: string;
+    onanchorerror: () => void;
     label: string;
     onactivate: (target: HTMLElement) => void;
     documentId: DocumentId;
@@ -21,6 +24,8 @@
 
   let {
     html,
+    initialAnchor,
+    onanchorerror,
     label,
     onactivate,
     documentId,
@@ -80,6 +85,8 @@
   $effect(() => {
     void html;
     onsection(null);
+    if (initialAnchor && !navigateDocument(documentElement, initialAnchor))
+      onanchorerror();
     const headings = Array.from(
       documentElement.querySelectorAll<HTMLElement>('[data-mdv-heading]'),
     );

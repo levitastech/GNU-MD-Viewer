@@ -115,6 +115,47 @@ export const runV3Recipe = async (): Promise<void> => {
     await waitFor(() => document.querySelector('.document table') !== null);
     await waitFor(hasImage);
     checks.return = hasImage();
+    // The parser normalizes Unicode URI bytes, but does not decode the path.
+    const encodedLink = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-mdv-link]'),
+    ).find((element) => element.textContent === 'Nom et fragment encodés');
+    if (!encodedLink) throw new Error('Lien encodé absent');
+    encodedLink.click();
+    await waitFor(
+      () =>
+        document.querySelector('.document h1')?.textContent === 'Chemin encodé',
+    );
+    await waitFor(hasImage);
+    checks.encoded = hasImage();
+    checks.fragment =
+      (document.activeElement as HTMLElement)?.dataset.mdvHeading ===
+      'mdv-heading-section-été';
+    clickLink('../document.md');
+    await waitFor(() => document.querySelector('.document table') !== null);
+    await waitFor(hasImage);
+    clickLink('../commonmark.md');
+    await waitFor(() => document.querySelector('.error-notice') !== null);
+    checks.outside = document.querySelector('.document table') !== null;
+    const previousUrl = requireElement<HTMLImageElement>('.document img').src;
+    requireElement<HTMLButtonElement>(
+      '[aria-label="Étendre le dossier autorisé"]',
+    ).click();
+    await waitFor(() => {
+      const image = document.querySelector<HTMLImageElement>('.document img');
+      return !!image && image.src !== previousUrl && hasImage();
+    });
+    checks.root = document.querySelector('.error-notice') === null;
+    clickLink('../commonmark.md');
+    await waitFor(
+      () =>
+        document.querySelector('.document h1')?.textContent ===
+        'Lecture simple',
+    );
+    checks.parent = document.querySelector('.error-notice') === null;
+    // Reopen A using the explicit native fixture selection for revocation checks.
+    requireElement<HTMLButtonElement>('.actions .primary').click();
+    await waitFor(() => document.querySelector('.document table') !== null);
+    await waitFor(hasImage);
     const oldUrl = requireElement<HTMLImageElement>('.document img').src;
     const close = Array.from(
       document.querySelectorAll<HTMLButtonElement>('.actions button'),

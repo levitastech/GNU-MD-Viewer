@@ -111,6 +111,7 @@ export interface DocumentSelection {
 
 export interface DocumentService {
   selectDocument(): Promise<DocumentSelection | null>;
+  selectRoot(sessionId: SessionId): Promise<DocumentSelection | null>;
   selectRelative(
     sessionId: SessionId,
     target: string,

@@ -28,6 +28,7 @@ const snapshot = (name: string): DocumentSnapshot => ({
 
 const setup = (openFirst: DocumentService['openFirst']) => {
   const documents: DocumentService = {
+    selectRoot: vi.fn(async () => null),
     selectDocument: vi.fn(async () => ({ paths: ['opaque-selection'] })),
     selectRelative: vi.fn(async () => ({ paths: ['opaque-selection'] })),
     openFirst,
@@ -55,6 +56,41 @@ const setup = (openFirst: DocumentService['openFirst']) => {
 };
 
 describe('cycle UI L08', () => {
+  it('transmet le chemin seul et conserve le fragment pour le nouveau rendu', async () => {
+    const { controller, documents } = setup(async () => snapshot('valide'));
+    await controller.openFromDialog();
+    await controller.openRelative('guide%23.md#section');
+    expect(documents.selectRelative).toHaveBeenCalledWith(
+      toSessionId('session-valide'),
+      'guide%23.md',
+    );
+    expect(controller.current.active?.initialAnchor).toBe('#section');
+    await controller.openRelative('guide.md#%FF');
+    expect(documents.selectRelative).toHaveBeenCalledTimes(1);
+    expect(controller.current.active?.initialAnchor).toBe('#section');
+    expect(controller.current.error).not.toBeNull();
+  });
+
+  it('annuler le choix de racine conserve le document et fermer invalide une réponse tardive', async () => {
+    const openFirst = vi.fn(async () => snapshot('valide'));
+    const { controller, documents } = setup(openFirst);
+    await controller.openFromDialog();
+    const previous = controller.current.active;
+    await controller.openFromDialog(true);
+    expect(controller.current.active).toBe(previous);
+    let resolve!: (selection: { paths: string[] }) => void;
+    vi.mocked(documents.selectRoot).mockReturnValueOnce(
+      new Promise((done) => {
+        resolve = done;
+      }),
+    );
+    const pending = controller.openFromDialog(true);
+    await controller.close();
+    resolve({ paths: ['root-selection'] });
+    await pending;
+    expect(controller.current.active).toBeNull();
+    expect(openFirst).toHaveBeenCalledTimes(1);
+  });
   it('signale un échec relatif en conservant le dernier document valide', async () => {
     const { controller, documents } = setup(async (selection) => {
       if (selection.paths[0] === 'bad-selection')

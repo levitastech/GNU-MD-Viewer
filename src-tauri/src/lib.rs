@@ -1,6 +1,7 @@
 mod commands;
 pub mod contracts;
 pub mod documents;
+mod local_target;
 pub mod resources;
 
 use std::sync::Arc;
@@ -105,6 +106,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::select_document,
+            commands::select_root_extension,
             commands::open_document,
             commands::select_relative_document,
             commands::release_document_session,

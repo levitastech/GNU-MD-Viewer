@@ -255,15 +255,7 @@ impl DocumentRegistry {
         session_id: &str,
         target: &str,
     ) -> Result<DocumentSelection, AppError> {
-        if target.is_empty()
-            || target.contains(['\\', '\0', '?', '#', ':', '%'])
-            || Path::new(target).is_absolute()
-        {
-            return Err(AppError::new(
-                AppErrorCode::AccessDenied,
-                "La cible relative est invalide.",
-            ));
-        }
+        let target = crate::local_target::relative_path(target)?;
         let document = self
             .state
             .lock()
@@ -308,6 +300,44 @@ impl DocumentRegistry {
             .expect("registre de documents empoisonné")
             .sessions
             .contains_key(session_id)
+    }
+
+    /// Called only with a folder returned by the native picker, never a DOM path.
+    pub fn authorize_extended_root(
+        &self,
+        session_id: &str,
+        selected: &Path,
+    ) -> Result<DocumentSelection, AppError> {
+        let document = self
+            .state
+            .lock()
+            .expect("registre de documents empoisonné")
+            .sessions
+            .get(session_id)
+            .cloned()
+            .ok_or_else(|| AppError::new(AppErrorCode::AccessDenied, "Session révoquée."))?;
+        let root = selected.canonicalize().map_err(path_error)?;
+        let homes: Vec<_> = ["HOME", "USERPROFILE"]
+            .into_iter()
+            .filter_map(std::env::var_os)
+            .filter_map(|home| PathBuf::from(home).canonicalize().ok())
+            .collect();
+        let global = homes.is_empty() || homes.iter().any(|home| home.starts_with(&root));
+        if root.parent().is_none() || global || !document.root.starts_with(&root) || !root.is_dir()
+        {
+            return Err(AppError::new(
+                AppErrorCode::AccessDenied,
+                "Choisir un dossier parent ou projet, jamais une racine globale ou home.",
+            ));
+        }
+        if root_identity(&document.root)? != document.root_identity {
+            return Err(AppError::new(
+                AppErrorCode::ResourceOutsideRoot,
+                "La racine autorisée a été remplacée.",
+            ));
+        }
+        let identity = root_identity(&root)?;
+        self.authorize_confined(document.path, root, identity, Some(session_id.to_owned()))
     }
 }
 
@@ -452,6 +482,87 @@ mod tests {
         assert_eq!(
             registry.open_first(&selection).unwrap().snapshot.text,
             "# C"
+        );
+    }
+
+    #[test]
+    fn encoded_document_names_are_decoded_once_and_still_confined() {
+        let (directory, registry, a) = relative_fixture();
+        for (name, target) in [
+            ("été #%.md", "%C3%A9t%C3%A9%20%23%25.md"),
+            ("%2e%2e.md", "%252e%252e.md"),
+        ] {
+            fs::write(directory.path().join("root").join(name), "# Encodé").unwrap();
+            let selection = registry
+                .authorize_relative(&a.snapshot.session_id, target)
+                .unwrap();
+            assert_eq!(
+                registry
+                    .open_first(&selection)
+                    .unwrap()
+                    .snapshot
+                    .display_name,
+                name
+            );
+        }
+        assert!(
+            registry
+                .authorize_relative(&a.snapshot.session_id, "%2e%2e/outside.md")
+                .is_err()
+        );
+    }
+
+    #[test]
+    fn root_extension_requires_a_native_ancestor_and_is_revocable() {
+        let (directory, registry, a) = relative_fixture();
+        fs::write(directory.path().join("outside.md"), "# Parent").unwrap();
+        assert!(
+            registry
+                .authorize_relative(&a.snapshot.session_id, "../outside.md")
+                .is_err()
+        );
+        assert!(
+            registry
+                .authorize_extended_root("forged", directory.path())
+                .is_err()
+        );
+        assert!(
+            registry
+                .authorize_extended_root(&a.snapshot.session_id, &directory.path().join("root/sub"))
+                .is_err()
+        );
+        assert!(
+            registry
+                .authorize_extended_root(&a.snapshot.session_id, Path::new("/"))
+                .is_err()
+        );
+        if let Some(home) = std::env::var_os("HOME") {
+            assert!(
+                registry
+                    .authorize_extended_root(&a.snapshot.session_id, Path::new(&home))
+                    .is_err()
+            );
+        }
+        let selection = registry
+            .authorize_extended_root(&a.snapshot.session_id, directory.path())
+            .unwrap();
+        let extended = registry.open_first(&selection).unwrap();
+        let parent = registry
+            .authorize_relative(&extended.snapshot.session_id, "../outside.md")
+            .unwrap();
+        assert_eq!(
+            registry.open_first(&parent).unwrap().snapshot.text,
+            "# Parent"
+        );
+        let pending = registry
+            .authorize_extended_root(&a.snapshot.session_id, directory.path())
+            .unwrap();
+        registry.release_session(&a.snapshot.session_id);
+        assert!(registry.open_first(&pending).is_err());
+        assert!(
+            registry
+                .authorize_extended_root(&a.snapshot.session_id, directory.path())
+                .is_err()
         );
     }
 

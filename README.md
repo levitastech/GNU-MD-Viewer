@@ -6,8 +6,9 @@
 > la première tranche P2/V2 (L05–L09) est implémentée sur la matrice Linux active.
 > L'application ouvre par dialogue un
 > document Markdown réel, le lit en UTF-8 borné et lecture seule, le rend puis le
-> sanitise avant affichage. Les ressources locales, la TOC et les extensions de
-> P2/V3 restent à réaliser ; Windows et macOS ne sont pas qualifiés. Il ne s'agit
+> sanitise avant affichage. Images et liens locaux, sommaire, thèmes/zoom,
+> tâches, notes et alertes sont implémentés ; P2/V3 reste en qualification.
+> Windows et macOS ne sont pas qualifiés. Il ne s'agit
 > ni du MVP complet ni d'une version publiée.
 
 ## Cible MVP

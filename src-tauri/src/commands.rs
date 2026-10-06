@@ -64,6 +64,44 @@ pub async fn select_document(
 }
 
 #[tauri::command]
+pub async fn select_root_extension(
+    app: AppHandle,
+    webview: WebviewWindow,
+    documents: State<'_, Arc<DocumentRegistry>>,
+    session_id: String,
+) -> Result<Option<DocumentSelection>, AppError> {
+    require_main_webview(&webview)?;
+    #[cfg(feature = "l09-harness")]
+    if let Some(path) = std::env::var_os("GNU_MDV_V3_HARNESS_ROOT") {
+        return documents
+            .authorize_extended_root(&session_id, std::path::Path::new(&path))
+            .map(Some);
+    }
+    let selected = tauri::async_runtime::spawn_blocking(move || {
+        app.dialog()
+            .file()
+            .set_title("Autoriser un dossier parent ou projet pour ce document")
+            .blocking_pick_folder()
+    })
+    .await
+    .map_err(|_| {
+        AppError::new(
+            AppErrorCode::AccessDenied,
+            "Dialogue de dossier indisponible.",
+        )
+    })?;
+    let Some(selected) = selected else {
+        return Ok(None);
+    };
+    let path = selected
+        .into_path()
+        .map_err(|_| AppError::new(AppErrorCode::AccessDenied, "Choisir un dossier local."))?;
+    documents
+        .authorize_extended_root(&session_id, &path)
+        .map(Some)
+}
+
+#[tauri::command]
 pub fn open_document(
     webview: WebviewWindow,
     documents: State<'_, Arc<DocumentRegistry>>,

@@ -42,9 +42,10 @@ ne vaut ni benchmark L24 ni qualification de ces plateformes.
 
 ## Écarts identifiés avant recette
 
-- L10 : décodage URI, fragments et extension native de racine restent à
-  compléter ; cette étape qualifie les chemins relatifs simples et leur
-  confinement Linux.
+- L10 : décodage URI, fragments et extension native de racine implémentés,
+  tests Rust et parcours WebView Linux réussis. Le sélecteur de dossier est
+  remplacé par une sélection de fixture uniquement dans le binaire de test ;
+  aucun clic manuel dans le dialogue natif n'est attesté.
 - L11 : interactions branchées et vérifiées dans la WebView ; élargir le
   corpus de titres/clavier/scroll avant clôture.
 - L12 : mode système et remise à zéro implémentés. Clair/sombre et reset
@@ -67,7 +68,8 @@ Le script compile en debug avec `l09-harness` et `VITE_V3_HARNESS=1`,
 sélectionne la fixture via le hook natif existant, puis pilote les composants
 réels de `App.svelte`. Il ne remplace pas le pipeline de rendu. Il conserve
 les logs dans un répertoire temporaire annoncé, contrôle les hashes source,
-les connexions IP et 16 marqueurs d'interaction. Voir le rapport V3 pour
+les connexions IP et 21 marqueurs d'interaction. Le lecteur est lancé avec
+`/tmp` comme CWD. Voir le rapport V3 pour
 résultats et limites. Recompiler ensuite sans feature ni variable de harness.
 
 La sonde de révocation utilise une URL neuve réservée à la feature de test,

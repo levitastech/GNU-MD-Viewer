@@ -92,8 +92,9 @@ La [recette V3](V3_NATIVE_RECIPE.md) pilote l'interface réelle via
 utilise un binaire debug instrumenté ; recompiler sans feature ni variable
 de harness après usage. Le script conserve ses logs temporaires pour examen.
 
-Compléter les chemins URI, fragments et extension explicite de racine L10,
-puis la matrice de recettes UI restantes L11–L13 avant G2. Voir le
+Les chemins URI, fragments et extension explicite de racine L10 sont
+implémentés ; poursuivre la qualification et la matrice de recettes UI
+restantes L11–L13 avant G2. Voir le
 [rapport V3](L10_L13_V3_REPORT.md) pour les preuves et limites actuelles.
 
 ## Débogage et reproductibilité

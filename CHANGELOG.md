@@ -8,6 +8,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ### Added
 
+- Chemins locaux URI décodés une seule fois, fragments entre documents et
+  sélection native d'un dossier parent/projet autorisé pour la session.
 - Choix clair/sombre/système réactif, zoom de lecture 80–200 % par pas de
   10 points et remise à 100 %, sans reparsing du document.
 - Ancres documentaires avec focus clavier, section active du sommaire et
@@ -28,6 +30,10 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ### Security
 
+- Extension de racine bornée à un ancêtre choisi par dialogue natif, jamais
+  une racine disque/home ; nouvelle session et nouveaux jetons d'images même
+  lorsque le contenu Markdown est identique. Encodages invalides, queries,
+  séparateurs Windows et chemins absolus restent refusés.
 - Navigation Markdown relative : racine initiale conservée après changement
   de document, contrôle du handle ouvert sur Linux et révocation des
   sélections liées à une session fermée. Les erreurs relatives conservent le

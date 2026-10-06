@@ -2,6 +2,7 @@ fn main() {
     let attributes =
         tauri_build::Attributes::new().app_manifest(tauri_build::AppManifest::new().commands(&[
             "select_document",
+            "select_root_extension",
             "open_document",
             "select_relative_document",
             "release_document_session",

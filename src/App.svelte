@@ -164,6 +164,10 @@
       title={state.active?.displayName ?? null}
       busy={state.phase === 'opening'}
       onopen={openDocument}
+      onextend={() => {
+        linkNotice = '';
+        void controller?.openFromDialog(true);
+      }}
       onclose={closeDocument}
       ontheme={selectTheme}
       onzoom={changeZoom}
@@ -193,18 +197,24 @@
           onselect={navigateToHeading}
           active={activeSection}
         />
-        <DocumentView
-          html={state.active.html}
-          documentId={state.active.documentId}
-          label={state.active.displayName}
-          onactivate={activateLink}
-          resources={state.active.resources}
-          resourceService={resources}
-          sessionId={state.active.sessionId}
-          onsection={(id) => {
-            activeSection = id;
-          }}
-        />
+        {#key state.active.sessionId}
+          <DocumentView
+            html={state.active.html}
+            initialAnchor={state.active.initialAnchor}
+            onanchorerror={() => {
+              linkNotice = 'Section introuvable.';
+            }}
+            documentId={state.active.documentId}
+            label={state.active.displayName}
+            onactivate={activateLink}
+            resources={state.active.resources}
+            resourceService={resources}
+            sessionId={state.active.sessionId}
+            onsection={(id) => {
+              activeSection = id;
+            }}
+          />
+        {/key}
       {:else}
         <section class="empty-state">
           <p class="eyebrow">Lecteur Markdown hors ligne</p>

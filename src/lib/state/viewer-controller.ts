@@ -8,9 +8,11 @@ import type {
   SafeHtml,
 } from '../contracts/document';
 import { sanitizeDocumentHtml } from '../rendering/sanitize';
+import { splitDocumentLink } from '../rendering/document-link';
 import { OpenCoordinator } from './open-coordinator';
 
 export interface ViewerDocument {
+  readonly initialAnchor?: string;
   readonly documentId: DocumentId;
   readonly sessionId: SessionId;
   readonly displayName: string;
@@ -57,7 +59,9 @@ export class ViewerController {
     return () => this.listeners.delete(listener);
   }
 
-  async openFromDialog(): Promise<void> {
+  async openFromDialog(extendRoot = false): Promise<void> {
+    const session = this.state.active?.sessionId;
+    if (extendRoot && !session) return;
     const request = ++this.request;
     this.update({
       ...this.state,
@@ -67,7 +71,10 @@ export class ViewerController {
     });
 
     try {
-      const selection = await this.documents.selectDocument();
+      const selection =
+        extendRoot && session
+          ? await this.documents.selectRoot(session)
+          : await this.documents.selectDocument();
       if (request !== this.request) return;
       if (!selection) {
         this.update({
@@ -126,9 +133,10 @@ export class ViewerController {
     const request = ++this.request;
     this.update({ ...this.state, phase: 'opening', error: null });
     try {
+      const { path, anchor } = splitDocumentLink(target);
       const selection = await this.documents.selectRelative(
         active.snapshot.sessionId,
-        target,
+        path,
       );
       if (request !== this.request) return;
       const outcome = await this.coordinator.open(selection);
@@ -144,6 +152,7 @@ export class ViewerController {
       this.update({
         phase: 'ready',
         active: {
+          initialAnchor: anchor,
           documentId: outcome.active.snapshot.documentId,
           sessionId: outcome.active.snapshot.sessionId,
           displayName: outcome.active.snapshot.displayName,

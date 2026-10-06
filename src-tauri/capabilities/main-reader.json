@@ -5,6 +5,7 @@
   "windows": ["main"],
   "permissions": [
     "allow-select-document",
+    "allow-select-root-extension",
     "allow-open-document",
     "allow-select-relative-document",
     "allow-release-document-session",
