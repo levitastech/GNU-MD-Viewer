@@ -55,6 +55,40 @@ const setup = (openFirst: DocumentService['openFirst']) => {
 };
 
 describe('cycle UI L08', () => {
+  it('signale un échec relatif en conservant le dernier document valide', async () => {
+    const { controller, documents } = setup(async (selection) => {
+      if (selection.paths[0] === 'bad-selection')
+        throw { code: 'invalid_utf8', message: 'UTF-8 invalide' };
+      return snapshot('valide');
+    });
+    await controller.openFromDialog();
+    vi.mocked(documents.selectRelative).mockResolvedValueOnce({
+      paths: ['bad-selection'],
+    });
+    await controller.openRelative('bad.md');
+    expect(controller.current.active?.displayName).toBe('valide.md');
+    expect(controller.current.error?.code).toBe('invalid_utf8');
+    expect(controller.current.phase).toBe('ready');
+  });
+
+  it('ignore une sélection relative reçue après la fermeture', async () => {
+    const openFirst = vi.fn(async () => snapshot('valide'));
+    const { controller, documents } = setup(openFirst);
+    await controller.openFromDialog();
+    let resolve!: (selection: { paths: string[] }) => void;
+    vi.mocked(documents.selectRelative).mockReturnValueOnce(
+      new Promise((done) => {
+        resolve = done;
+      }),
+    );
+    const opening = controller.openRelative('next.md');
+    await controller.close();
+    resolve({ paths: ['late-selection'] });
+    await opening;
+    expect(openFirst).toHaveBeenCalledTimes(1);
+    expect(controller.current.active).toBeNull();
+    expect(controller.current.phase).toBe('empty');
+  });
   it('passe de vide à chargement puis prêt avec un HTML sanitisé', async () => {
     const { controller } = setup(async () => snapshot('guide'));
     const phases: string[] = [];

@@ -10,6 +10,7 @@ use std::{
 use serde::{Deserialize, Serialize};
 
 use crate::contracts::{AppError, AppErrorCode};
+use crate::resources::{RootIdentity, root_identity, verify_opened_file_is_confined};
 
 pub const MAX_DOCUMENT_ENCODED_BYTES: usize = 20_000_000;
 const MAX_PENDING_SELECTIONS: usize = 16;
@@ -35,18 +36,30 @@ pub struct DocumentSnapshot {
 pub struct OpenedDocument {
     pub snapshot: DocumentSnapshot,
     pub path: PathBuf,
+    pub(crate) root: PathBuf,
+    pub(crate) root_identity: RootIdentity,
 }
 
 #[derive(Clone)]
 struct PendingSelection {
     path: PathBuf,
     identity: FileIdentity,
+    root: PathBuf,
+    root_identity: RootIdentity,
+    parent_session: Option<String>,
+}
+
+#[derive(Clone)]
+struct DocumentSession {
+    path: PathBuf,
+    root: PathBuf,
+    root_identity: RootIdentity,
 }
 
 #[derive(Default)]
 struct RegistryState {
     pending: HashMap<String, PendingSelection>,
-    sessions: HashMap<String, PathBuf>,
+    sessions: HashMap<String, DocumentSession>,
 }
 
 #[derive(Default)]
@@ -57,6 +70,21 @@ pub struct DocumentRegistry {
 impl DocumentRegistry {
     pub fn authorize_path(&self, path: &Path) -> Result<DocumentSelection, AppError> {
         let canonical = path.canonicalize().map_err(path_error)?;
+        let root = canonical
+            .parent()
+            .ok_or_else(|| AppError::new(AppErrorCode::AccessDenied, "Racine absente."))?
+            .to_path_buf();
+        let identity = root_identity(&root)?;
+        self.authorize_confined(canonical, root, identity, None)
+    }
+
+    fn authorize_confined(
+        &self,
+        canonical: PathBuf,
+        root: PathBuf,
+        root_identity: RootIdentity,
+        parent_session: Option<String>,
+    ) -> Result<DocumentSelection, AppError> {
         validate_extension(&canonical)?;
         let metadata = canonical.metadata().map_err(path_error)?;
         validate_regular_file(&metadata)?;
@@ -71,6 +99,9 @@ impl DocumentRegistry {
             PendingSelection {
                 path: canonical,
                 identity: file_identity(&metadata),
+                root,
+                root_identity,
+                parent_session,
             },
         );
 
@@ -108,7 +139,23 @@ impl DocumentRegistry {
                 )
             })?;
 
+        if let Some(parent) = &pending.parent_session
+            && !self
+                .state
+                .lock()
+                .expect("registre de documents empoisonné")
+                .sessions
+                .contains_key(parent)
+        {
+            return Err(AppError::new(
+                AppErrorCode::AccessDenied,
+                "La session source est révoquée.",
+            ));
+        }
         let mut file = File::open(&pending.path).map_err(open_error)?;
+        if pending.parent_session.is_some() {
+            verify_opened_file_is_confined(&file, &pending.root, pending.root_identity)?;
+        }
         let before = file.metadata().map_err(open_error)?;
         validate_regular_file(&before)?;
         if file_identity(&before) != pending.identity {
@@ -167,24 +214,40 @@ impl DocumentRegistry {
             revision: 1,
         };
 
-        self.state
-            .lock()
-            .expect("registre de documents empoisonné")
-            .sessions
-            .insert(session_id, pending.path.clone());
+        let mut state = self.state.lock().expect("registre de documents empoisonné");
+        if pending
+            .parent_session
+            .as_ref()
+            .is_some_and(|parent| !state.sessions.contains_key(parent))
+        {
+            return Err(AppError::new(
+                AppErrorCode::AccessDenied,
+                "La session source a été révoquée pendant la lecture.",
+            ));
+        }
+        state.sessions.insert(
+            session_id,
+            DocumentSession {
+                path: pending.path.clone(),
+                root: pending.root.clone(),
+                root_identity: pending.root_identity,
+            },
+        );
 
         Ok(OpenedDocument {
             snapshot,
             path: pending.path,
+            root: pending.root,
+            root_identity: pending.root_identity,
         })
     }
 
     pub fn release_session(&self, session_id: &str) {
-        self.state
-            .lock()
-            .expect("registre de documents empoisonné")
-            .sessions
-            .remove(session_id);
+        let mut state = self.state.lock().expect("registre de documents empoisonné");
+        state.sessions.remove(session_id);
+        state
+            .pending
+            .retain(|_, selection| selection.parent_session.as_deref() != Some(session_id));
     }
 
     pub fn authorize_relative(
@@ -192,7 +255,10 @@ impl DocumentRegistry {
         session_id: &str,
         target: &str,
     ) -> Result<DocumentSelection, AppError> {
-        if target.is_empty() || target.contains(['\\', '\0', '?', '#']) {
+        if target.is_empty()
+            || target.contains(['\\', '\0', '?', '#', ':', '%'])
+            || Path::new(target).is_absolute()
+        {
             return Err(AppError::new(
                 AppErrorCode::AccessDenied,
                 "La cible relative est invalide.",
@@ -211,17 +277,28 @@ impl DocumentRegistry {
                     "La session du document est révoquée.",
                 )
             })?;
-        let root = document.parent().ok_or_else(|| {
+        if root_identity(&document.root)? != document.root_identity {
+            return Err(AppError::new(
+                AppErrorCode::ResourceOutsideRoot,
+                "La racine autorisée a été remplacée.",
+            ));
+        }
+        let base = document.path.parent().ok_or_else(|| {
             AppError::new(AppErrorCode::AccessDenied, "Le document n'a pas de racine.")
         })?;
-        let candidate = root.join(target).canonicalize().map_err(path_error)?;
-        if !candidate.starts_with(root) {
+        let candidate = base.join(target).canonicalize().map_err(path_error)?;
+        if !candidate.starts_with(&document.root) {
             return Err(AppError::new(
                 AppErrorCode::ResourceOutsideRoot,
                 "La cible sort du dossier autorisé.",
             ));
         }
-        self.authorize_path(&candidate)
+        self.authorize_confined(
+            candidate,
+            document.root,
+            document.root_identity,
+            Some(session_id.to_owned()),
+        )
     }
 
     #[cfg(test)]
@@ -344,6 +421,159 @@ mod tests {
     use tempfile::tempdir;
 
     use super::*;
+
+    fn relative_fixture() -> (tempfile::TempDir, DocumentRegistry, OpenedDocument) {
+        let directory = tempdir().unwrap();
+        fs::create_dir_all(directory.path().join("root/sub")).unwrap();
+        fs::write(directory.path().join("root/a.md"), "# A").unwrap();
+        fs::write(directory.path().join("root/sub/b.md"), "# B").unwrap();
+        fs::write(directory.path().join("root/c.md"), "# C").unwrap();
+        fs::write(directory.path().join("outside.md"), "# dehors").unwrap();
+        let registry = DocumentRegistry::default();
+        let selection = registry
+            .authorize_path(&directory.path().join("root/a.md"))
+            .unwrap();
+        let opened = registry.open_first(&selection).unwrap();
+        (directory, registry, opened)
+    }
+
+    #[test]
+    fn relative_navigation_preserves_root_and_changes_document_base() {
+        let (_directory, registry, a) = relative_fixture();
+        let selection = registry
+            .authorize_relative(&a.snapshot.session_id, "sub/b.md")
+            .unwrap();
+        let b = registry.open_first(&selection).unwrap();
+        registry.release_session(&a.snapshot.session_id);
+        assert_eq!(b.snapshot.text, "# B");
+        let selection = registry
+            .authorize_relative(&b.snapshot.session_id, "../c.md")
+            .unwrap();
+        assert_eq!(
+            registry.open_first(&selection).unwrap().snapshot.text,
+            "# C"
+        );
+    }
+
+    #[test]
+    fn relative_navigation_rejects_missing_non_markdown_and_escape() {
+        let (directory, registry, a) = relative_fixture();
+        fs::write(directory.path().join("root/file.txt"), "texte").unwrap();
+        for (target, code) in [
+            ("missing.md", AppErrorCode::DocumentNotFound),
+            ("file.txt", AppErrorCode::UnsupportedFormat),
+            ("../outside.md", AppErrorCode::ResourceOutsideRoot),
+        ] {
+            let error = registry
+                .authorize_relative(&a.snapshot.session_id, target)
+                .unwrap_err();
+            assert_eq!(format!("{:?}", error.code), format!("{code:?}"));
+        }
+        assert!(registry.contains_session(&a.snapshot.session_id));
+    }
+
+    #[test]
+    fn relative_navigation_rejects_absolute_paths_even_inside_root() {
+        let (directory, registry, a) = relative_fixture();
+        let target = directory.path().join("root/c.md");
+        assert!(
+            registry
+                .authorize_relative(&a.snapshot.session_id, target.to_str().unwrap())
+                .is_err()
+        );
+        for target in ["C:/c.md", "//host/share/c.md", "https://example.test/a.md"] {
+            assert!(
+                registry
+                    .authorize_relative(&a.snapshot.session_id, target)
+                    .is_err()
+            );
+        }
+    }
+
+    #[test]
+    fn relative_selection_is_revoked_with_its_parent_session() {
+        let (_directory, registry, a) = relative_fixture();
+        let selection = registry
+            .authorize_relative(&a.snapshot.session_id, "c.md")
+            .unwrap();
+        registry.release_session(&a.snapshot.session_id);
+        assert!(registry.open_first(&selection).is_err());
+        assert!(
+            registry
+                .authorize_relative(&a.snapshot.session_id, "c.md")
+                .is_err()
+        );
+        assert!(registry.authorize_relative("forged", "c.md").is_err());
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn relative_navigation_rejects_external_symlinks_and_replaced_root() {
+        use std::os::unix::fs::symlink;
+        let (directory, registry, a) = relative_fixture();
+        symlink(
+            directory.path().join("outside.md"),
+            directory.path().join("root/link.md"),
+        )
+        .unwrap();
+        assert!(
+            registry
+                .authorize_relative(&a.snapshot.session_id, "link.md")
+                .is_err()
+        );
+        fs::rename(
+            directory.path().join("root"),
+            directory.path().join("old-root"),
+        )
+        .unwrap();
+        fs::create_dir(directory.path().join("root")).unwrap();
+        fs::write(directory.path().join("root/c.md"), "# remplacé").unwrap();
+        assert!(
+            registry
+                .authorize_relative(&a.snapshot.session_id, "c.md")
+                .is_err()
+        );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn relative_open_checks_the_actual_handle_when_an_ancestor_is_substituted() {
+        use std::os::unix::fs::symlink;
+        let (directory, registry, a) = relative_fixture();
+        let selection = registry
+            .authorize_relative(&a.snapshot.session_id, "sub/b.md")
+            .unwrap();
+        // The inode of B is unchanged; its identity alone does not prove confinement.
+        fs::rename(
+            directory.path().join("root/sub"),
+            directory.path().join("outside-sub"),
+        )
+        .unwrap();
+        symlink(
+            directory.path().join("outside-sub"),
+            directory.path().join("root/sub"),
+        )
+        .unwrap();
+        assert!(matches!(
+            registry.open_first(&selection),
+            Err(AppError {
+                code: AppErrorCode::ResourceOutsideRoot,
+                ..
+            })
+        ));
+    }
+
+    #[test]
+    fn relative_open_rejects_revocation_during_read() {
+        let (_directory, registry, a) = relative_fixture();
+        let selection = registry
+            .authorize_relative(&a.snapshot.session_id, "c.md")
+            .unwrap();
+        let result = registry.open_first_with_after_metadata(&selection, || {
+            registry.release_session(&a.snapshot.session_id)
+        });
+        assert!(result.is_err());
+    }
 
     fn checksum(path: &Path) -> u64 {
         let bytes = fs::read(path).unwrap();

@@ -123,27 +123,47 @@ export class ViewerController {
   async openRelative(target: string): Promise<void> {
     const active = this.coordinator.active;
     if (!active) return;
-    const selection = await this.documents.selectRelative(
-      active.snapshot.sessionId,
-      target,
-    );
-    const outcome = await this.coordinator.open(selection);
-    if (outcome.status !== 'activated') return;
-    this.update({
-      phase: 'ready',
-      active: {
-        documentId: outcome.active.snapshot.documentId,
-        sessionId: outcome.active.snapshot.sessionId,
-        displayName: outcome.active.snapshot.displayName,
-        html: sanitizeDocumentHtml(outcome.active.render.html),
-        headings: outcome.active.render.headings,
-        resources: outcome.active.render.resources,
-        headingCount: outcome.active.render.headings.length,
-        diagnosticCount: outcome.active.render.diagnostics.length,
-      },
-      error: null,
-      ignoredPaths: outcome.ignoredPaths,
-    });
+    const request = ++this.request;
+    this.update({ ...this.state, phase: 'opening', error: null });
+    try {
+      const selection = await this.documents.selectRelative(
+        active.snapshot.sessionId,
+        target,
+      );
+      if (request !== this.request) return;
+      const outcome = await this.coordinator.open(selection);
+      if (request !== this.request || outcome.status === 'superseded') return;
+      if (outcome.status === 'failed') {
+        this.update({
+          ...this.state,
+          phase: this.state.active ? 'ready' : 'empty',
+          error: outcome.error,
+        });
+        return;
+      }
+      this.update({
+        phase: 'ready',
+        active: {
+          documentId: outcome.active.snapshot.documentId,
+          sessionId: outcome.active.snapshot.sessionId,
+          displayName: outcome.active.snapshot.displayName,
+          html: sanitizeDocumentHtml(outcome.active.render.html),
+          headings: outcome.active.render.headings,
+          resources: outcome.active.render.resources,
+          headingCount: outcome.active.render.headings.length,
+          diagnosticCount: outcome.active.render.diagnostics.length,
+        },
+        error: null,
+        ignoredPaths: outcome.ignoredPaths,
+      });
+    } catch (error) {
+      if (request !== this.request) return;
+      this.update({
+        ...this.state,
+        phase: this.state.active ? 'ready' : 'empty',
+        error: normalizeError(error),
+      });
+    }
   }
 
   dismissError(): void {

@@ -67,6 +67,18 @@ pas des URLs acceptées depuis le document : registre de handles par session,
 génération/validité et libération. La taille encodée ne suffit pas à valider
 une image. Aucun chemin source ne devient directement un `src` actif.
 
+Qualification L10 des chemins relatifs simples (6 octobre 2026) : la session
+conserve le chemin du document courant, la racine initiale et son identité
+device/inode sur Linux. A → B change la base et conserve la racine pour les
+documents et leurs images. La sélection relative dépend de sa session source ;
+sa fermeture retire les sélections encore en attente. Avant lecture, Rust
+recontrôle le handle ouvert via `/proc/self/fd` et l'identité de la racine.
+Les tests couvrent une substitution d'ancêtre conservant l'inode du fichier,
+ainsi que la révocation pendant lecture. Les autres plateformes refusent ce
+contrôle non qualifié. À cette étape, les cibles absolues, URI encodées,
+fragments et queries sont refusés dans la commande relative ; les sorties
+complètes L10 restent en qualification, sans changement de la policy cible.
+
 ## HTML et enrichissements
 
 HTML brut désactivé, `breaks: false`, pas de typographie automatique. Ne pas

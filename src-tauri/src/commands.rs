@@ -72,10 +72,12 @@ pub fn open_document(
 ) -> Result<DocumentSnapshot, AppError> {
     require_main_webview(&webview)?;
     let opened = documents.open_first(&selection)?;
-    if let Err(error) = resources.register_document_session(
+    if let Err(error) = resources.register_confined_session(
         &opened.snapshot.session_id,
         &opened.snapshot.document_id,
         &opened.path,
+        &opened.root,
+        opened.root_identity,
     ) {
         documents.release_session(&opened.snapshot.session_id);
         return Err(error);

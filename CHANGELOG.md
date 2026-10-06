@@ -22,6 +22,10 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ### Security
 
+- Navigation Markdown relative : racine initiale conservée après changement
+  de document, contrôle du handle ouvert sur Linux et révocation des
+  sélections liées à une session fermée. Les erreurs relatives conservent le
+  document affiché et signalent leur cause.
 - Refus des fichiers trop grands, non UTF-8, spéciaux, remplacés ou à suffixe
   trompeur ; HTML brut, protocoles dangereux et chargements distants restent
   inertes avant insertion.

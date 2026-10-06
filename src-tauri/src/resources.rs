@@ -25,6 +25,7 @@ pub struct StoredResource {
 
 struct SessionResources {
     document_id: String,
+    base: PathBuf,
     root: PathBuf,
     root_identity: RootIdentity,
     by_target: HashMap<PathBuf, String>,
@@ -33,14 +34,14 @@ struct SessionResources {
 
 #[cfg(target_os = "linux")]
 #[derive(Clone, Copy, PartialEq, Eq)]
-struct RootIdentity {
+pub(crate) struct RootIdentity {
     device: u64,
     inode: u64,
 }
 
 #[cfg(not(target_os = "linux"))]
 #[derive(Clone, Copy, PartialEq, Eq)]
-struct RootIdentity;
+pub(crate) struct RootIdentity;
 
 #[derive(Default)]
 struct RegistryState {
@@ -80,6 +81,30 @@ impl ResourceRegistry {
         })?;
         let root_identity = root_identity(root)?;
 
+        self.register_confined_session(session_id, document_id, &document, root, root_identity)
+    }
+
+    pub(crate) fn register_confined_session(
+        &self,
+        session_id: impl Into<String>,
+        document_id: impl Into<String>,
+        document: &Path,
+        root: &Path,
+        expected_identity: RootIdentity,
+    ) -> Result<(), AppError> {
+        if root_identity(root)? != expected_identity || !document.starts_with(root) {
+            return Err(AppError::new(
+                AppErrorCode::ResourceOutsideRoot,
+                "La racine de ressources a changé.",
+            ));
+        }
+        let base = document
+            .parent()
+            .ok_or_else(|| {
+                AppError::new(AppErrorCode::ResourceInvalid, "Base documentaire absente.")
+            })?
+            .to_path_buf();
+
         let mut state = self
             .state
             .lock()
@@ -88,8 +113,9 @@ impl ResourceRegistry {
             session_id.into(),
             SessionResources {
                 document_id: document_id.into(),
+                base,
                 root: root.to_path_buf(),
-                root_identity,
+                root_identity: expected_identity,
                 by_target: HashMap::new(),
                 cache_bytes: 0,
             },
@@ -122,7 +148,7 @@ impl ResourceRegistry {
         }
 
         let target = validate_relative_target(&request.target)?;
-        let (root, root_identity, cached_token) = {
+        let (root, base, root_identity, cached_token) = {
             let state = self
                 .state
                 .lock()
@@ -143,6 +169,7 @@ impl ResourceRegistry {
 
             (
                 session.root.clone(),
+                session.base.clone(),
                 session.root_identity,
                 session.by_target.get(&target).cloned(),
             )
@@ -152,7 +179,7 @@ impl ResourceRegistry {
             return self.describe(&token);
         }
 
-        let mut file = secure_open(&root, &target)?;
+        let mut file = secure_open(&base, &target)?;
         after_open();
         verify_opened_file_is_confined(&file, &root, root_identity)?;
 
@@ -322,7 +349,7 @@ fn secure_open(root: &Path, target: &Path) -> Result<File, AppError> {
 }
 
 #[cfg(target_os = "linux")]
-fn root_identity(root: &Path) -> Result<RootIdentity, AppError> {
+pub(crate) fn root_identity(root: &Path) -> Result<RootIdentity, AppError> {
     use std::os::unix::fs::MetadataExt;
 
     let metadata = root.metadata().map_err(|_| {
@@ -338,12 +365,12 @@ fn root_identity(root: &Path) -> Result<RootIdentity, AppError> {
 }
 
 #[cfg(not(target_os = "linux"))]
-fn root_identity(_root: &Path) -> Result<RootIdentity, AppError> {
+pub(crate) fn root_identity(_root: &Path) -> Result<RootIdentity, AppError> {
     Ok(RootIdentity)
 }
 
 #[cfg(target_os = "linux")]
-fn verify_opened_file_is_confined(
+pub(crate) fn verify_opened_file_is_confined(
     file: &File,
     root: &Path,
     expected_root: RootIdentity,
@@ -376,7 +403,7 @@ fn verify_opened_file_is_confined(
 }
 
 #[cfg(not(target_os = "linux"))]
-fn verify_opened_file_is_confined(
+pub(crate) fn verify_opened_file_is_confined(
     _file: &File,
     _root: &Path,
     _expected_root: RootIdentity,
@@ -612,6 +639,47 @@ mod tests {
                 ..
             })
         ));
+    }
+
+    #[test]
+    fn navigated_document_resources_use_its_base_and_preserve_the_authorized_root() {
+        let (directory, registry) = fixture();
+        let root = directory.path().join("root").canonicalize().unwrap();
+        fs::create_dir(root.join("sub")).unwrap();
+        fs::write(root.join("sub/b.md"), "# B").unwrap();
+        fs::write(root.join("assets/shared.png"), png(3, 4, 7)).unwrap();
+        fs::write(root.join("sub/local.png"), png(5, 6, 8)).unwrap();
+        registry
+            .register_confined_session(
+                "session-b",
+                "document-b",
+                &root.join("sub/b.md"),
+                &root,
+                root_identity(&root).unwrap(),
+            )
+            .unwrap();
+        for (target, dimensions) in [("../assets/shared.png", (3, 4)), ("local.png", (5, 6))] {
+            let resolved = registry
+                .resolve(&ResourceRequest {
+                    session_id: "session-b".into(),
+                    document_id: "document-b".into(),
+                    target: target.into(),
+                    expected_kind: ResourceKind::Image,
+                })
+                .unwrap();
+            assert_eq!((resolved.width, resolved.height), dimensions);
+        }
+        registry.release_session("session-a");
+        assert!(
+            registry
+                .resolve(&ResourceRequest {
+                    session_id: "session-b".into(),
+                    document_id: "document-b".into(),
+                    target: "local.png".into(),
+                    expected_kind: ResourceKind::Image
+                })
+                .is_ok()
+        );
     }
 
     #[test]

@@ -9,6 +9,7 @@ pas résultats de tests applicatifs. Le corpus ne prouve pas la conformité GFM.
 | --- | --- | --- | --- | --- |
 | CM01 | commonmark.md | faible | titres, emphase, listes, citations, code ; HTML inerte | L06/L07, G2 |
 | GF01 | gfm-extensions.md | modérée | table, barré, autolink ; tâches désactivées ; notes et cinq alerts | L06/L13, G2 |
+| V301 | v3/document.md + v3/sub/guide.md + v3/assets/allowed.png | intégration | images, A → B → A, refus, TOC, thèmes, zoom et extensions après sanitisation ; recette préparée dans docs/V3_NATIVE_RECIPE.md | L10–L13, G2 |
 | HD01 | headings-search.md | modérée | H1–H6 Unicode et IDs uniques/déterministes sur titres dupliqués | L11, G2 |
 | SE01 | headings-search.md | modérée | ÉTÉ trouve été et le code, pas ete ; .* littéral ; URLs/sources cachées exclues | L20, G3 |
 | EN01 | metadata.md | faible | UTF-8 conservé ; frontmatter visible comme Markdown ordinaire | L05/L06, G2 |
