@@ -40,13 +40,17 @@ Toutes les variantes de taille et d'encodage viennent du même générateur MIT.
 Les caractères, octets, lignes et unités structurales sont dans son manifeste.
 Les comptes exacts de tokens markdown-it seront ajoutés quand le moteur existe.
 
-## Recettes natives à matérialiser dans le harness L04
+## Corpus V3
 
 Le corpus `v3/headings.md` couvre H1–H6, doublons et suffixes en collision,
 accents composés/décomposés, arabe, japonais, emoji, code/liens inline,
 notes homonymes et sections éloignées. `v3/no-headings.md` vérifie le retrait
 du sommaire et la remise à zéro du suivi de section. Ces documents sont
 pilotés par `tests/integration/run_v3_harness.sh`, en lecture seule.
+`v3/styles.md` apporte tableau large, code sans coupure et paragraphe arabe
+mixte pour la recette thème/zoom/petite fenêtre L12.
+
+## Recettes natives à matérialiser dans le harness L04
 
 Dans un dossier temporaire dédié : créer `racine/document.md`, `racine/assets/`,
 `exterieur/secret.md` avec un marqueur, et un document B. Ne jamais utiliser de

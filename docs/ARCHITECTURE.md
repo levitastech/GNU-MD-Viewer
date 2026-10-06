@@ -39,6 +39,14 @@ par frame et une recherche binaire sans reparcourir ni mesurer tous les titres.
 Le suivi ne modifie ni focus ni sélection ; listeners, observer et frame en
 attente sont libérés au remplacement du document.
 
+La lecture en petite fenêtre laisse le code déborder dans son propre bloc ;
+les cellules de tableau se replient si leur texte le permet. Les paragraphes,
+listes, titres et cellules emploient `unicode-bidi: plaintext` pour déterminer
+leur sens de base à partir du contenu, sans forcer tout le document en RTL.
+La coque fournit des variables claires/sombres pour code, liens et alertes,
+ainsi que des couleurs/surfaces réservées aux maths et diagrammes futurs.
+L15/L16 doivent encore vérifier le rendu réel de ces deux enrichisseurs.
+
 Les titres et notes portent des attributs inertes distincts, jamais des `id`
 libres. Le renderer footnote 4.0.0 conserve le parser amont mais adapte ses
 règles de liens au routage local contrôlé ; todo-lists 0.1.8 conserve son

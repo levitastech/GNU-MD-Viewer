@@ -72,6 +72,13 @@ button:disabled {
 }
 
 .viewer-shell {
+  --mdv-code-background: #e8e8e2;
+  --mdv-link-color: #24654a;
+  --mdv-alert-background: #eaf0f7;
+  --mdv-alert-color: #172e49;
+  --mdv-math-color: currentColor;
+  --mdv-diagram-background: #fff;
+  --mdv-diagram-color: currentColor;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -80,14 +87,18 @@ button:disabled {
 }
 
 .theme-dark {
+  --mdv-code-background: #202a25;
+  --mdv-link-color: #8bc7a6;
+  --mdv-alert-background: #25322d;
+  --mdv-alert-color: #e8eee9;
+  --mdv-math-color: currentColor;
+  --mdv-diagram-background: #25322d;
+  --mdv-diagram-color: currentColor;
   color: #e8eee9;
   background: #18201d;
 }
 .theme-dark .action-bar {
   background: rgb(24 32 29 / 94%);
-}
-.theme-dark .document pre {
-  background: #25322d;
 }
 .theme-dark .table-of-contents {
   color: #e8eee9;
@@ -105,19 +116,12 @@ button:disabled {
 .theme-dark .document-name {
   color: #bdcbc3;
 }
-.theme-dark .mdv-link {
-  color: #90d7b2;
-}
 .theme-dark .mdv-image-placeholder {
   color: #bdcbc3;
 }
 .theme-dark .document th,
 .theme-dark .document td {
   border-color: #64736b;
-}
-.theme-dark .markdown-alert {
-  color: #e8eee9;
-  background: #25322d;
 }
 .theme-dark .empty-state {
   color: #e8eee9;
@@ -304,8 +308,8 @@ button:disabled {
   border-inline-start: 0.25rem solid #426e9f;
   padding: 0.8em 1em;
   margin: 1em 0;
-  background: #eaf0f7;
-  color: #172e49;
+  background: var(--mdv-alert-background);
+  color: var(--mdv-alert-color);
 }
 .markdown-alert-warning,
 .markdown-alert-caution {
@@ -346,6 +350,15 @@ button:disabled {
   margin-top: 0;
 }
 
+.document p,
+.document li,
+.document [data-mdv-heading],
+.document th,
+.document td {
+  unicode-bidi: plaintext;
+  text-align: start;
+}
+
 .document pre,
 .document table {
   max-width: 100%;
@@ -355,7 +368,7 @@ button:disabled {
 .document pre {
   padding: 1rem;
   border-radius: 0.7rem;
-  background: #e8e8e2;
+  background: var(--mdv-code-background);
 }
 
 .document code {
@@ -375,7 +388,7 @@ button:disabled {
 }
 
 .mdv-link {
-  color: #24654a;
+  color: var(--mdv-link-color);
   cursor: pointer;
   text-decoration: underline;
   text-decoration-thickness: 0.08em;
@@ -504,17 +517,9 @@ h1 + p {
     color: #aab7b0;
   }
 
-  .document pre {
-    background: #202a25;
-  }
-
   .document th,
   .document td {
     border-color: rgb(234 242 237 / 18%);
-  }
-
-  .mdv-link {
-    color: #8bc7a6;
   }
 
   .notice {

@@ -50,9 +50,10 @@ ne vaut ni benchmark L24 ni qualification de ces plateformes.
   ancres décomposées/absentes, focus, sélection et sauts de défilement qualifiés
   sur la matrice automatisée Linux. Aucun clavier physique ni lecteur d'écran
   n'est attesté ; le harness émet un événement clavier DOM dans la WebView.
-- L12 : mode système et remise à zéro implémentés. Clair/sombre et reset
-  vérifiés en natif ; changements OS à chaud, petite fenêtre, RTL et bornes
-  de zoom restent à recetter.
+- L12 : le mode système suit un changement réel clair/sombre du bureau dans
+  la WebView ; 80–200 %, reset, fenêtre 640 × 480, texte RTL, code long et
+  tableau large et échelle 2 vérifiés sur Linux. Binaire debug normal
+  reconstruit puis smoke X11 réussi après le harness ; voir le rapport V3.
 - L13 : tâches et notes répétées après sanitisation vérifiées en natif ;
   les adaptations de renderer sont documentées dans l'architecture.
 
@@ -66,11 +67,20 @@ Avec le PATH Node/Rust décrit dans DEVELOPMENT.md et un affichage X11 actif :
 bash tests/integration/run_v3_harness.sh
 ```
 
+La recette utilise `gsettings` et `wmctrl` pour basculer réellement la
+préférence système puis ramener la fenêtre à 640 × 480. La valeur initiale de
+`org.gnome.desktop.interface color-scheme` est restaurée à la sortie du script.
+Pour une seconde passe DPI sous GTK/X11 :
+
+```sh
+GDK_SCALE=2 GNU_MDV_V3_EXPECT_SCALE=2 bash tests/integration/run_v3_harness.sh
+```
+
 Le script compile en debug avec `l09-harness` et `VITE_V3_HARNESS=1`,
 sélectionne la fixture via le hook natif existant, puis pilote les composants
 réels de `App.svelte`. Il ne remplace pas le pipeline de rendu. Il conserve
 les logs dans un répertoire temporaire annoncé, contrôle les hashes source,
-les connexions IP et 29 marqueurs d'interaction. Le lecteur est lancé avec
+les connexions IP et 37 marqueurs d'interaction. Le lecteur est lancé avec
 `/tmp` comme CWD. Voir le rapport V3 pour
 résultats et limites. Recompiler ensuite sans feature ni variable de harness.
 

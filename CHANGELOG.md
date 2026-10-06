@@ -34,6 +34,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
   titres éloignés, sans déplacer le focus ni perdre la sélection de texte.
 - Ancres Unicode décomposées et titres Setext multilignes ; les renvois de
   notes ne sont plus détournés par un titre homonyme.
+- Lecture des paragraphes arabes et mixtes dans leur sens naturel en fenêtre
+  étroite, sans changer la direction du code ni de l'interface.
 
 ### Security
 

@@ -32,6 +32,13 @@ export const runV3Recipe = async (): Promise<void> => {
     const image = document.querySelector<HTMLImageElement>('.document img');
     return !!image?.complete && image.naturalWidth > 0;
   };
+  const signal = (stage: string): void => {
+    const beacon = new Image();
+    beacon.src = convertFileSrc(
+      `l09-report-v3-stage-${stage}`,
+      RESOURCE_PROTOCOL,
+    );
+  };
   try {
     requireElement<HTMLButtonElement>('.actions .primary').click();
     await waitFor(() => document.querySelector('.document table') !== null);
@@ -79,10 +86,24 @@ export const runV3Recipe = async (): Promise<void> => {
     checks.dark =
       document.querySelector('.viewer-shell.theme-dark') !== null &&
       getComputedStyle(theme).backgroundColor !== 'rgb(255, 255, 255)';
+    const darkCode = getComputedStyle(
+      requireElement('.document pre'),
+    ).backgroundColor;
+    const darkAlert = getComputedStyle(
+      requireElement('.markdown-alert'),
+    ).backgroundColor;
     theme.value = 'light';
     theme.dispatchEvent(new Event('change', { bubbles: true }));
     await tick();
     checks.light = document.querySelector('.viewer-shell.theme-dark') === null;
+    checks.palette =
+      getComputedStyle(requireElement('.document pre')).backgroundColor !==
+        darkCode &&
+      getComputedStyle(requireElement('.markdown-alert')).backgroundColor !==
+        darkAlert &&
+      getComputedStyle(requireElement('.viewer-shell'))
+        .getPropertyValue('--mdv-diagram-background')
+        .trim() === '#fff';
     const sourceDom = article.innerHTML;
     requireElement<HTMLButtonElement>(
       '[aria-label="Augmenter le zoom"]',
@@ -269,6 +290,90 @@ export const runV3Recipe = async (): Promise<void> => {
     checks.sectionreset &&= !document
       .querySelector('.table-of-contents')
       ?.textContent?.includes('Navigation L11');
+    // L12: the shell drives the real desktop color scheme and window size.
+    theme.value = 'system';
+    theme.dispatchEvent(new Event('change', { bubbles: true }));
+    await tick();
+    const systemQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    signal('theme-ready');
+    await waitFor(
+      () =>
+        systemQuery.matches &&
+        document.querySelector('.viewer-shell.theme-dark') !== null,
+    );
+    checks.systemdark = true;
+    signal('dark-observed');
+    await waitFor(
+      () =>
+        !systemQuery.matches &&
+        document.querySelector('.viewer-shell.theme-dark') === null,
+    );
+    checks.systemlight = true;
+    theme.value = 'light';
+    theme.dispatchEvent(new Event('change', { bubbles: true }));
+    await tick();
+    signal('light-observed');
+    const decrease = requireElement<HTMLButtonElement>(
+      '[aria-label="Réduire le zoom"]',
+    );
+    const increase = requireElement<HTMLButtonElement>(
+      '[aria-label="Augmenter le zoom"]',
+    );
+    const baselineDom = requireElement('.document').innerHTML;
+    for (let index = 0; index < 4; index += 1) decrease.click();
+    await tick();
+    checks.zoommin =
+      requireElement('.viewer-shell').style.getPropertyValue(
+        '--reader-zoom',
+      ) === '80%' && decrease.disabled;
+    for (let index = 0; index < 14; index += 1) increase.click();
+    await tick();
+    checks.zoommax =
+      requireElement('.viewer-shell').style.getPropertyValue(
+        '--reader-zoom',
+      ) === '200%' && increase.disabled;
+    requireElement<HTMLButtonElement>(
+      '[aria-label="Réinitialiser le zoom à 100 %"]',
+    ).click();
+    await tick();
+    checks.zoomstable =
+      requireElement('.document').innerHTML === baselineDom &&
+      requireElement('.viewer-shell').style.getPropertyValue(
+        '--reader-zoom',
+      ) === '100%';
+    clickLink('styles.md');
+    await waitFor(
+      () =>
+        document.querySelector('.document h1')?.textContent === 'Styles L12',
+    );
+    signal('size-ready');
+    await waitFor(() => window.innerWidth <= 660 && window.innerHeight <= 510);
+    signal(`scale-${window.devicePixelRatio}`);
+    const styled = requireElement('.document');
+    const code = requireElement<HTMLElement>('.document pre');
+    const table = requireElement<HTMLElement>('.document table');
+    const rtl = requireElement<HTMLElement>('.document p');
+    checks.narrowpage =
+      document.documentElement.scrollWidth <= window.innerWidth + 1;
+    checks.narrowarticle =
+      styled.getBoundingClientRect().right <= window.innerWidth + 1;
+    checks.narrowcode = code.scrollWidth > code.clientWidth;
+    checks.narrowtable =
+      table.scrollWidth > table.clientWidth ||
+      Array.from(table.querySelectorAll<HTMLElement>('th, td')).every(
+        (cell) => cell.scrollWidth <= cell.clientWidth + 1,
+      );
+    checks.narrow =
+      checks.narrowpage &&
+      checks.narrowarticle &&
+      checks.narrowcode &&
+      checks.narrowtable;
+    checks.rtl =
+      rtl.textContent?.startsWith('مرحبا') === true &&
+      getComputedStyle(rtl).unicodeBidi === 'plaintext';
+    clickLink('document.md');
+    await waitFor(() => document.querySelector('.document table') !== null);
+    await waitFor(hasImage);
     const oldUrl = requireElement<HTMLImageElement>('.document img').src;
     const close = Array.from(
       document.querySelectorAll<HTMLButtonElement>('.actions button'),

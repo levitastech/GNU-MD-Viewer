@@ -213,3 +213,60 @@ Linux, V3/G2 reste ouvert pour L12/L13.
 après le harness, sans chunk de recette (JS principal 198,58 kB brut /
 78,73 kB gzip). Smoke X11 12 secondes : statut 124 attendu du timeout,
 avertissements EGL/VMware de la VM sans crash.
+
+## Complément L12 — thèmes, zoom et petite fenêtre
+
+Base `f783f6e` plus diff L12 : fixture `v3/styles.md`, correction de la
+direction des blocs de texte dans `src/styles.css` et extension de la recette
+WebView. Le zoom conserve le contrat 80–200 % par pas de 10 et le mode système
+reste prioritaire seulement quand l'utilisateur l'a choisi ; aucune
+dépendance n'est ajoutée. La règle
+[`unicode-bidi: plaintext`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/unicode-bidi)
+et l'événement
+[`MediaQueryList.change`](https://developer.mozilla.org/en-US/docs/Web/API/MediaQueryList/change_event)
+ont été vérifiés dans la documentation officielle.
+Les variables de couleurs claires/sombres sont préparées pour code, liens,
+alertes, maths et diagrammes ; seules les trois premières ont un rendu MVP
+qualifié ici. Le rendu effectif Mermaid/KaTeX relève de L15/L16.
+
+Sur Linux/X11/WebKitGTK 2.52.6, la recette passe réellement la préférence
+GNOME/Mint de clair à sombre puis clair via `gsettings` et rétablit sa valeur
+initiale au sortir du script. `matchMedia` change et le mode « Système » suit
+dans la WebView. La recette presse ensuite les contrôles au-delà des bornes,
+constate 80 % / 200 %, boutons désactivés et retour à 100 %, tout en vérifiant
+que le DOM documentaire reste identique. La fenêtre native est ramenée à
+640 × 480 via `wmctrl` : pas de débordement de page/article, code défilable
+dans son bloc, cellules de tableau repliées sans coupure et sens de base du
+paragraphe arabe calculé sans forcer toute l'interface en RTL.
+
+Deux premières exécutions ont signalé un échec du seul critère « le tableau
+doit défiler horizontalement » ; la WebView repliait en réalité les cellules
+sans les couper. Le contrôle final accepte les deux présentations lisibles.
+`bash tests/integration/run_v3_harness.sh` réussit avec les huit hashes source
+inchangés, aucune connexion IP observée et 166540 KiB de RSS maximal ; logs
+`/tmp/gnu-mdv-v3.NX7Mpi`, temps de parcours 3028 ms. Ces mesures restent
+exploratoires. `pnpm test` : 45 tests verts ; check Svelte sans diagnostic,
+ESLint et Prettier verts. Clavier physique, lecteur d'écran et recette visuelle
+humaine non attestés. Reconstruction du binaire normal à consigner avant
+clôture L12.
+
+Une seconde exécution avec `GDK_SCALE=2` a d'abord échoué parce que la fenêtre
+de 960 × 680 pixels logiques démarrait maximisée sur l'écran virtuel. Le script
+retire désormais cet état avant de demander 640 × 480 pixels logiques, soit
+1280 × 960 physiques dans cette VM. La WebView a signalé
+`devicePixelRatio=2`, tous les contrôles sont réussis, sans changement des
+fichiers source ni connexion IP observée ; logs `/tmp/gnu-mdv-v3.6bJDT5`.
+Cette recette mesure le comportement sur WebKitGTK avec `GDK_SCALE=2`, pas
+une qualification DPI de Windows ou macOS.
+Après ajout des variables de palette, la recette finale `GDK_SCALE=2` passe
+les 37 marqueurs requis, dont la différence effective des fonds code/alerte
+entre clair et sombre et la présence du jeton de diagramme clair. Huit hashes
+source inchangés, aucune connexion IP observée ; logs
+`/tmp/gnu-mdv-v3.NEOElv`, parcours exploratoire 3972 ms, RSS maximal
+180808 KiB. La préférence de bureau initiale `default` a été restaurée.
+Après le harness, le binaire desktop debug normal a été reconstruit sans
+feature ni chunk de recette (JS principal 198,58 kB brut / 78,73 kB gzip ;
+CSS 7,32 kB brut). Smoke X11 normal 12 secondes : statut 124 attendu du
+timeout, avertissements EGL/VMware sans crash. Build release, test visuel
+humain et cibles Windows/macOS non exécutés. L12 est qualifié sur la matrice
+automatisée Linux ; L13 et G2 restent ouverts.
