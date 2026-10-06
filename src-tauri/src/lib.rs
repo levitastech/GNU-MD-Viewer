@@ -43,6 +43,11 @@ fn protocol_response(
             .expect("réponse de rapport harness valide");
     }
 
+    // A fresh URL forces the native lookup instead of WebKit's decoded-image
+    // memory cache. This alias exists only in the instrumented test binary.
+    #[cfg(feature = "l09-harness")]
+    let token = token.strip_prefix("l09-probe-").unwrap_or(token);
+
     if token.len() != 64 || !token.bytes().all(|byte| byte.is_ascii_hexdigit()) {
         return Response::builder()
             .status(StatusCode::NOT_FOUND)

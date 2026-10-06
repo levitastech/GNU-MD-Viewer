@@ -1,6 +1,7 @@
 # Recette native Linux V3 / G2
 
-État : préparée, non exécutée. Référence :
+État au 6 octobre 2026 : tranche automatisée exécutée sur Linux/X11 ;
+recette complète et clôture G2 non acquises. Référence :
 `tests/fixtures/v3/document.md` et `sub/guide.md`.
 
 ## Préparation
@@ -44,9 +45,34 @@ ne vaut ni benchmark L24 ni qualification de ces plateformes.
 - L10 : décodage URI, fragments et extension native de racine restent à
   compléter ; cette étape qualifie les chemins relatifs simples et leur
   confinement Linux.
-- L11 : ancres locales, panneau masquable, section active et focus à compléter.
-- L12 : mode système et remise à zéro du zoom à compléter.
-- L13 : les cases et les renvois doivent être vérifiés après sanitisation ;
-  le profil actuel retire `input`, `id` et `href`.
+- L11 : interactions branchées et vérifiées dans la WebView ; élargir le
+  corpus de titres/clavier/scroll avant clôture.
+- L12 : mode système et remise à zéro implémentés. Clair/sombre et reset
+  vérifiés en natif ; changements OS à chaud, petite fenêtre, RTL et bornes
+  de zoom restent à recetter.
+- L13 : tâches et notes répétées après sanitisation vérifiées en natif ;
+  les adaptations de renderer sont documentées dans l'architecture.
 
 Ces écarts empêchent la clôture V3/G2 jusqu'à correction et recette.
+
+## Tranche automatisée exécutée
+
+Avec le PATH Node/Rust décrit dans DEVELOPMENT.md et un affichage X11 actif :
+
+```sh
+bash tests/integration/run_v3_harness.sh
+```
+
+Le script compile en debug avec `l09-harness` et `VITE_V3_HARNESS=1`,
+sélectionne la fixture via le hook natif existant, puis pilote les composants
+réels de `App.svelte`. Il ne remplace pas le pipeline de rendu. Il conserve
+les logs dans un répertoire temporaire annoncé, contrôle les hashes source,
+les connexions IP et 16 marqueurs d'interaction. Voir le rapport V3 pour
+résultats et limites. Recompiler ensuite sans feature ni variable de harness.
+
+La sonde de révocation utilise une URL neuve réservée à la feature de test,
+afin de forcer une consultation du registre Rust. La réutilisation exacte
+d'une ancienne URL peut être satisfaite par le cache d'image décodée WebKit :
+elle ne prouve pas un nouvel accès natif. Les octets déjà livrés ne peuvent
+pas être retirés rétroactivement de la mémoire WebView ; ce point reste une
+limite explicite de la recette, et non une garantie d'effacement mémoire.

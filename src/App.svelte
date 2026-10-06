@@ -70,6 +70,10 @@
     unsubscribe = controller.subscribe((next) => {
       state = next;
     });
+    if (import.meta.env.VITE_V3_HARNESS === '1') {
+      const { runV3Recipe } = await import('./lib/platform/v3-webview-recipe');
+      void runV3Recipe();
+    }
   });
 
   onDestroy(() => {

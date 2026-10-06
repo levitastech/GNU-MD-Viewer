@@ -68,6 +68,46 @@ combinés contrôlent la sanitisation, l'unicité des cibles de notes répétée
 le focus, les ancres Unicode et les refus d'accès aux IDs du chrome applicatif.
 Ces tests DOM ne constituent pas encore la recette native L13.
 
+## Recette WebView du lecteur réel — 6 octobre 2026
+
+Base `fb1d024` plus instrumentation dans `App.svelte`,
+`v3-webview-recipe.ts`, `lib.rs` et `run_v3_harness.sh`. Linux
+6.17.0-35-generic x86_64, X11 `:0`, WebKitGTK 2.52.6 ; Node 24.18.0,
+pnpm 12.8.1 et Rust 1.91.1. Commande :
+
+```sh
+DISPLAY=:0 XAUTHORITY=/home/oem/.Xauthority bash tests/integration/run_v3_harness.sh
+```
+
+Build desktop debug instrumenté réussi, suivi d'une exécution de 25 secondes
+(statut 124 attendu). Les 16 marqueurs sont réussis : image locale, HTML
+hostile inerte, tâches, ancre, note/retour, sommaire masquable/focus/état actif,
+clair/sombre, zoom/reset, échec conservant le document, A → B → A et rejet
+natif d'un jeton révoqué. Hashes de A, B et PNG inchangés ; aucune connexion
+AF_INET/AF_INET6 observée sous `strace -f -e trace=connect`.
+Logs locaux : `/tmp/gnu-mdv-v3.4HYwwr` (non versionnés, durée de conservation
+non garantie). Parcours instrumenté 2029 ms, RSS maximal observé 163516 KiB :
+baseline exploratoire avec strace et binaire debug, pas un budget de lancement
+ni une mesure contractuelle L24. Avertissements EGL/VMware sans crash.
+
+Le premier passage a échoué sur la réutilisation exacte de l'URL de l'image,
+que WebKit pouvait servir depuis son cache décodé. La seconde recette force
+un nouvel accès au registre via un alias d'URL uniquement compilé avec la
+feature de test : le registre refuse bien le jeton révoqué. Cela ne prouve
+pas l'effacement rétroactif des octets déjà remis à la WebView. Voir les
+limites de [la recette](V3_NATIVE_RECIPE.md).
+
+Contrôles frontend finaux : 35 tests, Svelte sans erreur/avertissement,
+ESLint, Prettier et rustfmt réussis. Cargo : 27 tests réussis ; Clippy tous
+targets/features avec `-D warnings` réussi. Reconstruction desktop debug
+normale sans instrumentation réussie, bundle frontend sans chunk de recette
+(196,86 kB brut / 78,12 kB gzip pour le JS principal).
+Smoke X11 du binaire normal : vivant 12 secondes, statut 124 attendu du
+timeout, avertissements EGL/VMware sans crash ; pas de recette visuelle.
+Recette release/visuelle complète,
+changements réels du thème OS, petite fenêtre/RTL/DPI et chemins URI/racine
+étendue non exécutés ici. Les cibles Windows/macOS restent différées SG05.
+
 ## Écarts restants
 
 Les commits correctifs L11/L12 branchent les ancres sur l'interface réelle,

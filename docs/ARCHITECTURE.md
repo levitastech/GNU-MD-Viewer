@@ -20,6 +20,20 @@ flowchart TD
 
 Le moteur TypeScript est indépendant des composants Svelte ; seuls des types et interfaces explicites le relient à l'UI. Plugins GFM, footnotes, alerts, ancres et mathématiques sont isolés, testés par fixtures. La fidélité GitHub se mesure sur exemples ciblés ; les extensions non standard sont activées explicitement.
 
+Le profil actuel applique NFC, minuscules, conservation des lettres/chiffres
+Unicode, suppression de la ponctuation et regroupement des espaces/tirets/
+underscores en tiret pour les titres. Les titres vides ou uniquement emoji
+utilisent `section` ; les collisions reçoivent un suffixe unique. C'est un
+sous-ensemble documenté, pas une reproduction exhaustive des slugs GitHub.
+Les ancres percent-encodées sont décodées une fois, dans le document courant
+uniquement. Les IDs du chrome applicatif ne sont jamais des cibles.
+
+Les titres et notes portent des attributs inertes distincts, jamais des `id`
+libres. Le renderer footnote 4.0.0 conserve le parser amont mais adapte ses
+règles de liens au routage local contrôlé ; todo-lists 0.1.8 conserve son
+parser et produit des marqueurs accessibles en lecture seule. Aucun `input`
+ni `href` n'est nécessaire pour ces interactions après sanitisation.
+
 ## Contrats figés en L04
 
 `DocumentSnapshot`, `RenderResult`, `HeadingEntry`, `ResourceRequest`,
