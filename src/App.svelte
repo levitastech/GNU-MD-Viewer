@@ -9,6 +9,7 @@
   import TableOfContents from './lib/components/TableOfContents.svelte';
   import type { HeadingEntry } from './lib/contracts/document';
   import { MarkdownRenderService } from './lib/markdown/engine';
+  import { navigateDocument } from './lib/rendering/document-navigation';
   import { TauriDocumentService } from './lib/platform/tauri-document-service';
   import {
     isExternalHttpUrl,
@@ -29,6 +30,7 @@
   let linkNotice = '';
   let theme: 'light' | 'dark' = 'light';
   let zoom = 100;
+  let activeSection: string | null = null;
   const links = new TauriExternalLinkService();
   const resources: ResourceService = new TauriResourceService();
 
@@ -83,6 +85,14 @@
     const target = element.dataset.mdvLink ?? '';
     const kind = element.dataset.mdvLinkKind;
     if (kind !== 'external' || !isExternalHttpUrl(target)) {
+      if (kind === 'local' && target.startsWith('#')) {
+        const container = document.querySelector<HTMLElement>('.document');
+        linkNotice =
+          container && navigateDocument(container, target)
+            ? ''
+            : 'Section introuvable.';
+        return;
+      }
       if (kind === 'local' && !target.startsWith('#')) {
         void controller?.openRelative(target).catch((error: unknown) => {
           linkNotice =
@@ -112,9 +122,9 @@
   };
 
   const navigateToHeading = (heading: HeadingEntry): void => {
-    document
-      .querySelector<HTMLElement>(`[data-mdv-heading="${heading.id}"]`)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const container = document.querySelector<HTMLElement>('.document');
+    if (container && navigateDocument(container, `#${heading.id}`))
+      activeSection = heading.id;
   };
 </script>
 
@@ -157,6 +167,7 @@
         <TableOfContents
           headings={state.active.headings}
           onselect={navigateToHeading}
+          active={activeSection}
         />
         <DocumentView
           html={state.active.html}
@@ -166,6 +177,9 @@
           resources={state.active.resources}
           resourceService={resources}
           sessionId={state.active.sessionId}
+          onsection={(id) => {
+            activeSection = id;
+          }}
         />
       {:else}
         <section class="empty-state">

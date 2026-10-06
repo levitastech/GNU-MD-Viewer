@@ -8,6 +8,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ### Added
 
+- Ancres documentaires avec focus clavier, section active du sommaire et
+  panneau masquable, sans navigation de la WebView.
 - Tâches en lecture seule avec nom accessible, notes avec renvois locaux
   conservés après sanitisation et alertes GitHub dans le profil Markdown.
 - Première tranche P2/V2 : dialogue natif, lecture seule UTF-8 bornée, moteur
