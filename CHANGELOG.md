@@ -8,6 +8,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ### Added
 
+- Choix clair/sombre/système réactif, zoom de lecture 80–200 % par pas de
+  10 points et remise à 100 %, sans reparsing du document.
 - Ancres documentaires avec focus clavier, section active du sommaire et
   panneau masquable, sans navigation de la WebView.
 - Tâches en lecture seule avec nom accessible, notes avec renvois locaux

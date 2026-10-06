@@ -70,6 +70,16 @@ Ces tests DOM ne constituent pas encore la recette native L13.
 
 ## Écarts restants
 
+Les commits correctifs L11/L12 branchent les ancres sur l'interface réelle,
+focalisent la cible et suivent la section visible via un observer nettoyé au
+changement de document. Le sommaire se replie. Le mode système suit
+`matchMedia` et libère son listener ; le choix explicite clair/sombre prime sur
+le système. Zoom 80–200 %, pas de 10 points, bouton de retour à 100 %.
+Les règles CSS sombres héritées ne s'appliquent plus en mode clair explicite.
+Les [effets Svelte](https://svelte.dev/docs/svelte/$effect) et
+[matchMedia](https://developer.mozilla.org/en-US/docs/Web/API/Window/matchMedia)
+ont été revérifiés avant ces adaptations, sans changement de dépendances.
+
 Voir la recette native pour L10–L13. Les interactions des ancres, des thèmes
 et des notes restent à qualifier dans la WebView. Les statuts
 locaux `done` ont été retirés jusqu'à satisfaction des sorties et des recettes.

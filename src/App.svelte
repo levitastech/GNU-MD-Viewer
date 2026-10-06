@@ -10,6 +10,12 @@
   import type { HeadingEntry } from './lib/contracts/document';
   import { MarkdownRenderService } from './lib/markdown/engine';
   import { navigateDocument } from './lib/rendering/document-navigation';
+  import {
+    changeReadingZoom,
+    isDarkTheme,
+    observeSystemTheme,
+    type ThemeMode,
+  } from './lib/state/reading-preferences';
   import { TauriDocumentService } from './lib/platform/tauri-document-service';
   import {
     isExternalHttpUrl,
@@ -28,7 +34,9 @@
   let controller: ViewerController | null = null;
   let unsubscribe: (() => void) | null = null;
   let linkNotice = '';
-  let theme: 'light' | 'dark' = 'light';
+  let theme: ThemeMode = 'system';
+  let systemDark = false;
+  let stopSystemTheme: (() => void) | null = null;
   let zoom = 100;
   let activeSection: string | null = null;
   const links = new TauriExternalLinkService();
@@ -47,6 +55,12 @@
     }
 
     const documents = new TauriDocumentService();
+    stopSystemTheme = observeSystemTheme(
+      window.matchMedia('(prefers-color-scheme: dark)'),
+      (dark) => {
+        systemDark = dark;
+      },
+    );
     const coordinator = new OpenCoordinator(
       documents,
       new MarkdownRenderService(),
@@ -59,6 +73,7 @@
   });
 
   onDestroy(() => {
+    stopSystemTheme?.();
     unsubscribe?.();
     void controller?.close();
   });
@@ -74,11 +89,11 @@
   };
 
   const changeZoom = (delta: number): void => {
-    zoom = Math.min(200, Math.max(80, zoom + delta));
+    zoom = changeReadingZoom(zoom, delta);
   };
 
-  const toggleTheme = (): void => {
-    theme = theme === 'light' ? 'dark' : 'light';
+  const selectTheme = (mode: ThemeMode): void => {
+    theme = mode;
   };
 
   const activateLink = (element: HTMLElement): void => {
@@ -136,7 +151,7 @@
   <Harness />
 {:else}
   <div
-    class:theme-dark={theme === 'dark'}
+    class:theme-dark={isDarkTheme(theme, systemDark)}
     class="viewer-shell"
     aria-busy={state.phase === 'opening'}
     style:--reader-zoom={`${zoom}%`}
@@ -146,8 +161,13 @@
       busy={state.phase === 'opening'}
       onopen={openDocument}
       onclose={closeDocument}
-      ontheme={toggleTheme}
+      ontheme={selectTheme}
       onzoom={changeZoom}
+      onresetzoom={() => {
+        zoom = 100;
+      }}
+      {theme}
+      {zoom}
     />
 
     {#if state.error}
