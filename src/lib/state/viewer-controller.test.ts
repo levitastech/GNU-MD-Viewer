@@ -29,6 +29,7 @@ const snapshot = (name: string): DocumentSnapshot => ({
 const setup = (openFirst: DocumentService['openFirst']) => {
   const documents: DocumentService = {
     selectDocument: vi.fn(async () => ({ paths: ['opaque-selection'] })),
+    selectRelative: vi.fn(async () => ({ paths: ['opaque-selection'] })),
     openFirst,
     releaseSession: vi.fn(async () => undefined),
   };

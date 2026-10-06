@@ -13,6 +13,10 @@ les jetons via `OpenCoordinator`.
 
 La résolution est annulée logiquement lorsque le rendu devient périmé et un
 échec conserve un placeholder explicite. Les images distantes restent bloquées.
+Les liens Markdown vers un autre document sont autorisés uniquement depuis la
+session active : Rust canonicalise une cible sous le dossier du document,
+refuse les cibles ambiguës et toute sortie de racine avant une nouvelle
+autorisation opaque.
 
 Preuves ciblées à compléter au commit L10 : test DOM de l’hydratation, suites
 frontend, tests Rust et build desktop normal sur Linux.

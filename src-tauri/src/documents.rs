@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     fs::{File, Metadata},
     io::Read,
     path::{Path, PathBuf},
@@ -46,7 +46,7 @@ struct PendingSelection {
 #[derive(Default)]
 struct RegistryState {
     pending: HashMap<String, PendingSelection>,
-    sessions: HashSet<String>,
+    sessions: HashMap<String, PathBuf>,
 }
 
 #[derive(Default)]
@@ -171,7 +171,7 @@ impl DocumentRegistry {
             .lock()
             .expect("registre de documents empoisonné")
             .sessions
-            .insert(session_id);
+            .insert(session_id, pending.path.clone());
 
         Ok(OpenedDocument {
             snapshot,
@@ -185,6 +185,19 @@ impl DocumentRegistry {
             .expect("registre de documents empoisonné")
             .sessions
             .remove(session_id);
+    }
+
+    pub fn authorize_relative(&self, session_id: &str, target: &str) -> Result<DocumentSelection, AppError> {
+        if target.is_empty() || target.contains(['\\', '\0', '?', '#']) {
+            return Err(AppError::new(AppErrorCode::AccessDenied, "La cible relative est invalide."));
+        }
+        let document = self.state.lock().expect("registre de documents empoisonné").sessions.get(session_id).cloned().ok_or_else(|| AppError::new(AppErrorCode::AccessDenied, "La session du document est révoquée."))?;
+        let root = document.parent().ok_or_else(|| AppError::new(AppErrorCode::AccessDenied, "Le document n'a pas de racine."))?;
+        let candidate = root.join(target).canonicalize().map_err(path_error)?;
+        if !candidate.starts_with(root) {
+            return Err(AppError::new(AppErrorCode::ResourceOutsideRoot, "La cible sort du dossier autorisé."));
+        }
+        self.authorize_path(&candidate)
     }
 
     #[cfg(test)]

@@ -63,6 +63,7 @@ const serviceDoubles = (
 
   const documents: DocumentService = {
     selectDocument: async (): Promise<DocumentSelection | null> => null,
+    selectRelative: async () => ({ paths: [] }),
     openFirst,
     releaseSession: releaseDocument,
   };

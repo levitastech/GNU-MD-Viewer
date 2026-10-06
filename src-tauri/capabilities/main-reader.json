@@ -6,6 +6,7 @@
   "permissions": [
     "allow-select-document",
     "allow-open-document",
+    "allow-select-relative-document",
     "allow-release-document-session",
     "allow-open-external-url",
     "allow-resolve-resource",

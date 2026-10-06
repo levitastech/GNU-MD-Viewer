@@ -120,6 +120,32 @@ export class ViewerController {
     this.update(INITIAL_VIEWER_STATE);
   }
 
+  async openRelative(target: string): Promise<void> {
+    const active = this.coordinator.active;
+    if (!active) return;
+    const selection = await this.documents.selectRelative(
+      active.snapshot.sessionId,
+      target,
+    );
+    const outcome = await this.coordinator.open(selection);
+    if (outcome.status !== 'activated') return;
+    this.update({
+      phase: 'ready',
+      active: {
+        documentId: outcome.active.snapshot.documentId,
+        sessionId: outcome.active.snapshot.sessionId,
+        displayName: outcome.active.snapshot.displayName,
+        html: sanitizeDocumentHtml(outcome.active.render.html),
+        headings: outcome.active.render.headings,
+        resources: outcome.active.render.resources,
+        headingCount: outcome.active.render.headings.length,
+        diagnosticCount: outcome.active.render.diagnostics.length,
+      },
+      error: null,
+      ignoredPaths: outcome.ignoredPaths,
+    });
+  }
+
   dismissError(): void {
     this.update({ ...this.state, error: null });
   }

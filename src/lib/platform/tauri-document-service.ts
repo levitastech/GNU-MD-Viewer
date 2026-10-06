@@ -48,6 +48,16 @@ export class TauriDocumentService implements DocumentService {
     }
   }
 
+  async selectRelative(
+    sessionId: SessionId,
+    target: string,
+  ): Promise<DocumentSelection> {
+    return invoke<DocumentSelection>('select_relative_document', {
+      sessionId,
+      target,
+    });
+  }
+
   async releaseSession(sessionId: SessionId): Promise<void> {
     await invoke('release_document_session', { sessionId });
   }

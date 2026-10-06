@@ -101,6 +101,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::select_document,
             commands::open_document,
+            commands::select_relative_document,
             commands::release_document_session,
             commands::open_external_url,
             commands::resolve_resource,

@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-select-relative-document"
+description = "Enables the select_relative_document command without any pre-configured scope."
+commands.allow = ["select_relative_document"]
+
+[[permission]]
+identifier = "deny-select-relative-document"
+description = "Denies the select_relative_document command without any pre-configured scope."
+commands.deny = ["select_relative_document"]

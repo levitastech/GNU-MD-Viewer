@@ -83,9 +83,16 @@
     const target = element.dataset.mdvLink ?? '';
     const kind = element.dataset.mdvLinkKind;
     if (kind !== 'external' || !isExternalHttpUrl(target)) {
+      if (kind === 'local' && !target.startsWith('#')) {
+        void controller?.openRelative(target).catch((error: unknown) => {
+          linkNotice =
+            error instanceof Error ? error.message : 'Lien local refusé.';
+        });
+        return;
+      }
       linkNotice =
         kind === 'local'
-          ? 'La navigation Markdown locale sera activée avec le service de ressources L10.'
+          ? 'Ancre locale introuvable.'
           : 'Ce lien a été refusé par la politique de sécurité.';
       return;
     }

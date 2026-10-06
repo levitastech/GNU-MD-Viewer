@@ -3,6 +3,7 @@ fn main() {
         tauri_build::Attributes::new().app_manifest(tauri_build::AppManifest::new().commands(&[
             "select_document",
             "open_document",
+            "select_relative_document",
             "release_document_session",
             "open_external_url",
             "resolve_resource",
