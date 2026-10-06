@@ -30,6 +30,9 @@
     "highlight.js": "11.12.0",
     "katex": "0.19.0",
     "markdown-it": "15.0.2",
+    "markdown-it-footnote": "4.0.0",
+    "markdown-it-github-alerts": "1.0.1",
+    "markdown-it-todo-lists": "0.1.8",
     "mermaid": "12.1.0",
     "svelte": "5.57.1"
   },
@@ -38,6 +41,7 @@
     "@sveltejs/vite-plugin-svelte": "7.3.1",
     "@tauri-apps/cli": "2.12.1",
     "@types/jsdom": "30.0.0",
+    "@types/markdown-it-footnote": "3.0.4",
     "@types/node": "24.19.1",
     "eslint": "10.12.0",
     "eslint-plugin-svelte": "3.23.0",

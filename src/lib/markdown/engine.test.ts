@@ -67,4 +67,23 @@ const value = '<b>texte</b>';
     expect(renderMarkdown('# Même').headings[0]?.id).toBe('mdv-heading-même');
     expect(renderMarkdown('# Même').headings[0]?.id).toBe('mdv-heading-même');
   });
+
+  it('rend les extensions L13 sans rendre les tâches éditables', () => {
+    const rendered = renderMarkdown(`
+- [x] Terminée
+- [ ] À faire
+
+Une note[^a].
+
+[^a]: Texte de note.
+
+> [!WARNING]
+> Attention.
+`);
+
+    expect(rendered.html).toContain('type="checkbox"');
+    expect(rendered.html).toContain('disabled');
+    expect(rendered.html).toContain('footnote');
+    expect(rendered.html).toContain('markdown-alert-warning');
+  });
 });

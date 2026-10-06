@@ -1,4 +1,7 @@
 import MarkdownIt from 'markdown-it';
+import footnote from 'markdown-it-footnote';
+import githubAlerts from 'markdown-it-github-alerts';
+import todoLists from 'markdown-it-todo-lists';
 import type {
   Env,
   MarkdownIt as MarkdownItInstance,
@@ -191,6 +194,9 @@ export const renderMarkdown = (source: string): RenderResult => {
     linkify: true,
     typographer: false,
   });
+  markdown.use(todoLists, { enabled: false });
+  markdown.use(footnote as never);
+  markdown.use(githubAlerts);
   installRendererRules(markdown);
 
   const environment: RenderEnvironment = {
