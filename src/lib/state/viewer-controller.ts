@@ -1,14 +1,20 @@
 import type {
   AppError,
+  DeclaredResource,
+  DocumentId,
   DocumentService,
+  SessionId,
   SafeHtml,
 } from '../contracts/document';
 import { sanitizeDocumentHtml } from '../rendering/sanitize';
 import { OpenCoordinator } from './open-coordinator';
 
 export interface ViewerDocument {
+  readonly documentId: DocumentId;
+  readonly sessionId: SessionId;
   readonly displayName: string;
   readonly html: SafeHtml;
+  readonly resources: readonly DeclaredResource[];
   readonly headingCount: number;
   readonly diagnosticCount: number;
 }
@@ -84,8 +90,11 @@ export class ViewerController {
       this.update({
         phase: 'ready',
         active: {
+          documentId: outcome.active.snapshot.documentId,
+          sessionId: outcome.active.snapshot.sessionId,
           displayName: outcome.active.snapshot.displayName,
           html: sanitizeDocumentHtml(outcome.active.render.html),
+          resources: outcome.active.render.resources,
           headingCount: outcome.active.render.headings.length,
           diagnosticCount: outcome.active.render.diagnostics.length,
         },

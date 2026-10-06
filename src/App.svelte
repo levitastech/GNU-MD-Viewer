@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from 'svelte';
   import type { Component } from 'svelte';
+  import type { ResourceService } from './lib/contracts/document';
 
   import { APP_NAME, APP_VERSION, BOOTSTRAP_MESSAGE } from './lib/app/metadata';
   import ActionBar from './lib/components/ActionBar.svelte';
@@ -25,6 +26,7 @@
   let unsubscribe: (() => void) | null = null;
   let linkNotice = '';
   const links = new TauriExternalLinkService();
+  const resources: ResourceService = new TauriResourceService();
 
   onMount(async () => {
     if (import.meta.env.VITE_L04_HARNESS === '1') {
@@ -42,7 +44,7 @@
     const coordinator = new OpenCoordinator(
       documents,
       new MarkdownRenderService(),
-      new TauriResourceService(),
+      resources,
     );
     controller = new ViewerController(documents, coordinator);
     unsubscribe = controller.subscribe((next) => {
@@ -122,8 +124,12 @@
       {#if state.active}
         <DocumentView
           html={state.active.html}
+          documentId={state.active.documentId}
           label={state.active.displayName}
           onactivate={activateLink}
+          resources={state.active.resources}
+          resourceService={resources}
+          sessionId={state.active.sessionId}
         />
       {:else}
         <section class="empty-state">

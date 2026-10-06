@@ -1,13 +1,34 @@
 <script lang="ts">
-  import type { SafeHtml } from '../contracts/document';
+  import type {
+    DeclaredResource,
+    DocumentId,
+    ResourceService,
+    SafeHtml,
+    SessionId,
+  } from '../contracts/document';
+  import { hydrateLocalImages } from '../rendering/hydrate-local-images';
 
   interface Props {
     html: SafeHtml;
     label: string;
     onactivate: (target: HTMLElement) => void;
+    documentId: DocumentId;
+    resources: readonly DeclaredResource[];
+    resourceService: ResourceService;
+    sessionId: SessionId;
   }
 
-  let { html, label, onactivate }: Props = $props();
+  let {
+    html,
+    label,
+    onactivate,
+    documentId,
+    resources,
+    resourceService,
+    sessionId,
+  }: Props = $props();
+  let documentElement: HTMLElement;
+  let hydration = 0;
 
   const candidate = (event: Event): HTMLElement | null => {
     const target = event.target;
@@ -30,6 +51,29 @@
     event.preventDefault();
     onactivate(target);
   };
+
+  const hydrateImages = async (): Promise<void> => {
+    const currentHydration = ++hydration;
+    await hydrateLocalImages({
+      documentElement,
+      documentId,
+      isCurrent: () => currentHydration === hydration,
+      resources,
+      resourceService,
+      sessionId,
+    });
+  };
+
+  $effect(() => {
+    void html;
+    void documentId;
+    void resources;
+    void sessionId;
+    void hydrateImages();
+    return () => {
+      hydration += 1;
+    };
+  });
 </script>
 
 <!-- Event delegation is required because sanitized document links are inserted as inert HTML. -->
@@ -37,6 +81,7 @@
 <article
   class="document"
   aria-label={label}
+  bind:this={documentElement}
   tabindex="-1"
   onclick={handleClick}
   onkeydown={handleKeydown}
