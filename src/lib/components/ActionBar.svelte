@@ -4,9 +4,11 @@
     busy: boolean;
     onopen: () => void;
     onclose: () => void;
+    onzoom: (delta: number) => void;
+    ontheme: () => void;
   }
 
-  let { title, busy, onopen, onclose }: Props = $props();
+  let { title, busy, onopen, onclose, onzoom, ontheme }: Props = $props();
 </script>
 
 <header class="action-bar">
@@ -18,6 +20,19 @@
     {title ?? 'Aucun document ouvert'}
   </p>
   <div class="actions">
+    <button type="button" onclick={ontheme} title="Changer de thème"
+      >Thème</button
+    >
+    <button
+      type="button"
+      onclick={() => onzoom(-10)}
+      aria-label="Réduire le zoom">A−</button
+    >
+    <button
+      type="button"
+      onclick={() => onzoom(10)}
+      aria-label="Augmenter le zoom">A+</button
+    >
     <button type="button" class="primary" onclick={onopen} disabled={busy}>
       {busy ? 'Ouverture…' : 'Ouvrir'}
     </button>

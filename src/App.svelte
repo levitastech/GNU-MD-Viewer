@@ -27,6 +27,8 @@
   let controller: ViewerController | null = null;
   let unsubscribe: (() => void) | null = null;
   let linkNotice = '';
+  let theme: 'light' | 'dark' = 'light';
+  let zoom = 100;
   const links = new TauriExternalLinkService();
   const resources: ResourceService = new TauriResourceService();
 
@@ -69,6 +71,14 @@
     void controller?.close();
   };
 
+  const changeZoom = (delta: number): void => {
+    zoom = Math.min(200, Math.max(80, zoom + delta));
+  };
+
+  const toggleTheme = (): void => {
+    theme = theme === 'light' ? 'dark' : 'light';
+  };
+
   const activateLink = (element: HTMLElement): void => {
     const target = element.dataset.mdvLink ?? '';
     const kind = element.dataset.mdvLinkKind;
@@ -108,12 +118,19 @@
 {#if Harness}
   <Harness />
 {:else}
-  <div class="viewer-shell" aria-busy={state.phase === 'opening'}>
+  <div
+    class:theme-dark={theme === 'dark'}
+    class="viewer-shell"
+    aria-busy={state.phase === 'opening'}
+    style:--reader-zoom={`${zoom}%`}
+  >
     <ActionBar
       title={state.active?.displayName ?? null}
       busy={state.phase === 'opening'}
       onopen={openDocument}
       onclose={closeDocument}
+      ontheme={toggleTheme}
+      onzoom={changeZoom}
     />
 
     {#if state.error}
