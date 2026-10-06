@@ -81,9 +81,15 @@ Une note[^a].
 > Attention.
 `);
 
-    expect(rendered.html).toContain('type="checkbox"');
-    expect(rendered.html).toContain('disabled');
+    expect(rendered.html).toContain('Tâche terminée');
+    expect(rendered.html).toContain('Tâche non terminée');
+    expect(rendered.html).not.toContain('<input');
     expect(rendered.html).toContain('footnote');
     expect(rendered.html).toContain('markdown-alert-warning');
+  });
+
+  it('évite les collisions entre un titre suffixé et un doublon', () => {
+    const headings = renderMarkdown('# A\n\n# A\n\n# A-1\n\n# A').headings;
+    expect(new Set(headings.map(({ id }) => id)).size).toBe(4);
   });
 });

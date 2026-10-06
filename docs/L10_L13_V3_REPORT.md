@@ -53,8 +53,23 @@ reconsultées dans la documentation officielle Rust ; la version retenue reste
 - Les précédentes preuves L04/L09 ne qualifient pas les interactions V3 ;
   aucune clôture V3/P2/G2 n'est déduite des tests seuls.
 
+## Correctifs de rendu L13 — 6 octobre 2026
+
+Versions inchangées : markdown-it 15.0.2, footnote 4.0.0, todo-lists 0.1.8,
+github-alerts 1.0.1, DOMPurify 3.4.16. Les règles du renderer footnote sont
+adaptées depuis la [source officielle](https://github.com/markdown-it/markdown-it-footnote)
+pour émettre des cibles inertes `data-mdv-anchor`, sans `href` ni `id`.
+Les tâches produisent des marqueurs accessibles non éditables, pas des inputs.
+Les titres évitent aussi les collisions entre suffixes naturels et duplications.
+
+Sur le diff frontend suivant `72924ef` : 35 tests Vitest, Svelte check
+(aucune erreur ni avertissement), ESLint et build frontend réussis. Les tests
+combinés contrôlent la sanitisation, l'unicité des cibles de notes répétées,
+le focus, les ancres Unicode et les refus d'accès aux IDs du chrome applicatif.
+Ces tests DOM ne constituent pas encore la recette native L13.
+
 ## Écarts restants
 
-Voir la recette native pour L10–L13. En particulier, ancres locales, thème
-système et retours de notes après sanitisation restent à corriger. Les statuts
+Voir la recette native pour L10–L13. Les interactions des ancres, des thèmes
+et des notes restent à qualifier dans la WebView. Les statuts
 locaux `done` ont été retirés jusqu'à satisfaction des sorties et des recettes.

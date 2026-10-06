@@ -94,6 +94,7 @@ export const sanitizeDocumentHtml = (html: UnsanitizedHtml): SafeHtml =>
     ALLOW_DATA_ATTR: false,
     ADD_ATTR: [
       'data-mdv-heading',
+      'data-mdv-anchor',
       'data-mdv-image',
       'data-mdv-link',
       'data-mdv-link-kind',

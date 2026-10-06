@@ -26,6 +26,7 @@ interface RenderEnvironment extends Env {
   readonly diagnostics: RenderDiagnostic[];
   readonly lineOffsets: readonly number[];
   readonly slugCounts: Map<string, number>;
+  readonly headingIds: Set<string>;
   imageOccurrence: number;
 }
 
@@ -69,11 +70,15 @@ const slugBase = (value: string): string => {
 const uniqueHeadingId = (
   value: string,
   counts: Map<string, number>,
+  used: Set<string>,
 ): string => {
   const base = `mdv-heading-${slugBase(value)}`;
-  const occurrence = counts.get(base) ?? 0;
+  let occurrence = counts.get(base) ?? 0;
+  let id = occurrence === 0 ? base : `${base}-${occurrence}`;
+  while (used.has(id)) id = `${base}-${++occurrence}`;
   counts.set(base, occurrence + 1);
-  return occurrence === 0 ? base : `${base}-${occurrence}`;
+  used.add(id);
+  return id;
 };
 
 const classifyLink = (target: string): 'external' | 'local' | 'blocked' => {
@@ -111,7 +116,7 @@ const installRendererRules = (markdown: MarkdownItInstance): void => {
     const inline = tokens[index + 1];
     const text = inline ? collectInlineText(inline) : '';
     const level = Number(token.tag.slice(1)) as HeadingEntry['level'];
-    const id = uniqueHeadingId(text, env.slugCounts);
+    const id = uniqueHeadingId(text, env.slugCounts, env.headingIds);
     token.attrSet('data-mdv-heading', id);
     env.headings.push({
       id,
@@ -170,6 +175,49 @@ const installRendererRules = (markdown: MarkdownItInstance): void => {
     return `<span class="mdv-image-placeholder" data-mdv-image="${occurrence}">Image : ${markdown.utils.escapeHtml(altText || target)}</span>`;
   };
 
+  // Keep the plugin's parser, but render inert markers instead of form controls.
+  markdown.renderer.rules.todo_list_inline = (
+    tokens,
+    index,
+    options,
+    environment,
+    renderer,
+  ) => {
+    const token = tokens[index]!;
+    const checked = /^\[[xX]\] /.test(token.content);
+    const children = token.children ?? [];
+    if (children[0]) children[0].content = children[0].content.slice(3);
+    return `<span class="mdv-task" role="img" aria-label="${checked ? 'Tâche terminée' : 'Tâche non terminée'}">${checked ? '☑' : '☐'}</span> ${renderer.renderInline(children, options, environment)}`;
+  };
+
+  const noteId = (token: Token): number => {
+    const id = Number(token.meta?.id);
+    if (!Number.isSafeInteger(id) || id < 0)
+      throw new Error('Identifiant de note invalide.');
+    return id + 1;
+  };
+  const referenceId = (token: Token): string =>
+    `mdv-note-ref-${noteId(token)}-${Number(token.meta?.subId ?? 0)}`;
+  const localLink = (
+    target: string,
+    label: string,
+    accessibleLabel: string,
+    anchor?: string,
+  ): string =>
+    `<a class="mdv-link" role="link" tabindex="0" data-mdv-link="#${target}" data-mdv-link-kind="local" aria-label="${accessibleLabel}"${anchor ? ` data-mdv-anchor="${anchor}"` : ''}>${label}</a>`;
+  markdown.renderer.rules.footnote_ref = (tokens, index) => {
+    const token = tokens[index]!;
+    return `<sup class="footnote-ref">${localLink(`mdv-note-${noteId(token)}`, `[${noteId(token)}]`, `Lire la note ${noteId(token)}`, referenceId(token))}</sup>`;
+  };
+  markdown.renderer.rules.footnote_open = (tokens, index) =>
+    `<li class="footnote-item" data-mdv-anchor="mdv-note-${noteId(tokens[index]!)}">`;
+  markdown.renderer.rules.footnote_anchor = (tokens, index) =>
+    localLink(
+      referenceId(tokens[index]!),
+      '↩',
+      `Revenir au texte de la note ${noteId(tokens[index]!)}`,
+    );
+
   const wrapCode: (fallback: RendererRule | undefined) => RendererRule =
     (fallback) => (tokens, index, options, environment, renderer) => {
       const token = tokens[index]!;
@@ -205,6 +253,7 @@ export const renderMarkdown = (source: string): RenderResult => {
     diagnostics: [],
     lineOffsets: lineOffsets(source),
     slugCounts: new Map(),
+    headingIds: new Set(),
     imageOccurrence: 0,
   };
   const html = markdown.render(source, environment);
