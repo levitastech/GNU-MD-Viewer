@@ -311,9 +311,20 @@ button:disabled {
   background: var(--mdv-alert-background);
   color: var(--mdv-alert-color);
 }
-.markdown-alert-warning,
-.markdown-alert-caution {
+.markdown-alert-note {
+  border-color: #426e9f;
+}
+.markdown-alert-tip {
+  border-color: #327756;
+}
+.markdown-alert-important {
+  border-color: #7055a0;
+}
+.markdown-alert-warning {
   border-color: #936619;
+}
+.markdown-alert-caution {
+  border-color: #a34842;
 }
 .markdown-alert-title {
   font-weight: 750;

@@ -49,6 +49,8 @@ du sommaire et la remise à zéro du suivi de section. Ces documents sont
 pilotés par `tests/integration/run_v3_harness.sh`, en lecture seule.
 `v3/styles.md` apporte tableau large, code sans coupure et paragraphe arabe
 mixte pour la recette thème/zoom/petite fenêtre L12.
+`v3/extensions.md` combine tâches imbriquées, notes répétées, cinq alertes,
+fausses alertes en citation/code et navigation entre sections pour L13.
 
 ## Recettes natives à matérialiser dans le harness L04
 

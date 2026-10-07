@@ -6,7 +6,7 @@ recipe_logs=$(mktemp -d /tmp/gnu-mdv-v3.XXXXXX)
 cd "$project_dir"
 sha256sum tests/fixtures/v3/document.md tests/fixtures/v3/sub/guide.md \
   tests/fixtures/v3/headings.md tests/fixtures/v3/no-headings.md \
-  tests/fixtures/v3/styles.md \
+  tests/fixtures/v3/styles.md tests/fixtures/v3/extensions.md \
   'tests/fixtures/v3/sub/été #%.md' 'tests/fixtures/v3/assets/été #%.png' \
   tests/fixtures/v3/assets/allowed.png > "$recipe_logs/source-before.sha256"
 VITE_V3_HARNESS=1 pnpm tauri build --debug --no-bundle --features l09-harness
@@ -61,7 +61,7 @@ if [[ "$report" == *-fail* ]]; then
   printf 'Échec de la recette V3.\n' >&2
   exit 1
 fi
-for check in image hostile tasks anchor note back hide toc dark light palette zoom reset failure relative return encoded fragment outside root parent headings keyboard namespace missing tocfocus scroll jumps sectionreset systemdark systemlight zoommin zoommax zoomstable narrow rtl revoked; do
+for check in image hostile tasks anchor note back hide toc dark light palette zoom reset failure relative return encoded fragment outside root parent headings keyboard namespace missing tocfocus scroll jumps sectionreset systemdark systemlight zoommin zoommax zoomstable narrow rtl extensions alerts alertstyles falsealerts extnotes extsecure extback extheading extreturn revoked; do
   [[ "$report" == *"${check}-ok"* ]]
 done
 if rg 'sa_family=AF_INET6?' "$recipe_logs/network.log"; then

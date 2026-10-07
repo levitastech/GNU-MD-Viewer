@@ -374,6 +374,85 @@ export const runV3Recipe = async (): Promise<void> => {
     clickLink('document.md');
     await waitFor(() => document.querySelector('.document table') !== null);
     await waitFor(hasImage);
+    // L13: combined extension rendering in the real document component.
+    clickLink('extensions.md');
+    await waitFor(
+      () =>
+        document.querySelector('.document h1')?.textContent ===
+        'Extensions L13',
+    );
+    const extensionArticle = requireElement('.document');
+    checks.extensions =
+      extensionArticle.querySelectorAll('.mdv-task').length === 4 &&
+      extensionArticle.querySelectorAll('li li .mdv-task').length === 2 &&
+      extensionArticle.querySelectorAll(
+        '.mdv-task[aria-label="Tâche terminée"]',
+      ).length === 2;
+    checks.alerts = ['note', 'tip', 'important', 'warning', 'caution'].every(
+      (kind) =>
+        extensionArticle.querySelectorAll(
+          `.markdown-alert-${kind}[role="note"]`,
+        ).length === 1,
+    );
+    checks.alertstyles =
+      new Set(
+        Array.from(
+          extensionArticle.querySelectorAll<HTMLElement>('.markdown-alert'),
+          (alert) => getComputedStyle(alert).borderLeftColor,
+        ),
+      ).size === 5;
+    checks.falsealerts =
+      extensionArticle.querySelectorAll('blockquote').length === 1 &&
+      extensionArticle
+        .querySelector('pre code')
+        ?.textContent?.includes('> [!WARNING]') === true;
+    const refs = extensionArticle.querySelectorAll<HTMLElement>(
+      '[data-mdv-link="#mdv-note-1"]',
+    );
+    const anchors = Array.from(
+      extensionArticle.querySelectorAll<HTMLElement>('[data-mdv-anchor]'),
+      (element) => element.dataset.mdvAnchor,
+    );
+    checks.extnotes =
+      refs.length === 4 &&
+      extensionArticle.querySelectorAll('.footnote-item').length === 2 &&
+      new Set(anchors).size === anchors.length;
+    checks.extsecure =
+      extensionArticle.querySelector('input, button, script, [href], [id]') ===
+      null;
+    refs[0]!.click();
+    await tick();
+    const firstNote =
+      (document.activeElement as HTMLElement)?.dataset.mdvAnchor ===
+      'mdv-note-1';
+    clickLink('#mdv-note-ref-1-0');
+    await tick();
+    const firstBack =
+      (document.activeElement as HTMLElement)?.dataset.mdvAnchor ===
+      'mdv-note-ref-1-0';
+    refs[3]!.click();
+    await tick();
+    const lastNote =
+      (document.activeElement as HTMLElement)?.dataset.mdvAnchor ===
+      'mdv-note-1';
+    clickLink('#mdv-note-ref-1-3');
+    await tick();
+    checks.extback =
+      firstNote &&
+      firstBack &&
+      lastNote &&
+      (document.activeElement as HTMLElement)?.dataset.mdvAnchor ===
+        'mdv-note-ref-1-3';
+    clickLink('#sections');
+    await tick();
+    checks.extheading =
+      (document.activeElement as HTMLElement)?.dataset.mdvHeading ===
+      'mdv-heading-sections';
+    clickLink('document.md');
+    await waitFor(() => document.querySelector('.document table') !== null);
+    await waitFor(hasImage);
+    checks.extreturn =
+      document.querySelector('.markdown-alert-important') === null;
     const oldUrl = requireElement<HTMLImageElement>('.document img').src;
     const close = Array.from(
       document.querySelectorAll<HTMLButtonElement>('.actions button'),

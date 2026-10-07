@@ -7,6 +7,7 @@
     SessionId,
   } from '../contracts/document';
   import { hydrateLocalImages } from '../rendering/hydrate-local-images';
+  import { markAlertSemantics } from '../rendering/alert-semantics';
   import { navigateDocument } from '../rendering/document-navigation';
   import { observeActiveSection } from '../rendering/active-section';
 
@@ -85,6 +86,7 @@
 
   $effect(() => {
     void html;
+    markAlertSemantics(documentElement);
     if (initialAnchor && !navigateDocument(documentElement, initialAnchor))
       onanchorerror();
     return observeActiveSection(documentElement, onsection);

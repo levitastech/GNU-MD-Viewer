@@ -54,8 +54,9 @@ ne vaut ni benchmark L24 ni qualification de ces plateformes.
   la WebView ; 80–200 %, reset, fenêtre 640 × 480, texte RTL, code long et
   tableau large et échelle 2 vérifiés sur Linux. Binaire debug normal
   reconstruit puis smoke X11 réussi après le harness ; voir le rapport V3.
-- L13 : tâches et notes répétées après sanitisation vérifiées en natif ;
-  les adaptations de renderer sont documentées dans l'architecture.
+- L13 : corpus combiné de tâches imbriquées, notes répétées et cinq alertes,
+  avec faux marqueurs en citation/code, sanitisation et navigation de retour
+  vérifiés dans la WebView Linux. Voir le complément L13 du rapport V3.
 
 Ces écarts empêchent la clôture V3/G2 jusqu'à correction et recette.
 
@@ -80,7 +81,7 @@ Le script compile en debug avec `l09-harness` et `VITE_V3_HARNESS=1`,
 sélectionne la fixture via le hook natif existant, puis pilote les composants
 réels de `App.svelte`. Il ne remplace pas le pipeline de rendu. Il conserve
 les logs dans un répertoire temporaire annoncé, contrôle les hashes source,
-les connexions IP et 37 marqueurs d'interaction. Le lecteur est lancé avec
+les connexions IP et 46 marqueurs d'interaction. Le lecteur est lancé avec
 `/tmp` comme CWD. Voir le rapport V3 pour
 résultats et limites. Recompiler ensuite sans feature ni variable de harness.
 

@@ -16,6 +16,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
   panneau masquable, sans navigation de la WebView.
 - Tâches en lecture seule avec nom accessible, notes avec renvois locaux
   conservés après sanitisation et alertes GitHub dans le profil Markdown.
+- Les cinq alertes GitHub ont un repère de lecture et des bordures distinctes ;
+  les tâches imbriquées et les notes répétées restent navigables ensemble.
 - Première tranche P2/V2 : dialogue natif, lecture seule UTF-8 bornée, moteur
   Markdown autonome, rendu sanitisé et interface de lecture avec conservation
   du dernier document valide en cas d'échec.

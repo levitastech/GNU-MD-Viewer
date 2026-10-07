@@ -52,6 +52,13 @@ libres. Le renderer footnote 4.0.0 conserve le parser amont mais adapte ses
 règles de liens au routage local contrôlé ; todo-lists 0.1.8 conserve son
 parser et produit des marqueurs accessibles en lecture seule. Aucun `input`
 ni `href` n'est nécessaire pour ces interactions après sanitisation.
+Ordre figé : markdown-it 15.0.2 (`html: false`, `breaks: false`,
+`linkify: true`, `typographer: false`), puis todo-lists 0.1.8
+(`enabled: false`), footnote 4.0.0 et github-alerts 1.0.1 (cinq marqueurs
+standards), enfin les règles de rendu locales. Les adaptations ne copient pas
+les parsers amont : tâches inertes, notes à cibles opaques et rôle `note` posé
+sur les cinq alertes après sanitisation. Les faux marqueurs en code et les
+citations ordinaires restent du texte.
 
 ## Contrats figés en L04
 

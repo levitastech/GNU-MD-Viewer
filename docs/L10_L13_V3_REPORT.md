@@ -270,3 +270,49 @@ CSS 7,32 kB brut). Smoke X11 normal 12 secondes : statut 124 attendu du
 timeout, avertissements EGL/VMware sans crash. Build release, test visuel
 humain et cibles Windows/macOS non exécutés. L12 est qualifié sur la matrice
 automatisée Linux ; L13 et G2 restent ouverts.
+
+## Complément L13 — extensions combinées
+
+Base `e356bcd` plus diff L13 : fixture `v3/extensions.md`, test de rendu et
+sanitisation, rôle de lecture `note` ajouté aux conteneurs d'alerte après
+sanitisation, cinq bordures distinctes et parcours WebView étendu. Le pipeline
+ne modifie pas les fichiers Markdown. Versions et ordre des plugins inchangés :
+markdown-it 15.0.2, todo-lists 0.1.8 (`enabled: false`), footnote 4.0.0,
+github-alerts 1.0.1, puis règles locales du renderer. Les APIs et marqueurs
+ont été recoupés avec les sources officielles de
+[todo-lists](https://www.npmjs.com/package/markdown-it-todo-lists),
+[footnote](https://github.com/markdown-it/markdown-it-footnote) et
+[github-alerts](https://github.com/antfu/markdown-it-github-alerts).
+
+La fixture combine quatre tâches dont deux imbriquées, une note citée quatre
+fois, une deuxième note, les cinq types d'alertes, un faux marqueur dans une
+citation ordinaire et un bloc de code, plus navigation titre/lien/retour.
+Les contrôles DOM vérifient deux notes et les cibles uniques, aucune entrée
+éditable, aucun `href`/`id`/script inséré, les rôles des alertes et un titre
+d'alerte hostile neutralisé par DOMPurify.
+
+La recette Linux/X11/WebKitGTK 2.52.6 depuis `/tmp` valide en plus les cinq
+couleurs de bordure calculées, le focus vers la note et les retours de sa
+première et dernière référence, l'ancre de section et la réouverture de A.
+Tous les 46 marqueurs requis réussissent ; neuf hashes source inchangés et
+aucune connexion IP observée sous `strace`. Logs
+`/tmp/gnu-mdv-v3.8ElOi1` ; parcours 5344 ms, RSS maximal 162940 KiB
+(mesures exploratoires). Les interactions sont pilotées
+dans la WebView, sans clavier physique ni lecteur d'écran. Les sorties
+Mermaid/KaTeX appartiennent à L15/L16, pas au profil L13.
+
+Une seconde passe `GDK_SCALE=2` sur le même diff confirme les 46 marqueurs,
+le ratio de pixels 2, les neuf hashes inchangés et l'absence de connexion IP.
+Logs `/tmp/gnu-mdv-v3.XP5vPt` ; parcours 3562 ms, RSS maximal 181780 KiB.
+Une capture ponctuelle de la fenêtre instrumentée montre les tâches
+imbriquées, les renvois et le début des alertes lisibles. Elle ne couvre pas
+la totalité du document ni un lecteur d'écran ; la recette WebView porte les
+assertions sur les cinq alertes et leurs styles.
+
+À la clôture du lot : 47 tests Vitest réussis, Svelte check sans erreur ni
+avertissement, ESLint et Prettier verts. Binaire debug normal reconstruit
+sans chunk de recette (JS principal 198,68 kB brut / 78,76 kB gzip), puis
+smoke X11 12 secondes : timeout 124 attendu, avertissements EGL/VMware sans
+crash. Aucun code Rust ni verrou de dépendance n'a changé depuis les 32 tests
+Rust L11 ; suite Rust finale réservée à l'audit G2. L13 est qualifié sur la
+matrice automatisée Linux ; G2 reste à auditer séparément.
