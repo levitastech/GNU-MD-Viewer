@@ -1,4 +1,5 @@
 import katex from 'katex';
+import 'katex/dist/katex.min.css';
 
 import { LIMITS } from '../contracts/limits';
 import type { SafeHtml } from '../contracts/document';
@@ -32,6 +33,7 @@ export const renderKatex = (
       maxExpand: LIMITS.katexMaxExpand,
       maxSize: LIMITS.katexMaxSizeEm,
       globalGroup: false,
+      macros: Object.create(null) as Record<string, string>,
     });
 
     return {

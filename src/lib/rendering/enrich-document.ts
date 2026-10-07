@@ -16,6 +16,17 @@ export const enrichDocument = async (
     );
     if (!target) continue;
     try {
+      if (block.kind === 'katex-inline' || block.kind === 'katex-block') {
+        const { renderKatex } = await import('./katex');
+        if (signal.aborted) return;
+        const result = renderKatex(block.source, block.kind === 'katex-block');
+        if (result.status === 'rendered')
+          replaceWithSafeHtml(target, result.html);
+        else {
+          target.textContent = `${result.message} ${block.source}`;
+        }
+        continue;
+      }
       if (block.kind !== 'mermaid') continue;
       const { renderMermaid } = await import('./mermaid');
       if (signal.aborted) return;

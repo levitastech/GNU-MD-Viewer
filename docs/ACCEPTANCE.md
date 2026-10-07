@@ -43,3 +43,12 @@ références et menaces ; calibration des plafonds et preuves natives restent L0
 Le rapport [L04](L04_RISK_PROTOTYPES_REPORT.md) consigne la recette Linux finale
 de confinement/révocation/sanitisation/absence de réseau qui ferme G1 sur la
 matrice active. Elle ne remplace pas G4 ni les plateformes différées.
+
+## P3/L15 — délimiteurs mathématiques
+
+En ligne : `\(expression\)` sur une seule ligne. En bloc : lignes `$$` / `$$`
+ou `\[` / `\]`, délimiteurs seuls sur leur ligne. Un dollar simple reste
+Markdown ordinaire, y compris `$20`, `$x$` et les montants monétaires. Le code
+inline/fencé n'est pas interprété comme mathématique. Une expression invalide
+conserve sa source échappée avec message local ; les macros sont isolées par
+expression (donc ne sont jamais héritées par un autre document).

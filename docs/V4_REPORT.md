@@ -59,3 +59,33 @@ WebKitGTK 2.52.6, Node 24.18.0, pnpm 12.8.1, Rust 1.91.1 :
   avec la session locale. Avertissements EGL/VMware sans crash applicatif.
 - Build desktop debug instrumenté réussi. Reconstruction normale prévue en fin
   de V4 ; pas de build release, de recette visuelle humaine ou de cible non Linux.
+
+## L15 — KaTeX différé
+
+Syntaxe précisée dans `docs/ACCEPTANCE.md` : `\(...\)` inline, `$$` ou
+`\[...\]` sur des lignes séparées en display. Les dollars simples restent du
+texte ; les règles du parser ne traitent pas le code. Source conservée dans les
+métadonnées de rendu, placeholder échappé et fallback local. Module, CSS et
+polices KaTeX importés seulement pour les maths. `trust: false`, strict/error,
+maxExpand 1 000, maxSize 20 em, source au plus 16 384 caractères ; macros neuves
+pour chaque expression, donc aucune transmission entre documents. Sanitisation
+HTML/MathML avant insertion dans le même profil isolé que L04. L'annulation de
+session s'applique après import et avant insertion.
+
+Les tests ciblés couvrent délimiteurs, monnaie, code, source incomplète, macros
+récursives/isolées, liens et dépassements ; 8/8 avec le profil de sanitisation.
+Svelte check et lint réussis. Une faute de délimiteur dans le test a d'abord été
+corrigée avant ces résultats. La première recette native a réussi maths,
+monnaie, erreurs et inactivité, mais échoué sur la police ; elle n'est pas une
+preuve de clôture. Le build conserve désormais les assets en fichiers locaux
+(`assetsInlineLimit: 0`), évitant les fonts data: incompatibles avec `font-src
+'self'`. La recette attend une police effectivement chargée après layout ;
+Mermaid est revalidé avec ce build. Aucun assouplissement CSP.
+
+Preuve finale L15 (diff du commit L15), même matrice Linux : commande V4
+ci-dessus, dix marqueurs réussis dont police KaTeX chargée, aucune connexion IP
+et hash source inchangé. Preuves `/tmp/gnu-mdv-v4.FdI2Ee` ; build debug réussi,
+arrêt attendu 124. Contrôles ciblés, Svelte, lint et format réussis. Windows,
+macOS et inspection visuelle humaine non exécutés ; normal/release selon les
+limites de validation V4. Cette recette revalide aussi L16 après le changement
+d'assets du build.

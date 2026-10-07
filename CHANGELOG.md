@@ -8,6 +8,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ### Added
 
+- Formules KaTeX différées avec polices embarquées, erreurs locales et macros
+  isolées ; délimiteurs explicites sans interpréter les montants en dollars.
 - Ouverture P3/V4 : diagrammes Mermaid différés, file bornée, sources et
   erreurs locales conservées ; flowcharts et séquences, sans interactions.
 

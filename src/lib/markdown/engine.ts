@@ -1,4 +1,5 @@
 import MarkdownIt from 'markdown-it';
+import { installMath } from './math';
 import footnote from 'markdown-it-footnote';
 import githubAlerts from 'markdown-it-github-alerts';
 import todoLists from 'markdown-it-todo-lists';
@@ -257,6 +258,7 @@ export const renderMarkdown = (source: string): RenderResult => {
   markdown.use(todoLists, { enabled: false });
   markdown.use(footnote as never);
   markdown.use(githubAlerts);
+  installMath(markdown);
   installRendererRules(markdown);
 
   const environment: RenderEnvironment = {
