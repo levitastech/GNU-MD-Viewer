@@ -4,7 +4,7 @@ Lire `AGENTS.md` avant toute tâche : il porte les contrats communs, le produit,
 
 ## Parcours de reprise
 
-1. Contrôler `git status --short`, la branche et les fichiers réels ; préserver le travail concurrent. Au 4 octobre 2026, le commit `1192d7a` a créé le socle Tauri/Svelte et ses lockfiles ; aucun workflow CI n'est fourni. Le lecteur Markdown et L04 restent à réaliser. Recontrôler les preuves locales au lieu de supposer le lot clos.
+1. Contrôler `git status --short`, la branche et les fichiers réels ; préserver le travail concurrent. Au 7 octobre 2026, P2/G2 et L00–L13 sont clos sur la matrice Linux documentée dans `docs/P2_G2_CLOSURE.md` ; P3/L14 suit. Aucun workflow CI ni support Windows/macOS qualifié n'est fourni. Recontrôler les preuves locales au lieu de supposer un état inchangé.
 2. Lire `.rules/COMMIT_RULES.md`, `TESTING_RULES.md`, `PROGRESS_RULES.md` et `VERSIONING.md` ; consulter `docs/ARCHITECTURE.md`, `docs/SECURITY.md` et `docs/DEVELOPMENT.md` selon le changement.
 3. Pour un chantier local, lire `.progress/STATE.md`, `PROGRESS.yml`, puis `GNU_MD_VIEWER_PLAN_CHANTIER_V1.md` et le fichier `GNU_MD_VIEWER_PLAN_P1.md`, `P2.md`, `P3.md` ou `P4.md` correspondant (même préfixe). Aucun document de passation n'est à lire ni à tenir. Si `.progress/` est absent, utiliser les références durables et la tâche demandée ; ne pas inventer de suivi historique.
 4. Reprendre le premier lot autorisé dont les prérequis sont satisfaits. SG01–SG09 et V1 §12.2 sont déjà validés ; les gates G1–G4 exigent des preuves techniques. Une demande d'affinement du plan ne démarre pas les lots applicatifs.
@@ -13,7 +13,7 @@ Lire `AGENTS.md` avant toute tâche : il porte les contrats communs, le produit,
 
 - Vérifier les APIs/versions dans les sources officielles avant d'écrire du code dépendant de Tauri, Svelte ou des bibliothèques ; consigner versions/provenance. Ne pas créer couche, dépendance ou architecture par anticipation.
 - Garder moteur, sanitisation, UI et accès système séparés conformément à `AGENTS.md`. Toute modification rendu/filesystem couvre fixtures hostiles, chemins relatifs, refus et erreurs ; tester les commandes Rust indépendamment du filtrage frontend.
-- Utiliser les scripts réellement déclarés ; `docs/DEVELOPMENT.md` contient actuellement des commandes futures. Pour documentation seule, contrôler liens/structure/diff ; ne pas déclarer les suites TS/Rust exécutées.
+- Utiliser les scripts réellement déclarés ; `docs/DEVELOPMENT.md` distingue les commandes disponibles du packaging futur. Pour documentation seule, contrôler liens/structure/diff ; ne pas déclarer les suites TS/Rust exécutées.
 - Tester de manière ciblée pendant le lot ; vérifier les suites pertinentes et recettes natives à la gate. Rapporter commande/recette, résultat, contexte, limites et non-exécutions. Un build réussi ne vaut pas essai installé.
 - Le plan permet du parallélisme entre contributeurs ; il n'impose pas de sous-agents. Sans instruction de délégation, avancer directement lot par lot.
 

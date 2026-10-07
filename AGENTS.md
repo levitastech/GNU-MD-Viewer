@@ -4,12 +4,11 @@
 
 Construire un lecteur Markdown desktop hors ligne, rapide, fiable et sûr. Linux est prioritaire ; conserver la portabilité Windows et macOS. Le binaire cible est `gnu-mdv` ; `gnu-md` peut devenir un alias après vérification des collisions de noms et des paquets. Le projet est indépendant du projet GNU : ne pas suggérer une affiliation.
 
-État constaté le 4 octobre 2026 après L03 : socle Tauri 2 / Svelte 5 présent
-avec manifestes et lockfiles, fenêtre minimale et tests de bootstrap (commit
-`1192d7a`). La compilation release et le smoke Linux locaux passent. Aucun
-workflow CI n'est fourni à ce stade ; Windows et macOS ne sont pas qualifiés.
-Le lecteur Markdown, les accès fichiers et les prototypes L04 ne sont pas
-implémentés.
+État constaté le 7 octobre 2026 après P2/G2 : lecteur Markdown en lecture
+seule utilisable sur la matrice Linux/X11/WebKitGTK, lots L00–L13 clos.
+La release `0.2.0` reste en implémentation et non publiée ; P3/L14 est le
+prochain lot. Voir `docs/P2_G2_CLOSURE.md` pour les preuves et limites : aucun
+workflow CI ni support Windows/macOS qualifié à ce stade.
 
 ## Reprise et portée de travail
 

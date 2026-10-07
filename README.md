@@ -3,11 +3,11 @@
 **Lecteur Markdown desktop, local et hors ligne.** Ouvrir un fichier et naviguer dans son contenu avec un rendu fidèle, une interface sobre et des limites de sécurité explicites. Linux est la cible initiale ; Windows et macOS restent des cibles de conception.
 
 > État du projet : la release `0.2.0` est en implémentation. P1/G1 est clos et
-> la première tranche P2/V2 (L05–L09) est implémentée sur la matrice Linux active.
+> P2/G2 (L05–L13) est qualifié sur la matrice Linux active.
 > L'application ouvre par dialogue un
 > document Markdown réel, le lit en UTF-8 borné et lecture seule, le rend puis le
 > sanitise avant affichage. Images et liens locaux, sommaire, thèmes/zoom,
-> tâches, notes et alertes sont implémentés ; P2/V3 reste en qualification.
+> tâches, notes et alertes sont implémentés ; P3/L14 est la prochaine étape.
 > Windows et macOS ne sont pas qualifiés. Il ne s'agit
 > ni du MVP complet ni d'une version publiée.
 
@@ -31,7 +31,8 @@ Le cadrage V0 est engagé : [matrice candidate du stack](docs/STACK_MATRIX.md),
 Le rapport [L03](docs/L03_BOOTSTRAP_REPORT.md) distingue les builds locaux des
 jobs natifs encore non exécutés ; le rapport [L04](docs/L04_RISK_PROTOTYPES_REPORT.md)
 consigne les prototypes de risque Linux ; le rapport [V2/L05–L09](docs/L05_L09_V2_REPORT.md)
-détaille la première tranche du lecteur `0.2.0`. Le HTML brut des README reste
+et le [dossier P2/G2](docs/P2_G2_CLOSURE.md) détaillent le lecteur `0.2.0`.
+Le HTML brut des README reste
 du texte inerte ; images distantes et images SVG locales ne sont pas chargées
 dans le profil MVP.
 

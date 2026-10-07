@@ -1,8 +1,9 @@
 # Rapport V3 — L10 à L13
 
 Release cible : `0.2.0`, en implémentation et non publiée.
-État réévalué le 6 octobre 2026 : V3 en cours de qualification. Les commits
-initiaux ne satisfont pas encore toutes les sorties du plan P2.
+État réévalué le 7 octobre 2026 : L10–L13/V3 qualifiés sur la matrice Linux.
+Le dossier [P2/G2](P2_G2_CLOSURE.md) audite séparément la gate. Les sections
+historiques ci-dessous conservent leurs constats au moment des commits.
 
 ## L10 — Ressources locales
 
@@ -316,3 +317,11 @@ smoke X11 12 secondes : timeout 124 attendu, avertissements EGL/VMware sans
 crash. Aucun code Rust ni verrou de dépendance n'a changé depuis les 32 tests
 Rust L11 ; suite Rust finale réservée à l'audit G2. L13 est qualifié sur la
 matrice automatisée Linux ; G2 reste à auditer séparément.
+
+Passe de gate G2 sur l'arbre applicatif `3213a11` :
+`cargo fmt --manifest-path src-tauri/Cargo.toml --check`,
+`cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings`
+et `cargo test --manifest-path src-tauri/Cargo.toml` réussis ; 32 tests Rust
+verts. Aucun code applicatif n'a changé pendant la
+clôture documentaire de la gate. La suite frontend du même arbre compte 47
+tests, sans diagnostic Svelte/lint/format.

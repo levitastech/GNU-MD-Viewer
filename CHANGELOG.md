@@ -54,8 +54,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
   inertes avant insertion.
 
 Cette section décrit la release `0.2.0` en cours d'implémentation, sans tag,
-installateur, publication ni promesse de support de plateforme. P2 reste ouvert
-après V2 ; les changements non encore rattachés à une version restent sous
+installateur, publication ni promesse de support de plateforme. P2/G2 est clos
+sur la matrice Linux après V3 ; les changements non encore rattachés à une version restent sous
 `[Unreleased]`.
 
 ## [0.1.0] - 2026-10-04 — socle P1, non publiée

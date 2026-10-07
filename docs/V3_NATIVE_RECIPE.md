@@ -1,7 +1,7 @@
 # Recette native Linux V3 / G2
 
-État au 6 octobre 2026 : tranche automatisée exécutée sur Linux/X11 ;
-recette complète et clôture G2 non acquises. Référence :
+État au 7 octobre 2026 : tranche automatisée L10–L13 et G2 qualifiée sur
+Linux/X11 ; recette humaine exhaustive non exécutée. Référence :
 `tests/fixtures/v3/document.md` et `sub/guide.md`.
 
 ## Préparation
@@ -40,7 +40,7 @@ Chaque scénario est `réussi`, `échoué` ou `non exécuté` avec sa raison.
 Windows/macOS restent explicitement différés selon SG05. Cette recette seule
 ne vaut ni benchmark L24 ni qualification de ces plateformes.
 
-## Écarts identifiés avant recette
+## Qualification par lot
 
 - L10 : décodage URI, fragments et extension native de racine implémentés,
   tests Rust et parcours WebView Linux réussis. Le sélecteur de dossier est
@@ -58,7 +58,8 @@ ne vaut ni benchmark L24 ni qualification de ces plateformes.
   avec faux marqueurs en citation/code, sanitisation et navigation de retour
   vérifiés dans la WebView Linux. Voir le complément L13 du rapport V3.
 
-Ces écarts empêchent la clôture V3/G2 jusqu'à correction et recette.
+Les limites résiduelles sont consignées dans le
+[dossier de clôture P2/G2](P2_G2_CLOSURE.md).
 
 ## Tranche automatisée exécutée
 

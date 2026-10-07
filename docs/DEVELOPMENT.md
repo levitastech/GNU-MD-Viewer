@@ -3,8 +3,8 @@
 ## État du socle
 
 Le projet Tauri 2 + Svelte 5 + TypeScript strict + Vite + pnpm lit les
-documents Markdown par dialogue natif. P2/V2 est clos ; V3 reste en
-qualification. `package.json` est la source de version ; Vitest contrôle la
+documents Markdown par dialogue natif. P2/G2 est clos sur la matrice Linux ;
+P3/L14 est la prochaine étape. `package.json` est la source de version ; Vitest contrôle la
 concordance de `src-tauri/tauri.conf.json` et `src-tauri/Cargo.toml`.
 
 ## Prérequis
@@ -92,10 +92,9 @@ La [recette V3](V3_NATIVE_RECIPE.md) pilote l'interface réelle via
 utilise un binaire debug instrumenté ; recompiler sans feature ni variable
 de harness après usage. Le script conserve ses logs temporaires pour examen.
 
-Les chemins URI, fragments et extension explicite de racine L10, ainsi que
-les ancres/sommaire L11, sont qualifiés sur la matrice automatisée Linux ;
-poursuivre les recettes UI L12–L13 avant G2. Voir le
-[rapport V3](L10_L13_V3_REPORT.md) pour les preuves et limites actuelles.
+L10–L13/V3 et G2 sont qualifiés sur la matrice automatisée Linux. Voir le
+[rapport V3](L10_L13_V3_REPORT.md) et le
+[dossier de clôture P2/G2](P2_G2_CLOSURE.md) pour les preuves et limites.
 
 ## Débogage et reproductibilité
 

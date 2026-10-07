@@ -16,9 +16,11 @@ Un fichier Markdown local peut être contrôlé par un tiers. HTML, URLs, images
 Les décisions SG02–SG04/SG07/SG09 sont transcrites dans
 [ADR 0003](adr/0003-lecture-et-ressources.md). L04 matérialise les premiers
 contrats et le protocole de ressources dans [ADR 0004](adr/0004-contrats-sessions-et-prototypes-l04.md).
-L05–L09 appliquent ces contrats à la première tranche verticale. La preuve Linux
-ciblée ne qualifie ni P2/G2, ni Windows ou macOS. Une sanitisation seule ne
-remplace ni politique URL ni permissions.
+L05–L09 appliquent ces contrats à la première tranche verticale. La preuve
+Linux de V2 seule ne qualifiait pas P2/G2 ; la clôture L10–L13 et la checklist
+[P2/G2](P2_G2_CLOSURE.md) qualifient le lecteur sur Linux, sans qualification
+Windows/macOS. Une sanitisation seule ne remplace ni politique URL ni
+permissions.
 
 ## Frontières et autorité — L02
 
