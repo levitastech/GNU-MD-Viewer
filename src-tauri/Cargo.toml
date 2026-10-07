@@ -1,6 +1,6 @@
 [package]
 name = "gnu-mdv"
-version = "0.2.0"
+version = "0.3.0"
 description = "Lecteur Markdown desktop local et hors ligne"
 authors = ["GNU-MD Viewer contributors"]
 edition = "2024"

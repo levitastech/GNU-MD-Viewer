@@ -1,11 +1,13 @@
 <script lang="ts">
   import type {
     DeclaredResource,
+    EnrichmentBlock,
     DocumentId,
     ResourceService,
     SafeHtml,
     SessionId,
   } from '../contracts/document';
+  import { enrichDocument } from '../rendering/enrich-document';
   import { hydrateLocalImages } from '../rendering/hydrate-local-images';
   import { markAlertSemantics } from '../rendering/alert-semantics';
   import { navigateDocument } from '../rendering/document-navigation';
@@ -13,6 +15,8 @@
 
   interface Props {
     html: SafeHtml;
+    enrichments?: readonly EnrichmentBlock[];
+    dark?: boolean;
     initialAnchor?: string;
     onanchorerror: () => void;
     label: string;
@@ -26,6 +30,8 @@
 
   let {
     html,
+    enrichments = [],
+    dark = false,
     initialAnchor,
     onanchorerror,
     label,
@@ -82,6 +88,13 @@
     return () => {
       hydration += 1;
     };
+  });
+
+  $effect(() => {
+    void html;
+    const abort = new window.AbortController();
+    void enrichDocument(documentElement, enrichments, dark, abort.signal);
+    return () => abort.abort();
   });
 
   $effect(() => {

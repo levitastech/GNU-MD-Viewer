@@ -11,6 +11,7 @@ import type {
 
 import type {
   DeclaredResource,
+  EnrichmentBlock,
   DocumentSnapshot,
   HeadingEntry,
   RenderDiagnostic,
@@ -28,6 +29,7 @@ interface RenderEnvironment extends Env {
   readonly slugCounts: Map<string, number>;
   readonly headingIds: Set<string>;
   imageOccurrence: number;
+  readonly enrichments: EnrichmentBlock[];
 }
 
 const collectInlineText = (token: Token): string => {
@@ -223,6 +225,15 @@ const installRendererRules = (markdown: MarkdownItInstance): void => {
     (fallback) => (tokens, index, options, environment, renderer) => {
       const token = tokens[index]!;
       const env = renderEnvironment(environment);
+      if (token.info.trim() === 'mermaid') {
+        const occurrence = env.enrichments.length;
+        env.enrichments.push({
+          occurrence,
+          kind: 'mermaid',
+          source: token.content,
+        });
+        return `<div class="mdv-mermaid" data-mdv-enrichment="${occurrence}"><pre><code>${markdown.utils.escapeHtml(token.content)}</code></pre></div>`;
+      }
       env.diagnostics.push({
         code: 'code_pending_highlight',
         message: 'Bloc de code rendu sans coloration syntaxique.',
@@ -256,6 +267,7 @@ export const renderMarkdown = (source: string): RenderResult => {
     slugCounts: new Map(),
     headingIds: new Set(),
     imageOccurrence: 0,
+    enrichments: [],
   };
   const html = markdown.render(source, environment);
 
@@ -263,7 +275,7 @@ export const renderMarkdown = (source: string): RenderResult => {
     html: asUnsanitizedHtml(html),
     headings: environment.headings,
     resources: environment.resources,
-    enrichments: [],
+    enrichments: environment.enrichments,
     diagnostics: environment.diagnostics,
   };
 };

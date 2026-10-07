@@ -1,5 +1,6 @@
 import type {
   AppError,
+  EnrichmentBlock,
   DeclaredResource,
   DocumentId,
   DocumentService,
@@ -17,6 +18,7 @@ export interface ViewerDocument {
   readonly sessionId: SessionId;
   readonly displayName: string;
   readonly html: SafeHtml;
+  readonly enrichments: readonly EnrichmentBlock[];
   readonly headings: readonly HeadingEntry[];
   readonly resources: readonly DeclaredResource[];
   readonly headingCount: number;
@@ -103,6 +105,7 @@ export class ViewerController {
           sessionId: outcome.active.snapshot.sessionId,
           displayName: outcome.active.snapshot.displayName,
           html: sanitizeDocumentHtml(outcome.active.render.html),
+          enrichments: outcome.active.render.enrichments,
           headings: outcome.active.render.headings,
           resources: outcome.active.render.resources,
           headingCount: outcome.active.render.headings.length,
@@ -157,6 +160,7 @@ export class ViewerController {
           sessionId: outcome.active.snapshot.sessionId,
           displayName: outcome.active.snapshot.displayName,
           html: sanitizeDocumentHtml(outcome.active.render.html),
+          enrichments: outcome.active.render.enrichments,
           headings: outcome.active.render.headings,
           resources: outcome.active.render.resources,
           headingCount: outcome.active.render.headings.length,

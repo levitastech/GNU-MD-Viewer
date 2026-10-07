@@ -4,6 +4,13 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-07 — en implémentation, non publiée
+
+### Added
+
+- Ouverture P3/V4 : diagrammes Mermaid différés, file bornée, sources et
+  erreurs locales conservées ; flowcharts et séquences, sans interactions.
+
 ## [0.2.0] - 2026-10-04 — en implémentation, non publiée
 
 ### Added

@@ -70,6 +70,10 @@
     unsubscribe = controller.subscribe((next) => {
       state = next;
     });
+    if (import.meta.env.VITE_V4_HARNESS === '1') {
+      const { runV4Recipe } = await import('./lib/platform/v4-webview-recipe');
+      void runV4Recipe();
+    }
     if (import.meta.env.VITE_V3_HARNESS === '1') {
       const { runV3Recipe } = await import('./lib/platform/v3-webview-recipe');
       void runV3Recipe();
@@ -201,6 +205,8 @@
         {#key state.active.sessionId}
           <DocumentView
             html={state.active.html}
+            enrichments={state.active.enrichments}
+            dark={isDarkTheme(theme, systemDark)}
             initialAnchor={state.active.initialAnchor}
             onanchorerror={() => {
               linkNotice = 'Section introuvable.';

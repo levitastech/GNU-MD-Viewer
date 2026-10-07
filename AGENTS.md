@@ -6,8 +6,8 @@ Construire un lecteur Markdown desktop hors ligne, rapide, fiable et sûr. Linux
 
 État constaté le 7 octobre 2026 après P2/G2 : lecteur Markdown en lecture
 seule utilisable sur la matrice Linux/X11/WebKitGTK, lots L00–L13 clos.
-La release `0.2.0` reste en implémentation et non publiée ; P3/L14 est le
-prochain lot. Voir `docs/P2_G2_CLOSURE.md` pour les preuves et limites : aucun
+La release `0.3.0` est en implémentation et non publiée ; P3/V4
+(L14–L18) est ouvert. Voir `docs/P2_G2_CLOSURE.md` pour les preuves et limites : aucun
 workflow CI ni support Windows/macOS qualifié à ce stade.
 
 ## Reprise et portée de travail

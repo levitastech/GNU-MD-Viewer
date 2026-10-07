@@ -2,12 +2,12 @@
 
 **Lecteur Markdown desktop, local et hors ligne.** Ouvrir un fichier et naviguer dans son contenu avec un rendu fidèle, une interface sobre et des limites de sécurité explicites. Linux est la cible initiale ; Windows et macOS restent des cibles de conception.
 
-> État du projet : la release `0.2.0` est en implémentation. P1/G1 est clos et
+> État du projet : la release `0.3.0` est en implémentation. P1/G1 est clos et
 > P2/G2 (L05–L13) est qualifié sur la matrice Linux active.
 > L'application ouvre par dialogue un
 > document Markdown réel, le lit en UTF-8 borné et lecture seule, le rend puis le
 > sanitise avant affichage. Images et liens locaux, sommaire, thèmes/zoom,
-> tâches, notes et alertes sont implémentés ; P3/L14 est la prochaine étape.
+> tâches, notes et alertes sont implémentés ; P3/V4 (L14–L18) est en cours.
 > Windows et macOS ne sont pas qualifiés. Il ne s'agit
 > ni du MVP complet ni d'une version publiée.
 
@@ -39,3 +39,5 @@ dans le profil MVP.
 ## Licence et nom
 
 Le code du projet est prévu sous [licence MIT](LICENSE). « GNU » dans le nom du projet n'implique pas GPL ni appartenance au projet GNU. Le nom public doit être vérifié avant publication ; voir [ADR 0001](docs/adr/0001-licence-et-nom.md). Les dépendances et ressources tierces conservent leurs propres licences.
+
+P3/V4 est ouvert pour `0.3.0` (non publiée). V4 couvre L14–L18 ; G3 reste à démontrer après V5.

@@ -555,3 +555,22 @@ h1 + p {
     color: #95a39b;
   }
 }
+
+.mdv-mermaid svg {
+  max-width: 100%;
+  height: auto;
+  background: var(--mdv-diagram-background);
+}
+.mdv-mermaid svg text {
+  fill: currentColor;
+  font-family: sans-serif;
+}
+.mdv-mermaid svg .node rect,
+.mdv-mermaid svg .actor {
+  fill: var(--mdv-code-background);
+  stroke: currentColor;
+}
+.mdv-mermaid svg path,
+.mdv-mermaid svg line {
+  stroke: currentColor;
+}

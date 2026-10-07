@@ -4,7 +4,7 @@ Lire `AGENTS.md` avant toute tâche : il porte les contrats communs, le produit,
 
 ## Parcours de reprise
 
-1. Contrôler `git status --short`, la branche et les fichiers réels ; préserver le travail concurrent. Au 7 octobre 2026, P2/G2 et L00–L13 sont clos sur la matrice Linux documentée dans `docs/P2_G2_CLOSURE.md` ; P3/L14 suit. Aucun workflow CI ni support Windows/macOS qualifié n'est fourni. Recontrôler les preuves locales au lieu de supposer un état inchangé.
+1. Contrôler `git status --short`, la branche et les fichiers réels ; préserver le travail concurrent. Au 7 octobre 2026, P2/G2 et L00–L13 sont clos sur la matrice Linux documentée dans `docs/P2_G2_CLOSURE.md` ; P3/V4 est ouvert pour `0.3.0` non publiée ; voir `docs/V4_REPORT.md`. Aucun workflow CI ni support Windows/macOS qualifié n'est fourni. Recontrôler les preuves locales au lieu de supposer un état inchangé.
 2. Lire `.rules/COMMIT_RULES.md`, `TESTING_RULES.md`, `PROGRESS_RULES.md` et `VERSIONING.md` ; consulter `docs/ARCHITECTURE.md`, `docs/SECURITY.md` et `docs/DEVELOPMENT.md` selon le changement.
 3. Pour un chantier local, lire `.progress/STATE.md`, `PROGRESS.yml`, puis `GNU_MD_VIEWER_PLAN_CHANTIER_V1.md` et le fichier `GNU_MD_VIEWER_PLAN_P1.md`, `P2.md`, `P3.md` ou `P4.md` correspondant (même préfixe). Aucun document de passation n'est à lire ni à tenir. Si `.progress/` est absent, utiliser les références durables et la tâche demandée ; ne pas inventer de suivi historique.
 4. Reprendre le premier lot autorisé dont les prérequis sont satisfaits. SG01–SG09 et V1 §12.2 sont déjà validés ; les gates G1–G4 exigent des preuves techniques. Une demande d'affinement du plan ne démarre pas les lots applicatifs.
