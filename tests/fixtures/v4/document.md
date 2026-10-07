@@ -40,3 +40,15 @@ $$
 \(\leak\)
 
 \(\href{https://example.invalid}{danger}\)
+
+```js
+const greeting = "<script>danger</script>";
+```
+
+```inconnu
+<img onerror="danger">
+```
+
+```rust
+fn main() { println!("lecture"); }
+```

@@ -15,7 +15,7 @@ cat "$recipe_logs/webview.log"
 test "$status" -eq 124
 report=$(rg 'L09_WEBVIEW_REPORT:l09-report-v4_' "$recipe_logs/webview.log")
 [[ "$report" != *-fail* ]]
-for check in diagrams unique inert fallback theme math money matherrors mathinert fonts; do [[ "$report" == *"${check}-ok"* ]]; done
+for check in diagrams unique inert fallback theme math money matherrors mathinert fonts lazy code copy unknown; do [[ "$report" == *"${check}-ok"* ]]; done
 ! rg 'sa_family=AF_INET6?' "$recipe_logs/network.log"
 sha256sum --check "$recipe_logs/source.sha256"
 printf 'Preuves V4 : %s\n' "$recipe_logs"

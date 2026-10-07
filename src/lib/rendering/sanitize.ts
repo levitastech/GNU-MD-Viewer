@@ -130,6 +130,13 @@ export const sanitizeDocumentHtml = (html: UnsanitizedHtml): SafeHtml =>
     ],
   }) as SafeHtml;
 
+export const sanitizeCodeHtml = (html: UnsanitizedHtml): SafeHtml =>
+  DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['span'],
+    ALLOWED_ATTR: ['class'],
+    ALLOW_DATA_ATTR: false,
+  }) as SafeHtml;
+
 export const sanitizeKatexHtml = (html: UnsanitizedHtml): SafeHtml =>
   DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true, mathMl: true },

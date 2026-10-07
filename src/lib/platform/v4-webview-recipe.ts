@@ -13,6 +13,9 @@ export const runV4Recipe = async (): Promise<void> => {
     await tick();
   };
   try {
+    checks.lazy = !performance
+      .getEntriesByType('resource')
+      .some((entry) => /highlight|katex|mermaid|languages/.test(entry.name));
     document.querySelector<HTMLButtonElement>('.actions .primary')!.click();
     await wait(
       () => document.querySelectorAll('.mdv-mermaid svg').length === 3,
@@ -43,6 +46,21 @@ export const runV4Recipe = async (): Promise<void> => {
     checks.fonts = Array.from(document.fonts).some(
       (font) => font.family.includes('KaTeX_Main') && font.status === 'loaded',
     );
+    await wait(
+      () => root.querySelector('code.language-js .hljs-keyword') !== null,
+    );
+    const colored = root.querySelector<HTMLElement>('code.language-js')!;
+    checks.code =
+      colored.textContent === 'const greeting = "<script>danger</script>";\n';
+    const range = document.createRange();
+    range.selectNodeContents(colored);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    checks.copy = selection?.toString() === colored.textContent;
+    checks.unknown =
+      root.querySelector('code.language-inconnu')?.textContent ===
+        '<img onerror="danger">\n' && !root.querySelector('code img');
     const theme = document.querySelector<HTMLSelectElement>('.actions select')!;
     const before = root.querySelector('svg')!.id;
     theme.value = 'dark';

@@ -574,3 +574,38 @@ h1 + p {
 .mdv-mermaid svg line {
   stroke: currentColor;
 }
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal {
+  color: #5d287f;
+}
+.hljs-string,
+.hljs-attr,
+.hljs-title {
+  color: #17603a;
+}
+.hljs-number,
+.hljs-symbol {
+  color: #844000;
+}
+.hljs-comment {
+  color: #555e58;
+}
+.theme-dark .hljs-keyword,
+.theme-dark .hljs-selector-tag,
+.theme-dark .hljs-literal {
+  color: #dfb5ff;
+}
+.theme-dark .hljs-string,
+.theme-dark .hljs-attr,
+.theme-dark .hljs-title {
+  color: #9bdfb8;
+}
+.theme-dark .hljs-number,
+.theme-dark .hljs-symbol {
+  color: #ffc190;
+}
+.theme-dark .hljs-comment {
+  color: #b2bcb6;
+}

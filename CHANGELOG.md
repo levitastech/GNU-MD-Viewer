@@ -8,6 +8,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ### Added
 
+- Coloration différée pour JavaScript, TypeScript, JSON, HTML/XML, CSS, Bash,
+  Python et Rust ; texte copiable intact, fallback et cache bornés.
 - Formules KaTeX différées avec polices embarquées, erreurs locales et macros
   isolées ; délimiteurs explicites sans interpréter les montants en dollars.
 - Ouverture P3/V4 : diagrammes Mermaid différés, file bornée, sources et

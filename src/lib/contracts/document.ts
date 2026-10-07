@@ -72,6 +72,7 @@ export interface DeclaredResource {
 export interface EnrichmentBlock {
   readonly occurrence: number;
   readonly kind: 'code' | 'katex-inline' | 'katex-block' | 'mermaid';
+  readonly language?: string;
   readonly source: string;
 }
 

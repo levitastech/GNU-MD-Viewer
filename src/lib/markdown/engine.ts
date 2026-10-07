@@ -3,12 +3,7 @@ import { installMath } from './math';
 import footnote from 'markdown-it-footnote';
 import githubAlerts from 'markdown-it-github-alerts';
 import todoLists from 'markdown-it-todo-lists';
-import type {
-  Env,
-  MarkdownIt as MarkdownItInstance,
-  RendererRule,
-  Token,
-} from 'markdown-it';
+import type { Env, MarkdownIt as MarkdownItInstance, Token } from 'markdown-it';
 
 import type {
   DeclaredResource,
@@ -105,9 +100,6 @@ const renderEnvironment = (environment: Env | undefined): RenderEnvironment => {
 };
 
 const installRendererRules = (markdown: MarkdownItInstance): void => {
-  const defaultFence = markdown.renderer.rules.fence;
-  const defaultCodeBlock = markdown.renderer.rules.code_block;
-
   markdown.renderer.rules.heading_open = (
     tokens,
     index,
@@ -222,30 +214,35 @@ const installRendererRules = (markdown: MarkdownItInstance): void => {
       `Revenir au texte de la note ${noteId(tokens[index]!)}`,
     );
 
-  const wrapCode: (fallback: RendererRule | undefined) => RendererRule =
-    (fallback) => (tokens, index, options, environment, renderer) => {
-      const token = tokens[index]!;
-      const env = renderEnvironment(environment);
-      if (token.info.trim() === 'mermaid') {
-        const occurrence = env.enrichments.length;
-        env.enrichments.push({
-          occurrence,
-          kind: 'mermaid',
-          source: token.content,
-        });
-        return `<div class="mdv-mermaid" data-mdv-enrichment="${occurrence}"><pre><code>${markdown.utils.escapeHtml(token.content)}</code></pre></div>`;
-      }
-      env.diagnostics.push({
-        code: 'code_pending_highlight',
-        message: 'Bloc de code rendu sans coloration syntaxique.',
-        position: positionFor(token, env.lineOffsets),
+  const wrapCode: NonNullable<typeof markdown.renderer.rules.fence> = (
+    tokens,
+    index,
+    _options,
+    environment,
+  ) => {
+    const token = tokens[index]!;
+    const env = renderEnvironment(environment);
+    if (token.info.trim() === 'mermaid') {
+      const occurrence = env.enrichments.length;
+      env.enrichments.push({
+        occurrence,
+        kind: 'mermaid',
+        source: token.content,
       });
-      return fallback
-        ? fallback(tokens, index, options, environment, renderer)
-        : renderer.renderToken(tokens, index, options);
-    };
-  markdown.renderer.rules.fence = wrapCode(defaultFence);
-  markdown.renderer.rules.code_block = wrapCode(defaultCodeBlock);
+      return `<div class="mdv-mermaid" data-mdv-enrichment="${occurrence}"><pre><code>${markdown.utils.escapeHtml(token.content)}</code></pre></div>`;
+    }
+    const occurrence = env.enrichments.length;
+    const language = token.info.trim().split(/\s+/)[0] ?? '';
+    env.enrichments.push({
+      occurrence,
+      kind: 'code',
+      language,
+      source: token.content,
+    });
+    return `<pre><code data-mdv-enrichment="${occurrence}" class="language-${markdown.utils.escapeHtml(language)}">${markdown.utils.escapeHtml(token.content)}</code></pre>`;
+  };
+  markdown.renderer.rules.fence = wrapCode;
+  markdown.renderer.rules.code_block = wrapCode;
 };
 
 export const renderMarkdown = (source: string): RenderResult => {

@@ -89,3 +89,30 @@ arrêt attendu 124. Contrôles ciblés, Svelte, lint et format réussis. Windows
 macOS et inspection visuelle humaine non exécutés ; normal/release selon les
 limites de validation V4. Cette recette revalide aussi L16 après le changement
 d'assets du build.
+
+## L14 — Coloration ciblée
+
+highlight.js core et huit grammaires figées (JavaScript, TypeScript, JSON,
+HTML/XML, CSS, Bash, Python, Rust), utiles aux README techniques de cette stack.
+Alias js/ts/html/sh/shell/py/rs explicites, aucune détection automatique. Langue
+inconnue ou absente : code échappé conservé, sans importer le core. Limites L04
+1 000 000 octets UTF-8 / 50 000 lignes appliquées avant chargement. HTML de
+coloration limité aux spans/classes par sanitisation dédiée ; contrôle du texte
+après insertion. Le cache inclut version, langue et source ; au plus 32 entrées,
+2 Mo de chaînes (estimation UTF-16), libéré à la fin du passage ou annulation.
+Palette CSS locale claire/sombre ; aucune CSS de thème distante.
+
+Tests ciblés : 15/15 (parser, maths, L16 et coloration) ; huit grammaires/alias,
+chaînes script/HTML comme texte, taille/lignes excessives, cache et annulation.
+Svelte et lint réussis. La recette native vérifie chargement différé au lancement
+vide, spans JS, copie par sélection DOM, fallback inconnu/HTML hostile et
+re-rendu de thème, en plus des contrôles Mermaid/KaTeX. La recherche L20 reste
+à implémenter ; les spans préservent le texte pour son futur contrat.
+
+Preuve finale L14, diff du commit L14, même matrice Linux : recette V4,
+14 marqueurs réussis, dont absence de chargement d'enrichisseurs au lancement
+vide et sélection exacte à travers les spans ; aucune connexion IP et hash
+source inchangé. Preuves `/tmp/gnu-mdv-v4.AiGURb`, build debug réussi et timeout
+124 attendu. Contraste par palette CSS ; pas de recette visuelle humaine ni de
+clavier physique/lecteur d'écran, ni de cible non Linux. Recette V4 combinée
+revalide L15/L16 ; l'intégration complète reste L21.
