@@ -135,6 +135,26 @@ pub fn select_relative_document(
 }
 
 #[tauri::command]
+pub fn poll_document(
+    webview: WebviewWindow,
+    documents: State<'_, Arc<DocumentRegistry>>,
+    session_id: String,
+) -> Result<bool, AppError> {
+    require_main_webview(&webview)?;
+    documents.poll_document(&session_id)
+}
+
+#[tauri::command]
+pub fn select_document_reload(
+    webview: WebviewWindow,
+    documents: State<'_, Arc<DocumentRegistry>>,
+    session_id: String,
+) -> Result<DocumentSelection, AppError> {
+    require_main_webview(&webview)?;
+    documents.authorize_reload(&session_id)
+}
+
+#[tauri::command]
 pub fn release_document_session(
     webview: WebviewWindow,
     documents: State<'_, Arc<DocumentRegistry>>,

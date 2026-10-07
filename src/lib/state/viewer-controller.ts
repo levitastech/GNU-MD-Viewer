@@ -65,6 +65,7 @@ export class ViewerController {
     const session = this.state.active?.sessionId;
     if (extendRoot && !session) return;
     const request = ++this.request;
+    this.coordinator.cancelPending();
     this.update({
       ...this.state,
       phase: 'opening',
@@ -130,17 +131,32 @@ export class ViewerController {
     this.update(INITIAL_VIEWER_STATE);
   }
 
-  async openRelative(target: string): Promise<void> {
+  async reload(): Promise<void> {
+    if (this.state.phase === 'opening') return;
+    return this.openRelative('', true);
+  }
+
+  reportWatchError(error: unknown, sessionId: SessionId): void {
+    if (
+      this.state.active?.sessionId === sessionId &&
+      this.state.phase !== 'opening'
+    )
+      this.update({ ...this.state, error: normalizeError(error) });
+  }
+
+  async openRelative(target: string, reload = false): Promise<void> {
     const active = this.coordinator.active;
     if (!active) return;
     const request = ++this.request;
+    this.coordinator.cancelPending();
     this.update({ ...this.state, phase: 'opening', error: null });
     try {
-      const { path, anchor } = splitDocumentLink(target);
-      const selection = await this.documents.selectRelative(
-        active.snapshot.sessionId,
-        path,
-      );
+      const { path, anchor } = reload
+        ? { path: '', anchor: undefined }
+        : splitDocumentLink(target);
+      const selection = reload
+        ? await this.documents.selectReload(active.snapshot.sessionId)
+        : await this.documents.selectRelative(active.snapshot.sessionId, path);
       if (request !== this.request) return;
       const outcome = await this.coordinator.open(selection);
       if (request !== this.request || outcome.status === 'superseded') return;

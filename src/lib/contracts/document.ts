@@ -112,6 +112,7 @@ export interface DocumentSelection {
 
 export interface DocumentService {
   selectDocument(): Promise<DocumentSelection | null>;
+  selectReload(sessionId: SessionId): Promise<DocumentSelection>;
   selectRoot(sessionId: SessionId): Promise<DocumentSelection | null>;
   selectRelative(
     sessionId: SessionId,

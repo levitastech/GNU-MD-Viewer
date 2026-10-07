@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { onDestroy, onMount } from 'svelte';
+  import { onDestroy, onMount, tick } from 'svelte';
+  import { watchDocument } from './lib/state/watch-document';
+  import {
+    capturePosition,
+    restorePosition,
+  } from './lib/rendering/reading-position';
   import type { Component } from 'svelte';
   import type { ResourceService } from './lib/contracts/document';
 
@@ -32,6 +37,8 @@
   let Harness: Component | null = null;
   let state: ViewerState = INITIAL_VIEWER_STATE;
   let controller: ViewerController | null = null;
+  let stopWatch: (() => void) | null = null;
+  let watchedSession: string | null = null;
   let unsubscribe: (() => void) | null = null;
   let linkNotice = '';
   let theme: ThemeMode = 'system';
@@ -68,7 +75,37 @@
     );
     controller = new ViewerController(documents, coordinator);
     unsubscribe = controller.subscribe((next) => {
+      const previous = state.active;
+      const position =
+        next.active &&
+        previous &&
+        next.active.sessionId !== previous.sessionId &&
+        next.active.displayName === previous.displayName
+          ? capturePosition(document.querySelector<HTMLElement>('.reader'))
+          : null;
       state = next;
+      if (position)
+        void tick().then(() =>
+          restorePosition(
+            document.querySelector<HTMLElement>('.reader'),
+            position,
+          ),
+        );
+      const session = next.active?.sessionId ?? null;
+      if (session !== watchedSession) {
+        stopWatch?.();
+        watchedSession = session;
+        stopWatch = session
+          ? watchDocument(
+              () =>
+                controller!.current.phase === 'ready'
+                  ? documents.poll(session)
+                  : Promise.resolve(false),
+              () => controller!.reload(),
+              (error) => controller!.reportWatchError(error, session),
+            )
+          : null;
+      }
     });
     if (import.meta.env.VITE_V4_HARNESS === '1') {
       const { runV4Recipe } = await import('./lib/platform/v4-webview-recipe');
@@ -81,6 +118,7 @@
   });
 
   onDestroy(() => {
+    stopWatch?.();
     stopSystemTheme?.();
     unsubscribe?.();
     void controller?.close();
@@ -182,6 +220,14 @@
       {theme}
       {zoom}
     />
+    {#if state.active}
+      <button
+        class="reload-document"
+        disabled={state.phase === 'opening'}
+        type="button"
+        onclick={() => controller?.reload()}>Recharger</button
+      >
+    {/if}
 
     {#if state.error}
       <aside class="notice error-notice" role="alert">

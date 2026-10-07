@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-poll-document"
+description = "Enables the poll_document command without any pre-configured scope."
+commands.allow = ["poll_document"]
+
+[[permission]]
+identifier = "deny-poll-document"
+description = "Denies the poll_document command without any pre-configured scope."
+commands.deny = ["poll_document"]

@@ -12,6 +12,13 @@ export const runV4Recipe = async (): Promise<void> => {
     }
     await tick();
   };
+  const signal = (stage: string): void => {
+    const image = new Image();
+    image.src = convertFileSrc(
+      `l09-report-v4-stage-${stage}`,
+      RESOURCE_PROTOCOL,
+    );
+  };
   try {
     checks.lazy = !performance
       .getEntriesByType('resource')
@@ -62,11 +69,63 @@ export const runV4Recipe = async (): Promise<void> => {
       root.querySelector('code.language-inconnu')?.textContent ===
         '<img onerror="danger">\n' && !root.querySelector('code img');
     const theme = document.querySelector<HTMLSelectElement>('.actions select')!;
-    const before = root.querySelector('svg')!.id;
+    const before = new Set(
+      Array.from(root.querySelectorAll('svg'), (svg) => svg.id),
+    );
     theme.value = 'dark';
     theme.dispatchEvent(new Event('change', { bubbles: true }));
-    await wait(() => root.querySelector('svg')?.id !== before);
+    await wait(() =>
+      Array.from(root.querySelectorAll('svg')).every(
+        (svg) => !before.has(svg.id),
+      ),
+    );
     checks.theme = document.querySelectorAll('.mdv-mermaid svg').length === 3;
+    signal('watch-ready');
+    await wait(
+      () =>
+        document.querySelector('.document h1')?.textContent ===
+        'Modification externe',
+    );
+    checks.overwrite = true;
+    signal('overwrite-observed');
+    await wait(
+      () =>
+        document.querySelector('.document h1')?.textContent ===
+        'Remplacement atomique',
+    );
+    checks.atomic = true;
+    signal('atomic-observed');
+    await wait(() => document.querySelector('.error-notice') !== null);
+    checks.removed =
+      document.querySelector('.document h1')?.textContent ===
+      'Remplacement atomique';
+    signal('removed-observed');
+    await wait(
+      () =>
+        document.querySelector('.document h1')?.textContent ===
+        'Document recréé',
+    );
+    checks.recreated = true;
+    signal('recreated-observed');
+    await wait(() => document.querySelector('.error-notice') !== null);
+    checks.invalidreload =
+      document.querySelector('.document h1')?.textContent === 'Document recréé';
+    signal('invalid-observed');
+    await wait(
+      () =>
+        document.querySelector('.document h1')?.textContent ===
+        'Rafale terminée',
+    );
+    checks.burst = true;
+    document.querySelector<HTMLButtonElement>('.reload-document')!.click();
+    await wait(
+      () =>
+        document.querySelector('.document h1')?.textContent ===
+          'Rafale terminée' &&
+        document.querySelector('.viewer-shell')?.getAttribute('aria-busy') ===
+          'false',
+    );
+    checks.explicitreload = true;
   } catch {
     checks.completed = false;
   }

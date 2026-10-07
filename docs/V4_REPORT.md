@@ -116,3 +116,46 @@ source inchangé. Preuves `/tmp/gnu-mdv-v4.AiGURb`, build debug réussi et timeo
 124 attendu. Contraste par palette CSS ; pas de recette visuelle humaine ni de
 clavier physique/lecteur d'écran, ni de cible non Linux. Recette V4 combinée
 revalide L15/L16 ; l'intégration complète reste L21.
+
+## L17 — Rechargement externe borné
+
+Choix : polling des métadonnées en Rust, cadencé par une seule boucle UI à
+150 ms. Pas de nouvelle crate, pas de thread/watch OS durable ni scan de parent.
+Observation du chemin autorisé et des remplacements atomiques ; identité
+inode/device/ctime sur Unix et taille/mtime. Deux observations identiques d'un
+changement avant relecture : coalescing 150 ms, signal traité une seule fois.
+Le polling est suspendu pendant une ouverture. Fermer/changer de session annule
+le timer et ignore un poll tardif. La nouvelle intention invalide aussi un rendu
+encore en cours dans le coordinateur, avant même le retour d'un dialogue.
+
+Relecture via sélection opaque liée à la session active ; racine et handle
+ouverts revalidés comme pour une navigation locale. Nouvelle session/ressources
+à chaque relecture réussie. Erreur, suppression, UTF-8 invalide ou permission :
+dernier rendu conservé et diagnostic affiché ; prochaine modification valide
+ou bouton Recharger permet la reprise. La suppression/recréation conserve la
+session de lecture précédente jusqu'à succès. Position titre/décalage, puis
+ratio en fallback, sans déplacement de focus. Une image modifiée seule exige
+Recharger ; aucun watcher d'images supplémentaire.
+
+API std::fs Metadata [vérifiée](https://doc.rust-lang.org/std/fs/struct.Metadata.html)
+et compilation Rust 1.91.1. Tests natifs ciblés : 17/17 dont remplacement,
+suppression/recréation, coalescing, session révoquée, symlink sortant ; frontend :
+50 cycles sans timer restant, poll tardif ignoré, erreur/reprise, rechargement
+invalide, maintien d'ancre/ratio sans focus. Recette native étendue : seules les
+copies temporaires du harness sont écrites par un processus externe, jamais
+les documents du dépôt. Les délais incluent observation après sauvegarde et
+texte utile visible, distincts des imports/enrichissements lourds.
+
+Preuve L17 finale (diff du commit L17), même matrice Linux : 21 contrôles
+natifs réussis, hashes dépôt inchangés, aucune connexion IP. Preuves locales
+`/tmp/gnu-mdv-v4.pM3x7W`. Depuis fin de sauvegarde jusqu'au texte/beacon observé :
+overwrite 0,709 s, remplacement 0,406 s, recréation 0,354 s ; exploratoire en VM,
+pas un benchmark L24. Le script impose ≤ 1 s pour ces trois scénarios.
+L'essai précédent à 250 ms avait mesuré 1,065 s pour overwrite ; cadence
+abaissée à 150 ms, dans la plage prévue, et attente de tous les diagrammes du
+nouveau thème avant mesure. La première recette avait aussi révélé les deux
+permissions Tauri manquantes : elles sont maintenant déclarées explicitement
+dans AppManifest/capability ; aucun accès global n'est ajouté. Tests frontend
+supplémentaires : relecture tardive supplantée par un dialogue annulé, 9/9 sur
+le contrôleur ; position 2/2, boucle 2/2. Inspection visuelle humaine, build
+release et plateformes non Linux non exécutés.

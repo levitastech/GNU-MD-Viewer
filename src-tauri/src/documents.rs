@@ -54,6 +54,8 @@ struct DocumentSession {
     path: PathBuf,
     root: PathBuf,
     root_identity: RootIdentity,
+    watch_identity: FileIdentity,
+    watch_pending: Option<FileIdentity>,
 }
 
 #[derive(Default)]
@@ -231,6 +233,8 @@ impl DocumentRegistry {
                 path: pending.path.clone(),
                 root: pending.root.clone(),
                 root_identity: pending.root_identity,
+                watch_identity: file_identity(&after),
+                watch_pending: None,
             },
         );
 
@@ -240,6 +244,73 @@ impl DocumentRegistry {
             root: pending.root,
             root_identity: pending.root_identity,
         })
+    }
+
+    /// Native metadata polling: only the current authorized path, no directory scan.
+    /// A change must remain stable across two polls (150 ms apart in the reader).
+    pub fn poll_document(&self, session_id: &str) -> Result<bool, AppError> {
+        let mut state = self.state.lock().expect("registre de documents empoisonné");
+        let document = state
+            .sessions
+            .get_mut(session_id)
+            .ok_or_else(|| AppError::new(AppErrorCode::AccessDenied, "Session révoquée."))?;
+        if root_identity(&document.root)? != document.root_identity {
+            return Err(AppError::new(
+                AppErrorCode::ResourceOutsideRoot,
+                "Racine remplacée.",
+            ));
+        }
+        let candidate = document.path.canonicalize().map_err(path_error)?;
+        if !candidate.starts_with(&document.root) {
+            return Err(AppError::new(
+                AppErrorCode::ResourceOutsideRoot,
+                "Document sorti du dossier autorisé.",
+            ));
+        }
+        let metadata = candidate.metadata().map_err(path_error)?;
+        validate_regular_file(&metadata)?;
+        let identity = file_identity(&metadata);
+        if identity == document.watch_identity {
+            document.watch_pending = None;
+            return Ok(false);
+        }
+        if document.watch_pending == Some(identity) {
+            document.watch_identity = identity;
+            document.watch_pending = None;
+            return Ok(true);
+        }
+        document.watch_pending = Some(identity);
+        Ok(false)
+    }
+
+    pub fn authorize_reload(&self, session_id: &str) -> Result<DocumentSelection, AppError> {
+        let document = self
+            .state
+            .lock()
+            .expect("registre de documents empoisonné")
+            .sessions
+            .get(session_id)
+            .cloned()
+            .ok_or_else(|| AppError::new(AppErrorCode::AccessDenied, "Session révoquée."))?;
+        if root_identity(&document.root)? != document.root_identity {
+            return Err(AppError::new(
+                AppErrorCode::ResourceOutsideRoot,
+                "Racine remplacée.",
+            ));
+        }
+        let candidate = document.path.canonicalize().map_err(path_error)?;
+        if !candidate.starts_with(&document.root) {
+            return Err(AppError::new(
+                AppErrorCode::ResourceOutsideRoot,
+                "Document sorti du dossier autorisé.",
+            ));
+        }
+        self.authorize_confined(
+            candidate,
+            document.root,
+            document.root_identity,
+            Some(session_id.to_owned()),
+        )
     }
 
     pub fn release_session(&self, session_id: &str) {
@@ -376,6 +447,8 @@ struct FileIdentity {
     device: u64,
     #[cfg(unix)]
     inode: u64,
+    #[cfg(unix)]
+    change_time: (i64, i64),
     len: u64,
     modified: Option<SystemTime>,
 }
@@ -389,6 +462,8 @@ fn file_identity(metadata: &Metadata) -> FileIdentity {
         device: metadata.dev(),
         #[cfg(unix)]
         inode: metadata.ino(),
+        #[cfg(unix)]
+        change_time: (metadata.ctime(), metadata.ctime_nsec()),
         len: metadata.len(),
         modified: metadata.modified().ok(),
     }
@@ -451,6 +526,52 @@ mod tests {
     use tempfile::tempdir;
 
     use super::*;
+
+    #[test]
+    fn watch_coalesces_replacements_deletion_recreation_and_releases_sessions() {
+        let directory = tempdir().unwrap();
+        let path = directory.path().join("document.md");
+        fs::write(&path, "# avant").unwrap();
+        let registry = DocumentRegistry::default();
+        let opened = registry
+            .open_first(&registry.authorize_path(&path).unwrap())
+            .unwrap();
+        let session = &opened.snapshot.session_id;
+        assert!(!registry.poll_document(session).unwrap());
+        fs::write(&path, "# premier changement").unwrap();
+        assert!(!registry.poll_document(session).unwrap());
+        fs::write(directory.path().join("temp.md"), "# remplacement atomique").unwrap();
+        fs::rename(directory.path().join("temp.md"), &path).unwrap();
+        assert!(!registry.poll_document(session).unwrap());
+        assert!(registry.poll_document(session).unwrap());
+        let next = registry
+            .open_first(&registry.authorize_reload(session).unwrap())
+            .unwrap();
+        assert_eq!(next.snapshot.text, "# remplacement atomique");
+        registry.release_session(&next.snapshot.session_id);
+        fs::remove_file(&path).unwrap();
+        assert!(registry.poll_document(session).is_err());
+        fs::write(&path, "# retour").unwrap();
+        assert!(!registry.poll_document(session).unwrap());
+        assert!(registry.poll_document(session).unwrap());
+        registry.release_session(session);
+        assert!(registry.poll_document(session).is_err());
+        assert!(registry.authorize_reload(session).is_err());
+        assert!(registry.state.lock().unwrap().sessions.is_empty());
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn reload_refuses_symlink_escape_and_revalidates_opened_handle() {
+        use std::os::unix::fs::symlink;
+        let (directory, registry, opened) = relative_fixture();
+        let session = &opened.snapshot.session_id;
+        let path = directory.path().join("root/a.md");
+        fs::remove_file(&path).unwrap();
+        symlink(directory.path().join("outside.md"), &path).unwrap();
+        assert!(registry.poll_document(session).is_err());
+        assert!(registry.authorize_reload(session).is_err());
+    }
 
     fn relative_fixture() -> (tempfile::TempDir, DocumentRegistry, OpenedDocument) {
         let directory = tempdir().unwrap();

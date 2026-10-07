@@ -67,6 +67,10 @@ export class OpenCoordinator {
     return this.current;
   }
 
+  cancelPending(): void {
+    ++this.latestIntent;
+  }
+
   async open(selection: DocumentSelection): Promise<OpenOutcome> {
     const intent = ++this.latestIntent;
 

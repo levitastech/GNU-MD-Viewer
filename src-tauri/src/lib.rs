@@ -109,6 +109,8 @@ pub fn run() {
             commands::select_root_extension,
             commands::open_document,
             commands::select_relative_document,
+            commands::poll_document,
+            commands::select_document_reload,
             commands::release_document_session,
             commands::open_external_url,
             commands::resolve_resource,

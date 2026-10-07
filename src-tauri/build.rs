@@ -5,6 +5,8 @@ fn main() {
             "select_root_extension",
             "open_document",
             "select_relative_document",
+            "poll_document",
+            "select_document_reload",
             "release_document_session",
             "open_external_url",
             "resolve_resource",

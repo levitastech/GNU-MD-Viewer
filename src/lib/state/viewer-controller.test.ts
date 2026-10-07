@@ -30,6 +30,7 @@ const setup = (openFirst: DocumentService['openFirst']) => {
   const documents: DocumentService = {
     selectRoot: vi.fn(async () => null),
     selectDocument: vi.fn(async () => ({ paths: ['opaque-selection'] })),
+    selectReload: vi.fn(async () => ({ paths: ['opaque-selection'] })),
     selectRelative: vi.fn(async () => ({ paths: ['opaque-selection'] })),
     openFirst,
     releaseSession: vi.fn(async () => undefined),
@@ -56,6 +57,49 @@ const setup = (openFirst: DocumentService['openFirst']) => {
 };
 
 describe('cycle UI L08', () => {
+  it('une ouverture plus récente annule la relecture déjà en cours même si le dialogue est annulé', async () => {
+    let resolve!: (value: DocumentSnapshot) => void;
+    const pending = new Promise<DocumentSnapshot>((done) => {
+      resolve = done;
+    });
+    const open = vi.fn(async () => snapshot('A'));
+    const { documents, controller } = setup(open);
+    await controller.openFromDialog();
+    const before = controller.current.active;
+    open.mockReturnValueOnce(pending);
+    const reload = controller.reload();
+    await vi.waitFor(() => expect(open).toHaveBeenCalledTimes(2));
+    vi.mocked(documents.selectDocument).mockResolvedValueOnce(null);
+    await controller.openFromDialog();
+    resolve(snapshot('B'));
+    await reload;
+    expect(controller.current.active).toBe(before);
+    expect(documents.releaseSession).toHaveBeenCalledWith(
+      toSessionId('session-B'),
+    );
+    expect(documents.releaseSession).not.toHaveBeenCalledWith(
+      toSessionId('session-A'),
+    );
+  });
+  it('recharge par autorisation native et conserve le rendu si UTF-8 invalide', async () => {
+    const open = vi.fn(async () => snapshot('A'));
+    const { documents, controller } = setup(open);
+    await controller.openFromDialog();
+    const before = controller.current.active;
+    open.mockRejectedValueOnce({
+      code: 'invalid_utf8',
+      message: 'UTF-8 invalide',
+    });
+    await controller.reload();
+    expect(documents.selectReload).toHaveBeenCalledWith(before!.sessionId);
+    expect(controller.current.active).toBe(before);
+    expect(controller.current.error?.code).toBe('invalid_utf8');
+    open.mockResolvedValueOnce(snapshot('B'));
+    await controller.reload();
+    expect(controller.current.active?.displayName).toBe('B.md');
+    expect(controller.current.error).toBeNull();
+  });
+
   it('transmet le chemin seul et conserve le fragment pour le nouveau rendu', async () => {
     const { controller, documents } = setup(async () => snapshot('valide'));
     await controller.openFromDialog();

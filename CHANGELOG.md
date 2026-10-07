@@ -8,6 +8,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ### Added
 
+- Rechargement automatique après modification externe ou remplacement atomique,
+  maintien de position et dernier rendu conservé en cas d’erreur ; commande Recharger.
 - Coloration différée pour JavaScript, TypeScript, JSON, HTML/XML, CSS, Bash,
   Python et Rust ; texte copiable intact, fallback et cache bornés.
 - Formules KaTeX différées avec polices embarquées, erreurs locales et macros

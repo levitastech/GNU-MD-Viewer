@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main-reader",
-  "description": "Accès minimal de la WebView principale aux documents, liens et ressources validés côté Rust.",
+  "description": "Acc\u00e8s minimal de la WebView principale aux documents, liens et ressources valid\u00e9s c\u00f4t\u00e9 Rust.",
   "windows": ["main"],
   "permissions": [
     "allow-select-document",
@@ -11,6 +11,8 @@
     "allow-release-document-session",
     "allow-open-external-url",
     "allow-resolve-resource",
-    "allow-release-resource-session"
+    "allow-release-resource-session",
+    "allow-poll-document",
+    "allow-select-document-reload"
   ]
 }
