@@ -1,10 +1,12 @@
 mod commands;
+pub mod config;
 pub mod contracts;
 pub mod documents;
 mod local_target;
 pub mod resources;
 
 use std::sync::Arc;
+use tauri::Manager;
 
 use documents::DocumentRegistry;
 use resources::{RESOURCE_PROTOCOL, ResourceRegistry};
@@ -97,6 +99,14 @@ pub fn run() {
     let protocol_registry = Arc::clone(&registry);
 
     tauri::Builder::default()
+        .setup(|app| {
+            let preferences = match app.path().app_config_dir() {
+                Ok(directory) => config::PreferenceStore::load(directory.join("preferences.json")),
+                Err(_) => config::PreferenceStore::unavailable(),
+            };
+            app.manage(preferences);
+            Ok(())
+        })
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .manage(documents)
@@ -105,6 +115,11 @@ pub fn run() {
             protocol_response(&protocol_registry, context.webview_label(), request)
         })
         .invoke_handler(tauri::generate_handler![
+            commands::load_preferences,
+            commands::save_preferences,
+            commands::clear_recent_documents,
+            commands::forget_recent_document,
+            commands::select_recent_document,
             commands::select_document,
             commands::select_root_extension,
             commands::open_document,

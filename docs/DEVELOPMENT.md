@@ -4,7 +4,7 @@
 
 Le projet Tauri 2 + Svelte 5 + TypeScript strict + Vite + pnpm lit les
 documents Markdown par dialogue natif. P2/G2 est clos sur la matrice Linux ;
-P3/L14 est la prochaine étape. `package.json` est la source de version ; Vitest contrôle la
+P3/V4 est clos sur la matrice automatisée Linux pour 0.3.0 ; V5/L19 suit. `package.json` est la source de version ; Vitest contrôle la
 concordance de `src-tauri/tauri.conf.json` et `src-tauri/Cargo.toml`.
 
 ## Prérequis
@@ -99,3 +99,17 @@ L10–L13/V3 et G2 sont qualifiés sur la matrice automatisée Linux. Voir le
 ## Débogage et reproductibilité
 
 Pour un problème de rendu, réduire le Markdown à une fixture minimale sans données privées et préciser le résultat attendu. Pour un bug filesystem, inclure OS, type de chemin, liens symboliques et mode d'ouverture. Pour un écart WebView, noter OS et moteur utilisé. Ne pas coller de fichiers privés ou de chemins personnels dans une issue.
+
+## P3/V4 — 0.3.0 non publiée
+
+L14–L18 : enrichissement différé, rechargement externe et réglages/récents locaux.
+Rapport et limites : [V4_REPORT](V4_REPORT.md). Recette automatisée Linux :
+
+```sh
+DISPLAY=:0 XAUTHORITY=/home/oem/.Xauthority bash tests/integration/run_v4_harness.sh
+```
+
+Adapter DISPLAY/XAUTHORITY à la session locale. Le script isole XDG_CONFIG_HOME,
+travaille sur une copie temporaire, trace les connexions et redémarre le lecteur
+pour vérifier la persistance ; il ne change pas la configuration habituelle.
+G3 et V5 restent ouverts ; aucune recette installée ni publication implicite.

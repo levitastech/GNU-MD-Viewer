@@ -4,11 +4,13 @@
 
 Construire un lecteur Markdown desktop hors ligne, rapide, fiable et sûr. Linux est prioritaire ; conserver la portabilité Windows et macOS. Le binaire cible est `gnu-mdv` ; `gnu-md` peut devenir un alias après vérification des collisions de noms et des paquets. Le projet est indépendant du projet GNU : ne pas suggérer une affiliation.
 
-État constaté le 7 octobre 2026 après P2/G2 : lecteur Markdown en lecture
-seule utilisable sur la matrice Linux/X11/WebKitGTK, lots L00–L13 clos.
-La release `0.3.0` est en implémentation et non publiée ; P3/V4
-(L14–L18) est ouvert. Voir `docs/P2_G2_CLOSURE.md` pour les preuves et limites : aucun
-workflow CI ni support Windows/macOS qualifié à ce stade.
+État constaté le 7 octobre 2026 après P3/V4 : lecteur Markdown en lecture
+seule utilisable sur la matrice Linux/X11/WebKitGTK ; L00–L18 clos sur cette
+matrice automatisée.
+La release `0.3.0` est en implémentation et non publiée ; P3/V5
+(L19–L22) est la suite, G3 reste ouvert. Preuves et limites : `docs/V4_REPORT.md`
+et `docs/P2_G2_CLOSURE.md`. Aucun workflow CI ni support Windows/macOS qualifié
+à ce stade.
 
 ## Reprise et portée de travail
 

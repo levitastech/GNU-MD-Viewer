@@ -64,6 +64,7 @@ const serviceDoubles = (
   const documents: DocumentService = {
     selectRoot: vi.fn(async () => null),
     selectDocument: async (): Promise<DocumentSelection | null> => null,
+    selectRecent: vi.fn(async () => ({ paths: ['recent-selection'] })),
     selectReload: vi.fn(async () => ({ paths: ['opaque-selection'] })),
     selectRelative: async () => ({ paths: [] }),
     openFirst,

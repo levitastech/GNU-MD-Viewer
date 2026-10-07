@@ -203,3 +203,21 @@ Fixtures HTML/script, protocoles dangereux, HTML généré par plugins, attribut
 ## Signalement
 
 La procédure publique de signalement sera dans `SECURITY.md` à la racine une fois le canal privé activé.
+
+### Implémentation P3/V4
+
+Les enrichisseurs restent différés et leurs sorties sont sanitisées par profils
+séparés ; Mermaid strict sans directives/HTML/interactions dans le profil
+flowchart/séquence. Sources, files et caches bornés selon L04 et le rapport V4.
+Le rechargement observe uniquement le chemin autorisé, puis recrée une sélection
+opaque liée à la session ; la nouvelle ouverture contrôle à nouveau le handle.
+
+Préférences : `app_config_dir()/preferences.json`, schéma 1, 65 536 octets au
+maximum, 20 chemins récents au plus ; ni texte Markdown, ni contenu des images.
+Écriture d'un temporaire exclusif dans le même dossier, sync et rename ; mode
+0600 sur Unix. Absence/corruption : défauts sûrs ; version future ou fichier
+inaccessible/trop grand : lecture seule sans écrasement. Aucun repli vers le CWD.
+La liste n'ouvre ni ne précharge de fichier au lancement. Les récents sont des
+identifiants opaques stables pour la session ; sélection native réautorisée au
+clic, nouvelle racine limitée au dossier du fichier, aucun ancien élargissement
+rétabli implicitement. Retrait/vidage n'écrivent jamais dans un document.

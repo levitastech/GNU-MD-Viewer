@@ -5,10 +5,17 @@
     headings: readonly HeadingEntry[];
     onselect: (heading: HeadingEntry) => void;
     active: string | null;
+    visible?: boolean;
+    onvisible?: (visible: boolean) => void;
   }
 
-  let { headings, onselect, active }: Props = $props();
-  let visible = $state(true);
+  let {
+    headings,
+    onselect,
+    active,
+    visible = true,
+    onvisible = () => {},
+  }: Props = $props();
 </script>
 
 {#if headings.length > 0}
@@ -17,7 +24,7 @@
       type="button"
       aria-expanded={visible}
       onclick={() => {
-        visible = !visible;
+        onvisible(!visible);
       }}>Sommaire {visible ? '−' : '+'}</button
     >
     {#if visible}

@@ -8,6 +8,8 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 
 ### Added
 
+- Préférences locales persistantes (thème, zoom, sommaire) et vingt documents
+  récents au plus, réouverture contrôlée, retrait individuel et effacement.
 - Rechargement automatique après modification externe ou remplacement atomique,
   maintien de position et dernier rendu conservé en cas d’erreur ; commande Recharger.
 - Coloration différée pour JavaScript, TypeScript, JSON, HTML/XML, CSS, Bash,
@@ -17,7 +19,7 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
 - Ouverture P3/V4 : diagrammes Mermaid différés, file bornée, sources et
   erreurs locales conservées ; flowcharts et séquences, sans interactions.
 
-## [0.2.0] - 2026-10-04 — en implémentation, non publiée
+## [0.2.0] - 2026-10-04 — lecteur P2, non publiée
 
 ### Added
 
@@ -66,7 +68,7 @@ Format inspiré de Keep a Changelog ; versions selon Semantic Versioning. Les ch
   trompeur ; HTML brut, protocoles dangereux et chargements distants restent
   inertes avant insertion.
 
-Cette section décrit la release `0.2.0` en cours d'implémentation, sans tag,
+Cette section conserve l’étape `0.2.0` du lecteur P2, sans tag,
 installateur, publication ni promesse de support de plateforme. P2/G2 est clos
 sur la matrice Linux après V3 ; les changements non encore rattachés à une version restent sous
 `[Unreleased]`.

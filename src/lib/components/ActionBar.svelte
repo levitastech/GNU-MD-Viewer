@@ -6,6 +6,7 @@
     onopen: () => void;
     onextend: () => void;
     onclose: () => void;
+    onreload: () => void;
     onzoom: (delta: number) => void;
     ontheme: (theme: ThemeMode) => void;
     onresetzoom: () => void;
@@ -19,6 +20,7 @@
     onopen,
     onextend,
     onclose,
+    onreload,
     onzoom,
     ontheme,
     onresetzoom,
@@ -66,6 +68,12 @@
       {busy ? 'Ouverture…' : 'Ouvrir'}
     </button>
     {#if title}
+      <button
+        type="button"
+        class="reload-document"
+        disabled={busy}
+        onclick={onreload}>Recharger</button
+      >
       <button
         type="button"
         onclick={onextend}

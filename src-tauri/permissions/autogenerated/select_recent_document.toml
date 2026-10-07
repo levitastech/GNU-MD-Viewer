@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-select-recent-document"
+description = "Enables the select_recent_document command without any pre-configured scope."
+commands.allow = ["select_recent_document"]
+
+[[permission]]
+identifier = "deny-select-recent-document"
+description = "Denies the select_recent_document command without any pre-configured scope."
+commands.deny = ["select_recent_document"]

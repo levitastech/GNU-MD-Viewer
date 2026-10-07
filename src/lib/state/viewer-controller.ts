@@ -61,7 +61,11 @@ export class ViewerController {
     return () => this.listeners.delete(listener);
   }
 
-  async openFromDialog(extendRoot = false): Promise<void> {
+  async openRecent(id: string): Promise<void> {
+    return this.openFromDialog(false, id);
+  }
+
+  async openFromDialog(extendRoot = false, recentId?: string): Promise<void> {
     const session = this.state.active?.sessionId;
     if (extendRoot && !session) return;
     const request = ++this.request;
@@ -74,8 +78,9 @@ export class ViewerController {
     });
 
     try {
-      const selection =
-        extendRoot && session
+      const selection = recentId
+        ? await this.documents.selectRecent(recentId)
+        : extendRoot && session
           ? await this.documents.selectRoot(session)
           : await this.documents.selectDocument();
       if (request !== this.request) return;

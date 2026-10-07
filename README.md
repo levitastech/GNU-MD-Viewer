@@ -7,7 +7,8 @@
 > L'application ouvre par dialogue un
 > document Markdown réel, le lit en UTF-8 borné et lecture seule, le rend puis le
 > sanitise avant affichage. Images et liens locaux, sommaire, thèmes/zoom,
-> tâches, notes et alertes sont implémentés ; P3/V4 (L14–L18) est en cours.
+> tâches, notes et alertes sont implémentés. P3/V4 ajoute coloration, maths,
+> diagrammes, rechargement et préférences/récents locaux.
 > Windows et macOS ne sont pas qualifiés. Il ne s'agit
 > ni du MVP complet ni d'une version publiée.
 
@@ -40,4 +41,6 @@ dans le profil MVP.
 
 Le code du projet est prévu sous [licence MIT](LICENSE). « GNU » dans le nom du projet n'implique pas GPL ni appartenance au projet GNU. Le nom public doit être vérifié avant publication ; voir [ADR 0001](docs/adr/0001-licence-et-nom.md). Les dépendances et ressources tierces conservent leurs propres licences.
 
-P3/V4 est ouvert pour `0.3.0` (non publiée). V4 couvre L14–L18 ; G3 reste à démontrer après V5.
+P3/V4 (L14–L18) est clos sur la matrice automatisée Linux pour `0.3.0` non publiée : [rapport V4](docs/V4_REPORT.md). V5/L19–L22 et G3 restent ouverts.
+
+Maths : `\(…\)` en ligne, `$$` ou `\[…\]` sur des lignes séparées ; dollars simples conservés. Mermaid : flowcharts et séquences, sans directives ni interactions ; autres familles en source. Voir [critères de lecture](docs/ACCEPTANCE.md).

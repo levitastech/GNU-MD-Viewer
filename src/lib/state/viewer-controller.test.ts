@@ -30,6 +30,7 @@ const setup = (openFirst: DocumentService['openFirst']) => {
   const documents: DocumentService = {
     selectRoot: vi.fn(async () => null),
     selectDocument: vi.fn(async () => ({ paths: ['opaque-selection'] })),
+    selectRecent: vi.fn(async () => ({ paths: ['recent-selection'] })),
     selectReload: vi.fn(async () => ({ paths: ['opaque-selection'] })),
     selectRelative: vi.fn(async () => ({ paths: ['opaque-selection'] })),
     openFirst,
@@ -57,6 +58,19 @@ const setup = (openFirst: DocumentService['openFirst']) => {
 };
 
 describe('cycle UI L08', () => {
+  it('réautorise un récent au clic et conserve le document si le fichier est absent', async () => {
+    const { documents, controller } = setup(async () => snapshot('A'));
+    await controller.openFromDialog();
+    const before = controller.current.active;
+    vi.mocked(documents.selectRecent).mockRejectedValueOnce({
+      code: 'document_not_found',
+      message: 'Absent',
+    });
+    await controller.openRecent('opaque-recent');
+    expect(documents.selectRecent).toHaveBeenCalledWith('opaque-recent');
+    expect(controller.current.active).toBe(before);
+    expect(controller.current.error?.code).toBe('document_not_found');
+  });
   it('une ouverture plus récente annule la relecture déjà en cours même si le dialogue est annulé', async () => {
     let resolve!: (value: DocumentSnapshot) => void;
     const pending = new Promise<DocumentSnapshot>((done) => {

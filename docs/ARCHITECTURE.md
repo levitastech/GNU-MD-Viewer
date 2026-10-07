@@ -135,3 +135,21 @@ Mesurer latence premier affichage, consommation mémoire et navigation sur docum
 ## Portabilité
 
 Isoler les différences Linux/Windows/macOS dans l'intégration système : chemins, associations, WebView, installateurs, dialogues et comportement des liens. Construire les installateurs sur les plateformes natives appropriées ; valider l'ouverture CLI et par association sur chaque OS avant la release.
+
+## État P3/V4
+
+Le parser produit des blocs d'enrichissement avec occurrence/source séparées
+du HTML : Mermaid, maths et code. Le composant document possède son signal
+d'annulation ; `enrich-document.ts` vérifie ce signal après imports/rendus et
+avant insertion. Profils SafeHtml distincts pour document, spans de coloration,
+HTML/MathML KaTeX et SVG Mermaid. Les imports lourds et polices sont locaux.
+Le cache de coloration appartient à un passage et est libéré en finally.
+
+`watch-document.ts` possède une seule boucle de polling par session ; Rust
+observe les métadonnées et coalesce deux états stables. La relecture retrouve
+le chemin depuis la session native, jamais depuis un chemin DOM, et passe par
+une nouvelle sélection opaque confinée. `config.rs` détient les réglages et
+chemins récents, expose seulement labels/IDs opaques et réautorise un récent au
+clic. Aucun contenu ni racine élargie n'est conservé dans les préférences.
+Détails, limites et preuves : [V4_REPORT](V4_REPORT.md). L21 conserve la recette
+d'intégration complète ; ces modules ne clôturent pas G3.

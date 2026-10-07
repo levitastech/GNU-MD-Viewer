@@ -159,3 +159,86 @@ dans AppManifest/capability ; aucun accès global n'est ajouté. Tests frontend
 supplémentaires : relecture tardive supplantée par un dialogue annulé, 9/9 sur
 le contrôleur ; position 2/2, boucle 2/2. Inspection visuelle humaine, build
 release et plateformes non Linux non exécutés.
+
+## L18 — Préférences et récents
+
+`config.rs` stocke le schéma 1 dans `app_config_dir()/preferences.json`. JSON
+limité à 65 536 octets, vingt chemins récents, aucun contenu de document ;
+lecture bornée, validation thème/zoom/TOC, défauts sûrs. Fichier corrompu :
+diagnostic et récupération sur prochaine action explicite. Fichier futur,
+inaccessible ou trop volumineux : défauts de session sans écrasement. Si le
+résolveur de configuration échoue, aucune écriture ni repli vers le CWD.
+Temporaire exclusif au même dossier, write/sync/rename et sync du dossier sur
+Unix ; mode 0600. État précédent conservé si l'écriture échoue avant remplacement.
+
+Les IDs des récents sont opaques, stables malgré le réordonnancement et révoqués
+au retrait ; les chemins restent en Rust. Aucune lecture au lancement et
+réautorisation uniquement au clic. Un récent absent conserve le rendu affiché.
+Retrait individuel/vidage accessibles. Les rechargements n'ajoutent pas de
+récent : effacer puis recevoir une sauvegarde externe conserve l'historique vide.
+Thème, zoom et TOC restaurés ; les écritures de réglages UI sont sérialisées.
+Le bouton Recharger rejoint la barre de commandes.
+
+`serde_json` 1.0.151 devient directe (déjà résolue, MIT/Apache-2.0), pour éviter
+un parser local ad hoc ; aucun nouveau paquet résolu. API officielle
+[serde_json](https://docs.rs/serde_json/1.0.151/serde_json/) consultée le 7 octobre,
+API Tauri app_config_dir inspectée dans le paquet 2.12.1 (`src/path/desktop.rs`,
+documentation embarquée). Notices mises à jour ; inventaire distribué en P4.
+
+Tests ciblés natifs 4/4 : configuration vide/corrompue/future/trop grande,
+roundtrip Unicode, liste pleine/doublons, temporaire abandonné, échec de rename,
+IDs stables et retrait. Contrôleur récent absent 10/10 avec les scénarios
+existants. La recette native utilise XDG_CONFIG_HOME isolé et deux lancements,
+avec persistance, réouverture explicite, fichier absent, retrait/vidage et
+sauvegarde après effacement. La première recette a exposé une attente UI trop
+courte après Recharger ; le harness attend désormais le nouvel article et le
+flush Svelte avant ses prédicats. Résultats finaux ci-dessous.
+
+### Preuve native finale L18 / V4
+
+Diff L18, Linux Mint 22.3 x86_64 / X11 / WebKitGTK 2.52.6, mêmes versions
+Node/pnpm/Rust que ci-dessus. Commande V4 avec DISPLAY/XAUTHORITY, preuves
+`/tmp/gnu-mdv-v4.fxwCgT` : 25 contrôles au premier lancement et sept au second,
+tous réussis. Aucune connexion AF_INET/AF_INET6 dans les deux traces, hash de la
+fixture du dépôt inchangé ; seuls copie et JSON temporaires sont modifiés par
+la recette. Réglages dark/120 %/TOC masqué restaurés, aucune ouverture au
+lancement, récent réautorisé, retrait et vidage conservant le document, puis
+historique toujours vide après sauvegarde externe. Timeouts 124 attendus.
+
+Délais exploratoires fin de sauvegarde → texte observé : 0,405 s overwrite,
+0,405 s remplacement atomique, 0,511 s recréation. Ils ne remplacent ni machine
+physique de référence ni campagne de performances L24. Les sorties anciennes
+échouées sont décrites ci-dessus ; seul cet essai final ferme la recette V4.
+La dernière correction Clippy remplace le modulo de validation du zoom par
+`is_multiple_of`, à comportement identique ; les suites Rust et le build
+normal sont exécutés sur le diff final. Pas de build release, installateur,
+recette visuelle humaine, clavier physique/lecteur d'écran ou recette native
+Windows/macOS. Ces cibles restent différées SG05, sans annonce de support.
+
+## Validation finale et sortie de V4
+
+Sur le diff final L18, le 7 octobre 2026 :
+
+| Contrôle | Résultat |
+| --- | --- |
+| `pnpm test` | 19 fichiers, 63 tests réussis |
+| `pnpm check`, `pnpm lint`, `pnpm format:check` | réussite ; Svelte 0 erreur/avertissement |
+| `cargo fmt --manifest-path src-tauri/Cargo.toml --check` | réussite |
+| `cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets --all-features -- -D warnings` | réussite après correction de style zoom |
+| `cargo test --manifest-path src-tauri/Cargo.toml --all-targets --all-features` | 38 tests réussis |
+| `pnpm tauri build --debug --no-bundle` | binaire normal reconstruit, sans features de harness |
+| Smoke normal X11 / XDG_CONFIG_HOME isolé | vivant 12 s, timeout 124 attendu, avertissements EGL/VMware sans crash |
+| Version package / Tauri / Cargo / Cargo.lock | `0.3.0` concordante |
+| Recette native V4 sur deux lancements | 32 contrôles réussis, deux traces sans connexion IP, fixture dépôt inchangée |
+
+Les Markdown sont exclus du contrôle Prettier du dépôt ; structure, références
+locales et diff sont contrôlés séparément. Les gros chunks Vite différés
+émettent un avertissement de taille ; aucun budget de performances contractuel
+n'est déclaré acquis. Nettoyage limité au paquet compilé `gnu-mdv` avant les
+suites finales pour libérer de l'espace disque ; sources et preuves conservées.
+
+L14–L18/V4 sont clos sur cette matrice automatisée Linux. P3 reste en cours,
+V5/L19–L22 et G3 restent ouverts : CLI/drop/associations, recherche/commandes,
+intégration complète et paquets installés sont encore à réaliser. La release
+`0.3.0` reste en implémentation et non publiée. Aucun workflow CI, support
+Windows/macOS, tag, push ou publication n'est établi par ce rapport.

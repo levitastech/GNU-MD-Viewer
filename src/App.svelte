@@ -1,5 +1,9 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte';
+  import {
+    TauriPreferenceService,
+    type Recent,
+  } from './lib/platform/tauri-preference-service';
   import { watchDocument } from './lib/state/watch-document';
   import {
     capturePosition,
@@ -45,6 +49,40 @@
   let systemDark = false;
   let stopSystemTheme: (() => void) | null = null;
   let zoom = 100;
+  let tocVisible = true;
+  let recentFiles: readonly Recent[] = [];
+  let preferenceNotice = '';
+  let preferencesWritable = true;
+  const preferences = new TauriPreferenceService();
+  let saves: Promise<void> = Promise.resolve();
+  const refreshRecents = async (): Promise<void> => {
+    try {
+      const view = await preferences.load();
+      recentFiles = view.recents;
+      preferenceNotice = view.notice ?? '';
+      preferencesWritable = view.writable;
+    } catch {
+      preferenceNotice = 'Préférences locales indisponibles.';
+    }
+  };
+  const persistReading = (): void => {
+    const reading = { theme, zoom, tocVisible };
+    saves = saves
+      .then(() => preferences.save(reading))
+      .catch(() => {
+        preferenceNotice = 'Préférences non enregistrées.';
+      });
+  };
+  const forgetRecent = async (id?: string): Promise<void> => {
+    try {
+      if (id) await preferences.forget(id);
+      else await preferences.clear();
+      await refreshRecents();
+    } catch {
+      preferenceNotice =
+        'Historique non modifié : configuration inaccessible ou plus récente.';
+    }
+  };
   let activeSection: string | null = null;
   const links = new TauriExternalLinkService();
   const resources: ResourceService = new TauriResourceService();
@@ -61,6 +99,17 @@
       return;
     }
 
+    try {
+      const view = await preferences.load();
+      theme = view.reading.theme;
+      zoom = view.reading.zoom;
+      tocVisible = view.reading.tocVisible;
+      recentFiles = view.recents;
+      preferenceNotice = view.notice ?? '';
+      preferencesWritable = view.writable;
+    } catch {
+      preferenceNotice = 'Préférences locales indisponibles.';
+    }
     const documents = new TauriDocumentService();
     stopSystemTheme = observeSystemTheme(
       window.matchMedia('(prefers-color-scheme: dark)'),
@@ -95,6 +144,7 @@
       if (session !== watchedSession) {
         stopWatch?.();
         watchedSession = session;
+        if (session) void refreshRecents();
         stopWatch = session
           ? watchDocument(
               () =>
@@ -136,10 +186,12 @@
 
   const changeZoom = (delta: number): void => {
     zoom = changeReadingZoom(zoom, delta);
+    persistReading();
   };
 
   const selectTheme = (mode: ThemeMode): void => {
     theme = mode;
+    persistReading();
   };
 
   const activateLink = (element: HTMLElement): void => {
@@ -212,22 +264,16 @@
         void controller?.openFromDialog(true);
       }}
       onclose={closeDocument}
+      onreload={() => controller?.reload()}
       ontheme={selectTheme}
       onzoom={changeZoom}
       onresetzoom={() => {
         zoom = 100;
+        persistReading();
       }}
       {theme}
       {zoom}
     />
-    {#if state.active}
-      <button
-        class="reload-document"
-        disabled={state.phase === 'opening'}
-        type="button"
-        onclick={() => controller?.reload()}>Recharger</button
-      >
-    {/if}
 
     {#if state.error}
       <aside class="notice error-notice" role="alert">
@@ -241,12 +287,48 @@
       <aside class="notice" role="status">{linkNotice}</aside>
     {/if}
 
+    {#if preferenceNotice}<aside class="notice" role="status">
+        {preferenceNotice}
+      </aside>{/if}
+    {#if recentFiles.length > 0}
+      <details class="recent-documents">
+        <summary>Documents récents</summary>
+        <ul>
+          {#each recentFiles as recent (recent.id)}<li>
+              <button
+                type="button"
+                class="open-recent"
+                disabled={state.phase === 'opening'}
+                onclick={() => controller?.openRecent(recent.id)}
+                >{recent.label}</button
+              >
+              <button
+                type="button"
+                aria-label={`Retirer ${recent.label} des récents`}
+                disabled={!preferencesWritable}
+                onclick={() => forgetRecent(recent.id)}>Retirer</button
+              >
+            </li>{/each}
+        </ul>
+        <button
+          type="button"
+          class="clear-recents"
+          disabled={!preferencesWritable}
+          onclick={() => forgetRecent()}>Effacer l’historique</button
+        >
+      </details>
+    {/if}
     <main class="reader" id="app-title">
       {#if state.active}
         <TableOfContents
           headings={state.active.headings}
           onselect={navigateToHeading}
           active={activeSection}
+          visible={tocVisible}
+          onvisible={(visible) => {
+            tocVisible = visible;
+            persistReading();
+          }}
         />
         {#key state.active.sessionId}
           <DocumentView

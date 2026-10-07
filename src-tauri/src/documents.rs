@@ -34,6 +34,7 @@ pub struct DocumentSnapshot {
 }
 
 pub struct OpenedDocument {
+    pub record_recent: bool,
     pub snapshot: DocumentSnapshot,
     pub path: PathBuf,
     pub(crate) root: PathBuf,
@@ -42,6 +43,7 @@ pub struct OpenedDocument {
 
 #[derive(Clone)]
 struct PendingSelection {
+    record_recent: bool,
     path: PathBuf,
     identity: FileIdentity,
     root: PathBuf,
@@ -99,6 +101,7 @@ impl DocumentRegistry {
         state.pending.insert(
             token.clone(),
             PendingSelection {
+                record_recent: true,
                 path: canonical,
                 identity: file_identity(&metadata),
                 root,
@@ -239,6 +242,7 @@ impl DocumentRegistry {
         );
 
         Ok(OpenedDocument {
+            record_recent: pending.record_recent,
             snapshot,
             path: pending.path,
             root: pending.root,
@@ -305,12 +309,19 @@ impl DocumentRegistry {
                 "Document sorti du dossier autorisé.",
             ));
         }
-        self.authorize_confined(
+        let selection = self.authorize_confined(
             candidate,
             document.root,
             document.root_identity,
             Some(session_id.to_owned()),
-        )
+        )?;
+        let mut state = self.state.lock().expect("registre de documents empoisonné");
+        if let Some(token) = selection.paths.first()
+            && let Some(pending) = state.pending.get_mut(token)
+        {
+            pending.record_recent = false;
+        }
+        Ok(selection)
     }
 
     pub fn release_session(&self, session_id: &str) {
@@ -548,6 +559,8 @@ mod tests {
             .open_first(&registry.authorize_reload(session).unwrap())
             .unwrap();
         assert_eq!(next.snapshot.text, "# remplacement atomique");
+        assert!(opened.record_recent);
+        assert!(!next.record_recent);
         registry.release_session(&next.snapshot.session_id);
         fs::remove_file(&path).unwrap();
         assert!(registry.poll_document(session).is_err());

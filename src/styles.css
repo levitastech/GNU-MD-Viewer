@@ -609,3 +609,27 @@ h1 + p {
 .theme-dark .hljs-comment {
   color: #b2bcb6;
 }
+
+.recent-documents {
+  padding: 0.3rem 1rem;
+  flex: 0 0 auto;
+  max-height: 30vh;
+  overflow: auto;
+}
+.recent-documents summary {
+  cursor: pointer;
+}
+.recent-documents ul {
+  margin: 0.3rem 0;
+  padding: 0;
+  list-style: none;
+}
+.recent-documents li {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+.recent-documents .open-recent {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}

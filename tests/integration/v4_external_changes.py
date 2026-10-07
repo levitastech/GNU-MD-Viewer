@@ -10,11 +10,17 @@ path = logs / 'document.md'
 def stage(name):
     deadline = time.monotonic() + 35
     while time.monotonic() < deadline:
-        log = logs / 'webview.log'
+        log = logs / ('restore.log' if len(sys.argv) > 2 else 'webview.log')
         if log.exists() and f'l09-report-v4-stage-{name}' in log.read_text(errors='replace'):
             return
         time.sleep(0.05)
     raise SystemExit(f'Stage absent: {name}')
+
+if len(sys.argv) > 2:
+    stage('clear-ready')
+    path.write_text('# Après effacement\n', encoding='utf8')
+    stage('clear-observed')
+    raise SystemExit(0)
 
 metrics = {}
 stage('watch-ready')
@@ -39,6 +45,11 @@ stage('invalid-observed')
 for index in range(20):
     path.write_text(f'# Rafale {index}\n', encoding='utf8')
     time.sleep(0.01)
+path.write_text('# Rafale terminée\n', encoding='utf8')
+
+stage('recent-ready')
+path.unlink()
+stage('recent-missing-observed')
 path.write_text('# Rafale terminée\n', encoding='utf8')
 
 (logs / 'changes-metrics.json').write_text(json.dumps(metrics, indent=2))

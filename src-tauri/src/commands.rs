@@ -6,6 +6,7 @@ use tauri_plugin_opener::OpenerExt;
 use url::Url;
 
 use crate::{
+    config::{PreferenceStore, PreferenceView, ReadingPreferences},
     contracts::{AppError, AppErrorCode, ResolvedResource, ResourceRequest},
     documents::{DocumentRegistry, DocumentSelection, DocumentSnapshot},
     resources::ResourceRegistry,
@@ -106,6 +107,7 @@ pub fn open_document(
     webview: WebviewWindow,
     documents: State<'_, Arc<DocumentRegistry>>,
     resources: State<'_, Arc<ResourceRegistry>>,
+    preferences: State<'_, PreferenceStore>,
     selection: DocumentSelection,
 ) -> Result<DocumentSnapshot, AppError> {
     require_main_webview(&webview)?;
@@ -119,6 +121,9 @@ pub fn open_document(
     ) {
         documents.release_session(&opened.snapshot.session_id);
         return Err(error);
+    }
+    if opened.record_recent {
+        preferences.record(&opened.path);
     }
     Ok(opened.snapshot)
 }
@@ -251,4 +256,49 @@ mod tests {
             );
         }
     }
+}
+
+#[tauri::command]
+pub fn load_preferences(
+    webview: WebviewWindow,
+    preferences: State<'_, PreferenceStore>,
+) -> Result<PreferenceView, AppError> {
+    require_main_webview(&webview)?;
+    Ok(preferences.view())
+}
+#[tauri::command]
+pub fn save_preferences(
+    webview: WebviewWindow,
+    preferences: State<'_, PreferenceStore>,
+    reading: ReadingPreferences,
+) -> Result<(), AppError> {
+    require_main_webview(&webview)?;
+    preferences.save_reading(reading)
+}
+#[tauri::command]
+pub fn clear_recent_documents(
+    webview: WebviewWindow,
+    preferences: State<'_, PreferenceStore>,
+) -> Result<(), AppError> {
+    require_main_webview(&webview)?;
+    preferences.clear_recents()
+}
+#[tauri::command]
+pub fn forget_recent_document(
+    webview: WebviewWindow,
+    preferences: State<'_, PreferenceStore>,
+    id: String,
+) -> Result<(), AppError> {
+    require_main_webview(&webview)?;
+    preferences.forget_recent(&id)
+}
+#[tauri::command]
+pub fn select_recent_document(
+    webview: WebviewWindow,
+    preferences: State<'_, PreferenceStore>,
+    documents: State<'_, Arc<DocumentRegistry>>,
+    id: String,
+) -> Result<DocumentSelection, AppError> {
+    require_main_webview(&webview)?;
+    documents.authorize_path(&preferences.recent(&id)?)
 }

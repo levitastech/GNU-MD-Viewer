@@ -1,6 +1,11 @@
 fn main() {
     let attributes =
         tauri_build::Attributes::new().app_manifest(tauri_build::AppManifest::new().commands(&[
+            "load_preferences",
+            "save_preferences",
+            "clear_recent_documents",
+            "forget_recent_document",
+            "select_recent_document",
             "select_document",
             "select_root_extension",
             "open_document",

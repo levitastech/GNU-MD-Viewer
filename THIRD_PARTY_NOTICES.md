@@ -58,3 +58,11 @@ sont publiés par le projet Tauri sous double licence MIT ou Apache-2.0. `url`
 2.5.8 (MIT ou Apache-2.0) fournit la validation syntaxique redondante des liens
 HTTP(S). Aucun plugin filesystem générique n'est exposé au frontend ; sa présence
 transitive pour les types de chemin du dialogue n'accorde aucune permission.
+
+## Préférences ajoutées en P3/V4
+
+`serde_json` 1.0.151 (MIT ou Apache-2.0, serde-rs contributors) devient une
+dépendance directe pour le JSON local borné ; cette version était déjà résolue
+transitivement dans Cargo.lock. Aucun nouveau paquet résolu ni service réseau.
+Le code V4 est original ; highlight.js, KaTeX/fonts et Mermaid conservent les
+licences ci-dessus. L'inventaire de distribution reste à régénérer en P4.

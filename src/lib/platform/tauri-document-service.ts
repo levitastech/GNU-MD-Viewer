@@ -19,6 +19,10 @@ interface NativeDocumentSnapshot {
 }
 
 export class TauriDocumentService implements DocumentService {
+  async selectRecent(id: string): Promise<DocumentSelection> {
+    return invoke('select_recent_document', { id });
+  }
+
   async selectReload(sessionId: SessionId): Promise<DocumentSelection> {
     return invoke('select_document_reload', { sessionId });
   }
